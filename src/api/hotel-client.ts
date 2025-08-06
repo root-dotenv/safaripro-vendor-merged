@@ -1,5 +1,5 @@
 // - - - src/api/hotel-client.ts
-// * - - - Axios Client (Request and Response) Configuration
+// * Axios Client (Request and Response) Configuration
 import axios from "axios";
 
 const hotelClient = axios.create({
@@ -10,7 +10,7 @@ const hotelClient = axios.create({
   },
 });
 
-// * - - - hotelClient (Request Interceptor)
+// * hotelClient (Request Interceptor)
 hotelClient.interceptors.request.use(
   (config) => {
     console.log(`- - - Request Log: hotelClient`, config);
@@ -22,7 +22,7 @@ hotelClient.interceptors.request.use(
   }
 );
 
-// * - - - hotelClient (Response Interceptor)
+// * hotelClient (Response Interceptor)
 hotelClient.interceptors.response.use(
   (response) => {
     console.log(`- - - Response Log: hotelClient`, response);
@@ -38,5 +38,3 @@ hotelClient.interceptors.response.use(
 );
 
 export default hotelClient;
-
-// TODO : Add Token Management on Request After Signup (i.e create another authClient) file for managing authentications abd tokenizations

@@ -13,7 +13,6 @@ const authClient = axios.create({
 // * - - - authClient (Request Interceptor)
 authClient.interceptors.request.use(
   (config) => {
-    // console.log(`- - - Request Log: authClient`, config);
     return config;
   },
   (error) => {
@@ -25,7 +24,6 @@ authClient.interceptors.request.use(
 // * - - - authClient (Response Interceptor)
 authClient.interceptors.response.use(
   (response) => {
-    // console.log(`- - - Response Log: authClient`, response);
     return response;
   },
   (error) => {

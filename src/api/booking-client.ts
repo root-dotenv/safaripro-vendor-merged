@@ -1,5 +1,5 @@
 // - - - src/api/booking-client.ts
-// * - - - Axios Client (Request and Response) Configuration
+// * Axios Client (Request and Response) Configuration
 import axios from "axios";
 
 const bookingClient = axios.create({
@@ -10,7 +10,7 @@ const bookingClient = axios.create({
   },
 });
 
-// * - - - bookingClient (Request Interceptor)
+// * bookingClient (Request Interceptor)
 bookingClient.interceptors.request.use(
   (config) => {
     console.log(`- - - Request Log: bookingClient`, config);
@@ -22,7 +22,7 @@ bookingClient.interceptors.request.use(
   }
 );
 
-// * - - - bookingClient (Response Interceptor)
+// * bookingClient (Response Interceptor)
 bookingClient.interceptors.response.use(
   (response) => {
     console.log(`- - - Response Log: bookingClient`, response);
@@ -38,5 +38,3 @@ bookingClient.interceptors.response.use(
 );
 
 export default bookingClient;
-
-// TODO : Add Token Management on Request After Signup (i.e create another authClient) file for managing authentications abd tokenizations

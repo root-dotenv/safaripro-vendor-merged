@@ -13,8 +13,6 @@ import { FiUserCheck } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useHotel } from "@/providers/hotel-provider";
 import { MdOutlineInventory2 } from "react-icons/md";
-import hotel_image from "../../../public/images/hotel_image_one.jpg";
-
 // UI Components
 import {
   Sidebar,
@@ -214,13 +212,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               {hotel ? (
                 <div className="space-y-2">
-                  {/* {hotelImage && (
-                    <img
-                      className="w-full h-auto rounded object-cover"
-                      src={hotel_image}
-                      alt={"hotel image"}
-                    />
-                  )} */}
                   <img
                     className="w-full h-auto rounded object-cover"
                     src={"../../../public/images/hotel_image_one.jpg"}
