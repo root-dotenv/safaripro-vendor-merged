@@ -50,9 +50,9 @@ export default function CashBooking() {
     number_of_infants: 0,
   });
 
-  const HOTEL_ID = "2019ab69-ad9d-4a63-864a-1ae101ed3264";
-  const SEARCH_API_URL = "http://192.168.110.207:8020/api/v1";
-  const BOOKING_API_URL = "http://192.168.110.207:8010/api/v1";
+  const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
+  const SEARCH_API_URL = import.meta.env.VITE_HOTEL_BASE_URL;
+  const BOOKING_API_URL = import.meta.env.VITE_BOOKING_BASE_URL;
 
   const handleSearchRooms = async () => {
     if (!startDate || !endDate) {
@@ -70,7 +70,7 @@ export default function CashBooking() {
     setAvailableRooms([]);
 
     try {
-      const url = `${SEARCH_API_URL}/rooms/availability/range/?hotel_id=${HOTEL_ID}&start_date=${startDate}&end_date=${endDate}`;
+      const url = `${SEARCH_API_URL}rooms/availability/range/?hotel_id=${HOTEL_ID}&start_date=${startDate}&end_date=${endDate}`;
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -136,7 +136,7 @@ export default function CashBooking() {
     console.log("Booking Payload:", bookingData);
 
     try {
-      const response = await fetch(`${BOOKING_API_URL}/bookings/web-create`, {
+      const response = await fetch(`${BOOKING_API_URL}bookings/web-create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData),

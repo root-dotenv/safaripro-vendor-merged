@@ -179,11 +179,13 @@ const FeatureList = ({
     return null;
   }
 
+  const HOTEL_BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
+
   const featureQueries = useQueries({
     queries: ids.map((id) => ({
       queryKey: [featureType, id],
       queryFn: async (): Promise<FetchedFeature> => {
-        const url = `http://192.168.110.207:8020/api/v1/${featureType}/${id}`;
+        const url = `${HOTEL_BASE_URL}${featureType}/${id}`;
         const response = await apiClient.get(url);
         const data = response.data;
 
@@ -233,13 +235,14 @@ const FeatureList = ({
 
 // Main Component
 export function HotelDetailsSheet() {
+  const HOTEL_BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
   const { hotel } = useHotel();
 
   const { data: hotelTypeData, isLoading: isLoadingHotelType } = useQuery({
     queryKey: ["hotel-type", hotel?.hotel_type],
     queryFn: async () => {
       const { data } = await apiClient.get(
-        `http://192.168.110.207:8020/api/v1/hotel-types/${hotel.hotel_type}`
+        `${HOTEL_BASE_URL}hotel-types/${hotel.hotel_type}`
       );
       return data as { name: string };
     },

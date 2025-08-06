@@ -1,5 +1,7 @@
 // types.ts
 
+import type { number } from "zod";
+
 /**
  * Represents the structure of a single available room
  * received from the availability search API.
@@ -103,5 +105,7 @@ export interface FinalBookingDetails extends BookingConfirmation {
   duration_days: number;
   amount_paid: string;
   currency_paid: string;
-  // Any other fields from the final GET request
+  number_of_guests: number;
+  number_of_children: number;
+  number_of_infants: number;
 }

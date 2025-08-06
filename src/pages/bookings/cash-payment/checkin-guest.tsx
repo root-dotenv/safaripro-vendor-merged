@@ -35,12 +35,13 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
     null
   );
   const [isCheckingIn, setIsCheckingIn] = useState(false);
+  const BOOKING_BASE_URL = import.meta.env.VITE_BOOKING_BASE_URL;
 
   useEffect(() => {
     const fetchBookingStatus = async () => {
       try {
         const response = await fetch(
-          `http://192.168.110.207:8010/api/v1/bookings/${bookingId}`
+          `${BOOKING_BASE_URL}bookings/${bookingId}`
         );
         if (!response.ok) {
           throw new Error("Could not fetch final booking status.");
@@ -65,7 +66,7 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
     setIsCheckingIn(true);
     try {
       const response = await fetch(
-        `http://192.168.110.207:8010/api/v1/bookings/${bookingId}/check_in`,
+        `${BOOKING_BASE_URL}bookings/${bookingId}/check_in`,
         { method: "POST" }
       );
 

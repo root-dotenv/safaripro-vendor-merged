@@ -71,9 +71,11 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
 
     console.log("Submitting Cash Payment Payload:", payload);
 
+    const BOOKING_API_URL = import.meta.env.VITE_BOOKING_BASE_URL;
+
     try {
       const response = await fetch(
-        `http://192.168.110.207:8010/api/v1/bookings/${bookingDetails.id}`,
+        `${BOOKING_API_URL}bookings/${bookingDetails.id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

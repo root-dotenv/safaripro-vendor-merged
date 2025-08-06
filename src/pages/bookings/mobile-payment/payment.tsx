@@ -35,6 +35,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentResponse, setPaymentResponse] =
     useState<PaymentSuccessResponse | null>(null);
+  const PAYMENT_API_URL = import.meta.env.VITE_PAYMENT_BASE_URL;
 
   const currencyInfo = bookingDetails.status_history.find(
     (h) => h.action === "currency_conversion"
@@ -63,14 +64,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     console.log("Submitting Payment Payload:", payload);
 
     try {
-      const response = await fetch(
-        "http://192.168.110.207:8025/api/v1/checkout",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${PAYMENT_API_URL}checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const result = await response.json();
       if (!response.ok || !result.success) {

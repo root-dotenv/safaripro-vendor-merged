@@ -98,6 +98,7 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { IoRefreshOutline } from "react-icons/io5";
 
 // --- Type Definitions ---
 interface Booking {
@@ -304,7 +305,7 @@ export default function SafariproBookings() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
           />
         ),
         cell: ({ row }) => (
@@ -312,7 +313,7 @@ export default function SafariproBookings() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
           />
         ),
         size: 28,
@@ -535,7 +536,7 @@ export default function SafariproBookings() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 px-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -589,7 +590,7 @@ export default function SafariproBookings() {
           </Card>
         </div>
 
-        <Card>
+        <Card className="bg-none p-0 border-none shadow-none">
           <CardHeader>
             <CardTitle>Online Bookings List</CardTitle>
             <CardDescription>
@@ -669,6 +670,7 @@ export default function SafariproBookings() {
                               onCheckedChange={(checked: boolean) =>
                                 handleStatusChange(checked, value)
                               }
+                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
                             />
                             <Label
                               htmlFor={`${id}-${i}`}
@@ -759,7 +761,7 @@ export default function SafariproBookings() {
                   onClick={() => refetch()}
                   disabled={isRefetching || isTableLoading}
                 >
-                  <Loader2
+                  <IoRefreshOutline
                     className={cn(
                       "mr-2 h-4 w-4",
                       isRefetching && "animate-spin"
@@ -835,8 +837,8 @@ export default function SafariproBookings() {
               </Table>
             </div>
 
-            <div className="flex items-center justify-between gap-8 mt-4">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between gap-8 mt-4 w-full">
+              <div className="flex items-center gap-3 w-full">
                 <Label htmlFor={id} className="max-sm:sr-only">
                   Rows per page
                 </Label>
@@ -877,7 +879,7 @@ export default function SafariproBookings() {
                   </span>
                 </p>
               </div>
-              <Pagination>
+              <Pagination className="w-full justify-end">
                 <PaginationContent>
                   <PaginationItem>
                     <Button

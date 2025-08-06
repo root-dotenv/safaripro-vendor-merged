@@ -107,6 +107,7 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { IoRefreshOutline } from "react-icons/io5";
 
 // --- Type Definitions ---
 interface Booking {
@@ -393,7 +394,7 @@ export default function AllBookings() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
           />
         ),
         cell: ({ row }) => (
@@ -401,7 +402,7 @@ export default function AllBookings() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
           />
         ),
         size: 28,
@@ -665,8 +666,8 @@ export default function AllBookings() {
 
   return (
     <>
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-4">
+        <div className="px-0 flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">All Bookings</h2>
           <div className="flex items-center space-x-2">
             <Button
@@ -690,7 +691,7 @@ export default function AllBookings() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 px-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -740,8 +741,8 @@ export default function AllBookings() {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
+        <Card className="bg-none p-0 border-none shadow-none">
+          <CardHeader className="mt-4">
             <CardTitle>Bookings List</CardTitle>
             <CardDescription>
               A comprehensive list of all bookings.
@@ -820,7 +821,7 @@ export default function AllBookings() {
                               onCheckedChange={(checked: boolean) =>
                                 handleStatusChange(checked, value)
                               }
-                              className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
                             />
                             <Label
                               htmlFor={`${id}-status-${i}`}
@@ -863,7 +864,7 @@ export default function AllBookings() {
                           <div key={value} className="flex items-center gap-2">
                             <Checkbox
                               id={`${id}-booking-type-${i}`}
-                              className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
                               checked={selectedBookingTypes.includes(value)}
                               onCheckedChange={(checked: boolean) =>
                                 handleBookingTypeChange(checked, value)
@@ -958,9 +959,9 @@ export default function AllBookings() {
                   onClick={() => refetch()}
                   disabled={isRefetching || isTableLoading}
                 >
-                  <Loader2
+                  <IoRefreshOutline
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mr-1 h-4 w-4",
                       isRefetching && "animate-spin"
                     )}
                   />
@@ -1034,8 +1035,8 @@ export default function AllBookings() {
               </Table>
             </div>
 
-            <div className="flex items-center justify-between gap-8 mt-4">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between gap-8 mt-4 w-full">
+              <div className="flex items-center gap-3 w-full">
                 <Label htmlFor={id} className="max-sm:sr-only">
                   Rows per page
                 </Label>
@@ -1076,7 +1077,7 @@ export default function AllBookings() {
                   </span>
                 </p>
               </div>
-              <Pagination>
+              <Pagination className="w-full justify-end">
                 <PaginationContent>
                   <PaginationItem>
                     <Button
