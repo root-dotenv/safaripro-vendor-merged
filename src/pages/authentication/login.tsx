@@ -72,11 +72,6 @@ export default function Login() {
             {/* Login Form Content Starts Here */}
             <div className="w-full max-w-[350px] space-y-6">
               <div className="text-center">
-                {/* <img
-                  src={SafariProLogo}
-                  alt="SafariPro Logo"
-                  className="mx-auto mb-6 w-40"
-                /> */}
                 <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                   Welcome Back!
                 </h2>
