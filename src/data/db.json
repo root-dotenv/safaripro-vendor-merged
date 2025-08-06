@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "rootdotenv",
+      "phone_number": "255689759215",
+      "email": "dotenv@ostub.com",
+      "theme": "light",
+      "password": "password123",
+      "otp": "OTP321"
+    }
+  ]
+}
