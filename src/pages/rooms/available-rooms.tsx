@@ -96,6 +96,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BiPrinter } from "react-icons/bi";
+import { IoRefreshOutline } from "react-icons/io5";
 
 // --- Type Definitions ---
 interface Room {
@@ -307,7 +308,7 @@ export default function AvailableRooms() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
           />
         ),
         cell: ({ row }) => (
@@ -315,7 +316,7 @@ export default function AvailableRooms() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
           />
         ),
         size: 28,
@@ -615,6 +616,7 @@ export default function AvailableRooms() {
                           onCheckedChange={(checked: boolean) =>
                             handleStatusChange(checked, value)
                           }
+                          className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
                         />
                         <Label
                           htmlFor={`${id}-status-${i}`}
@@ -707,8 +709,8 @@ export default function AvailableRooms() {
               onClick={() => refetch()}
               disabled={isRefetching || isLoading}
             >
-              <Loader2
-                className={cn("mr-2 h-4 w-4", isRefetching && "animate-spin")}
+              <IoRefreshOutline
+                className={cn("mr-1 h-4 w-4", isRefetching && "animate-spin")}
               />
               Refresh
             </Button>

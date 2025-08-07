@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  CircleDollarSign,
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-  Wallet,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2, Wallet } from "lucide-react";
 import type { BookingConfirmation } from "./types";
 import {
   Card,
@@ -17,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CashPaymentFormProps {
   bookingDetails: BookingConfirmation;
@@ -98,8 +93,8 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
 
   if (isConfirmed) {
     return (
-      <Card className="max-w-[640px] w-[540px] mx-auto border-gray-200 shadow-sm">
-        <CardHeader className="bg-gray-50/10 border-b border-gray-100 shadow">
+      <Card className="max-w-[640px] w-[540px] mx-auto border-gray-200 shadow-sm rounded-md">
+        <CardHeader className="bg-gray-50/10 border-b border-gray-100">
           <CardTitle className="text-xl font-semibold text-green-800 flex items-center">
             <CheckCircle className="mr-2 h-6 w-6" />
             Booking Confirmed!
@@ -112,7 +107,7 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
         <CardContent className="p-6 text-center">
           <Button
             onClick={onPaymentSuccess}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full rounded bg-blue-600 hover:bg-blue-700 text-white"
           >
             Finish & View Ticket
           </Button>
@@ -122,7 +117,7 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
   }
 
   return (
-    <Card className="max-w-[640px] w-[540px] mx-auto border-gray-200 shadow-sm">
+    <Card className="max-w-[640px] rounded-md w-[540px] mx-auto border-gray-200 shadow-sm">
       <CardHeader>
         <CardTitle className="text-xl font-semibold text-gray-800">
           Register Cash Payment
@@ -137,7 +132,11 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
           <div className="flex justify-between items-center text-sm text-gray-600">
             <span>Price per night</span>
             <span>
-              ${parseFloat(bookingDetails.amount_required).toFixed(2)} USD
+              $
+              {parseFloat(
+                bookingDetails.amount_required / numberOfNights
+              ).toFixed(2)}{" "}
+              USD
             </span>
           </div>
           <div className="flex justify-between items-center text-sm text-gray-600">
@@ -169,7 +168,6 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
               Amount Received (TZS)
             </Label>
             <div className="relative mt-1">
-              <CircleDollarSign className="absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-gray-400" />
               <Input
                 type="number"
                 id="amountReceived"
@@ -177,7 +175,7 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
                 onChange={(e) => setAmountReceived(e.target.value)}
                 required
                 placeholder="Enter cash amount received"
-                className="pl-10 border-gray-300 focus:border-blue-600 focus:ring-blue-600"
+                className="pl-4 border-gray-300 focus:border-blue-600 focus:ring-blue-600"
               />
             </div>
           </div>
@@ -189,7 +187,6 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
               Confirm Amount (TZS)
             </Label>
             <div className="relative mt-1">
-              <CircleDollarSign className="absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-gray-400" />
               <Input
                 type="number"
                 id="confirmAmount"
@@ -197,7 +194,7 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
                 onChange={(e) => setConfirmAmount(e.target.value)}
                 required
                 placeholder="Confirm amount received"
-                className="pl-10 border-gray-300 focus:border-blue-600 focus:ring-blue-600"
+                className="pl-4 border-gray-300 focus:border-blue-600 focus:ring-blue-600"
               />
             </div>
           </div>
@@ -207,6 +204,25 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
               {error}
             </div>
           )}
+          {/* - - - confirm amount received checkbox */}
+          <Label className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
+            <Checkbox
+              id="toggle-2"
+              defaultChecked
+              className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+            />
+            <div className="grid gap-1.5 font-normal">
+              <p className="text-sm leading-none font-medium">
+                I confirm that the amount received is correct.
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Please double-check the cash amount before confirming. This
+                action cannot be undone.
+              </p>
+            </div>
+          </Label>
+          {/* - - - - -  */}
+
           <Button
             type="submit"
             disabled={isSubmitting}

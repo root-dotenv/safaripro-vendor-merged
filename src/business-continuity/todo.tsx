@@ -14,3 +14,4 @@
 // 12. Ensure buttons and fields colors follow the design system
 // 13. Offers, Discounts, and Promotions should be clearly defined (contact Justin for details)
 // 14. Add Reporting and Analytics section to the dashboard from dynamic API
+// 15. Rooms Allocations

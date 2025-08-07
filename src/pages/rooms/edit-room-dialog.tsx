@@ -1,11 +1,9 @@
-// src/pages/rooms/edit-room-dialog.tsx
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   DialogHeader,
@@ -36,8 +34,7 @@ import hotelClient from "../../api/hotel-client";
 import InputNote from "@/components/custom/input-note";
 
 // --- TYPE DEFINITIONS ---
-interface RoomDetails {
-  id: string;
+interface EditRoomFormData {
   code: string;
   description: string;
   image: string;
@@ -47,6 +44,9 @@ interface RoomDetails {
   room_type_id: string;
   room_amenities: string[];
 }
+interface RoomDetails extends EditRoomFormData {
+  id: string;
+}
 interface RoomType {
   id: string;
   name: string;
@@ -55,7 +55,6 @@ interface Amenity {
   id: string;
   name: string;
 }
-
 interface EditRoomDialogProps {
   room: RoomDetails;
 }
@@ -81,7 +80,10 @@ const editRoomSchema = yup.object().shape({
     .required("Status is required."),
   room_type_id: yup.string().required("Room type is required."),
   image: yup.string().url("Must be a valid URL.").nullable(),
-  room_amenities: yup.array().of(yup.string().required()).notRequired(),
+  room_amenities: yup
+    .array()
+    .of(yup.string().required())
+    .min(1, "At least one amenity must be selected."),
 });
 
 export default function EditRoomDialog({ room }: EditRoomDialogProps) {
@@ -99,31 +101,54 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
     queryFn: async () => (await hotelClient.get("/amenities/")).data.results,
   });
 
-  const form = useForm<RoomDetails>({
+  const form = useForm<EditRoomFormData>({
     resolver: yupResolver(editRoomSchema),
-    defaultValues: { ...room, price_per_night: Number(room.price_per_night) },
+    defaultValues: {
+      code: room.code,
+      description: room.description,
+      image: room.image,
+      max_occupancy: room.max_occupancy,
+      price_per_night: Number(room.price_per_night),
+      availability_status: room.availability_status,
+      room_type_id: room.room_type_id,
+      room_amenities: room.room_amenities || [],
+    },
     mode: "onChange",
   });
 
   const updateRoomMutation = useMutation({
-    mutationFn: (updatedData: Partial<RoomDetails>) =>
+    mutationFn: (updatedData: Partial<EditRoomFormData>) =>
       hotelClient.patch(`/rooms/${room.id}/`, updatedData),
     onSuccess: () => {
       toast.success("Room updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["roomDetails", room.id] });
-      queryClient.invalidateQueries({ queryKey: ["available-rooms"] });
-      queryClient.invalidateQueries({ queryKey: ["booked-rooms"] });
-      queryClient.invalidateQueries({ queryKey: ["maintenance-rooms"] });
+      queryClient.invalidateQueries({
+        queryKey: ["available-rooms", "booked-rooms", "maintenance-rooms"],
+      });
     },
     onError: (error: any) => {
-      toast.error(`Error updating room: ${error.message}`);
+      const errorMessage = error.response?.data?.message || error.message;
+      toast.error(`Error: ${errorMessage}`);
     },
   });
 
-  const onFormSubmit = (data: RoomDetails) => {
-    console.log("Data being sent to the backend:", data);
-    console.log("The new room_type_id is:", data.room_type_id);
-    updateRoomMutation.mutate(data);
+  // Maintained Functionality: Only sends fields that have been changed
+  const onFormSubmit = (data: EditRoomFormData) => {
+    const { dirtyFields } = form.formState;
+    const payload: Partial<EditRoomFormData> = {};
+
+    (Object.keys(dirtyFields) as Array<keyof EditRoomFormData>).forEach(
+      (key) => {
+        payload[key] = data[key];
+      }
+    );
+
+    if (Object.keys(payload).length === 0) {
+      toast.info("No changes were made.");
+      return;
+    }
+
+    updateRoomMutation.mutate(payload);
   };
 
   return (
@@ -136,18 +161,18 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
       </DialogHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onFormSubmit)}>
-          {/* SCROLLABLE CONTENT AREA */}
           <div className="overflow-y-auto max-h-[65vh] p-6 space-y-6">
             <FormField
               control={form.control}
               name="code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Room Code</FormLabel>
+                  {" "}
+                  <FormLabel>Room Code</FormLabel>{" "}
                   <FormControl>
                     <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
+                  </FormControl>{" "}
+                  <FormMessage />{" "}
                 </FormItem>
               )}
             />
@@ -156,11 +181,12 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  {" "}
+                  <FormLabel>Description</FormLabel>{" "}
                   <FormControl>
                     <Textarea {...field} rows={4} />
-                  </FormControl>
-                  <FormMessage />
+                  </FormControl>{" "}
+                  <FormMessage />{" "}
                 </FormItem>
               )}
             />
@@ -169,11 +195,12 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
               name="image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL</FormLabel>
+                  {" "}
+                  <FormLabel>Primary Image URL</FormLabel>{" "}
                   <FormControl>
                     <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
+                  </FormControl>{" "}
+                  <FormMessage />{" "}
                 </FormItem>
               )}
             />
@@ -183,11 +210,12 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
                 name="price_per_night"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price/Night (in USD)</FormLabel>
+                    {" "}
+                    <FormLabel>Price/Night (in USD)</FormLabel>{" "}
                     <FormControl>
                       <Input type="number" step="0.01" {...field} />
-                    </FormControl>
-                    <FormMessage />
+                    </FormControl>{" "}
+                    <FormMessage />{" "}
                   </FormItem>
                 )}
               />
@@ -196,11 +224,12 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
                 name="max_occupancy"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Max Occupancy</FormLabel>
+                    {" "}
+                    <FormLabel>Max Occupancy</FormLabel>{" "}
                     <FormControl>
                       <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
+                    </FormControl>{" "}
+                    <FormMessage />{" "}
                   </FormItem>
                 )}
               />
@@ -211,26 +240,29 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
                 name="room_type_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Room Type</FormLabel>
+                    {" "}
+                    <FormLabel>Room Type</FormLabel>{" "}
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={isLoadingTypes}
                     >
+                      {" "}
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a type" />
                         </SelectTrigger>
-                      </FormControl>
+                      </FormControl>{" "}
                       <SelectContent>
+                        {" "}
                         {roomTypes?.map((type) => (
                           <SelectItem key={type.id} value={type.id}>
                             {type.name}
                           </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
+                        ))}{" "}
+                      </SelectContent>{" "}
+                    </Select>{" "}
+                    <FormMessage />{" "}
                   </FormItem>
                 )}
               />
@@ -239,27 +271,34 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
                 name="availability_status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Availability</FormLabel>
+                    {" "}
+                    <FormLabel>Availability</FormLabel>{" "}
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
+                      {" "}
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a status" />
                         </SelectTrigger>
-                      </FormControl>
+                      </FormControl>{" "}
                       <SelectContent>
-                        <SelectItem value="Available">Available</SelectItem>
-                        <SelectItem value="Booked">Booked</SelectItem>
-                        <SelectItem value="Maintenance">Maintenance</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
+                        {" "}
+                        <SelectItem value="Available">
+                          Available
+                        </SelectItem>{" "}
+                        <SelectItem value="Booked">Booked</SelectItem>{" "}
+                        <SelectItem value="Maintenance">Maintenance</SelectItem>{" "}
+                      </SelectContent>{" "}
+                    </Select>{" "}
+                    <FormMessage />{" "}
                   </FormItem>
                 )}
               />
             </div>
+
+            {/* ✨ Restored UI: Using the exact design for amenity checkboxes from your original code */}
             <FormField
               control={form.control}
               name="room_amenities"
@@ -275,42 +314,35 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
                     </p>
                   ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
-                      {allAmenities?.map((amenity) => {
-                        return (
-                          <FormItem
-                            key={amenity.id}
-                            className="has-data-[state=checked]:border-blue-200 border-input relative flex cursor-pointer flex-col gap-4 rounded-md border p-4 shadow-sm"
+                      {allAmenities?.map((amenity) => (
+                        <FormItem
+                          key={amenity.id}
+                          className="has-data-[state=checked]:border-blue-400 border-input relative flex cursor-pointer flex-col justify-center gap-4 rounded-md border p-4 shadow-sm transition-colors"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              id={amenity.id} // Add ID for the label's htmlFor to work
+                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC] order-1 after:absolute after:inset-0"
+                              checked={field.value?.includes(amenity.id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, amenity.id])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (id) => id !== amenity.id
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel
+                            htmlFor={amenity.id}
+                            className="font-medium cursor-pointer"
                           >
-                            <div className="flex justify-between gap-2">
-                              <FormControl>
-                                <Checkbox
-                                  id={amenity.id}
-                                  className="order-1 after:absolute after:inset-0"
-                                  checked={field.value?.includes(amenity.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          amenity.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (id) => id !== amenity.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                            </div>
-                            <FormLabel
-                              htmlFor={amenity.id}
-                              className="font-medium"
-                            >
-                              {amenity.name}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      })}
+                            {amenity.name}
+                          </FormLabel>
+                        </FormItem>
+                      ))}
                     </div>
                   )}
                   <FormMessage />
@@ -319,7 +351,7 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
             />
           </div>
 
-          {/* STICKY FOOTER */}
+          {/* Restored UI: Footer buttons are correctly aligned */}
           <DialogFooter className="p-4 border-t">
             <DialogClose asChild>
               <Button type="button" variant="outline">
@@ -327,9 +359,9 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
               </Button>
             </DialogClose>
             <Button
-              className="bg-blue-500"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               type="submit"
-              disabled={updateRoomMutation.isPending}
+              disabled={updateRoomMutation.isPending || !form.formState.isDirty}
             >
               {updateRoomMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -103,5 +103,7 @@ export interface FinalBookingDetails extends BookingConfirmation {
   duration_days: number;
   amount_paid: string;
   currency_paid: string;
-  // Any other fields from the final GET request
+  number_of_guests: number;
+  number_of_infants: number;
+  number_of_children: number;
 }

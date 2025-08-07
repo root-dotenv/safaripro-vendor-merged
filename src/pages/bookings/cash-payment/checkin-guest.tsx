@@ -22,6 +22,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useHotel } from "@/providers/hotel-provider";
 
 interface CheckinGuestProps {
   bookingId: string;
@@ -36,6 +37,8 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
   );
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const BOOKING_BASE_URL = import.meta.env.VITE_BOOKING_BASE_URL;
+
+  const { hotel } = useHotel();
 
   useEffect(() => {
     const fetchBookingStatus = async () => {
@@ -104,7 +107,7 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
 
   if (isLoading) {
     return (
-      <Card className="max-w-[640px] w-[540px] mx-auto border-gray-200 shadow-sm text-center">
+      <Card className="max-w-[640px] rounded-md w-[540px] mx-auto border-gray-200 shadow-sm text-center">
         <CardContent className="p-6">
           <Loader2 className="h-12 w-12 mx-auto animate-spin text-blue-600" />
           <CardTitle className="mt-4 text-xl font-semibold text-gray-800">
@@ -161,14 +164,14 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
         <div className="flex gap-4">
           <Button
             onClick={handlePrint}
-            className="bg-gray-600 hover:bg-gray-700 text-white"
+            className="bg-gray-600 rounded hover:bg-gray-700 text-white"
           >
             <Printer className="mr-1 h-4 w-4" /> Print Ticket
           </Button>
           <Button
             onClick={handleCheckIn}
             disabled={isCheckingIn || !!finalBooking.checkin}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white"
+            className="bg-blue-600 rounded hover:bg-blue-700 disabled:bg-gray-400 text-white"
           >
             {isCheckingIn ? (
               <Loader2 className="mr-1 h-4 w-4 animate-spin" />
@@ -182,7 +185,7 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
 
       <Card
         id="booking-ticket"
-        className="border-gray-200 shadow-sm printable-area"
+        className="border-gray-200 shadow-sm printable-area rounded-md"
       >
         <CardHeader className="bg-gray-50/10 border-b shadow border-b-gray-100">
           <div className="flex justify-between items-start">
@@ -191,7 +194,7 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
                 Booking Receipt
               </CardTitle>
               <CardDescription className="text-gray-600">
-                Tanzania Wheels Co.
+                {hotel?.name} - {hotel?.address}
               </CardDescription>
             </div>
             <div className="text-right">
