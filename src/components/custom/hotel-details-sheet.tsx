@@ -271,7 +271,7 @@ export function HotelDetailsSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className="fixed bottom-8 right-8 h-18 w-18 rounded-full flex items-center justify-center text-[#155DFC] font-medium bg-blue border border-blue/20 shadow-lg hover:shadow-xl transition-shadow z-50">
+        <button className="bg-[#FFF] fixed bottom-8 right-8 h-18 w-18 rounded-full flex items-center justify-center text-[#155DFC] font-medium bg-blue border border-blue/20 shadow-lg hover:shadow-xl transition-shadow z-50">
           <RiHotelLine size={32} />
         </button>
       </SheetTrigger>
