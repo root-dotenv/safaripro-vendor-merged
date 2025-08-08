@@ -1,6 +1,11 @@
 "use client";
 import { useHotel } from "../../providers/hotel-provider";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import {
+  useQueries,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import hotelClient from "../../api/hotel-client";
 import {
   FaFacebook,
@@ -21,6 +26,9 @@ import {
   Mail,
   ChevronUp,
   ChevronDown,
+  Pencil,
+  Trash2,
+  PlusCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BsDashSquare } from "react-icons/bs";
@@ -43,10 +51,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-// Types
 import type {
   MealType,
   HotelType,
@@ -59,6 +64,17 @@ import type { RoomType } from "./customize-hotel/hotel";
 import React, { useState } from "react";
 import { Collapsible, CollapsibleContent } from "@radix-ui/react-collapsible";
 import { FaRegCircleCheck } from "react-icons/fa6";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { AddEditImageModal } from "./customize-hotel/AddEditImageModal";
 
 // Helper functions
 const getIconForEntity = (
@@ -178,16 +194,30 @@ const staffData = [
 ];
 
 export default function HotelOverview() {
-  const [expandedRow, setExpandedRow] = useState(null);
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
-  const toggleRow = (id) => {
+  const toggleRow = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
 
   const { hotel, isLoading: isHotelLoading } = useHotel();
   const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
+  const queryClient = useQueryClient();
 
-  // Fetch hotel type details
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingImage, setEditingImage] = useState<HotelImage | null>(null);
+  const [imageToDelete, setImageToDelete] = useState<HotelImage | null>(null);
+
+  const handleOpenAddModal = () => {
+    setEditingImage(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (image: HotelImage) => {
+    setEditingImage(image);
+    setIsModalOpen(true);
+  };
+
   const { data: hotelTypeDetails } = useQuery<HotelType>({
     queryKey: ["hotelType", hotel?.hotel_type],
     queryFn: () =>
@@ -197,7 +227,6 @@ export default function HotelOverview() {
     enabled: !!hotel?.hotel_type,
   });
 
-  // Fetch hotel departments
   const { data: departments } = useQuery({
     queryKey: ["departments", HOTEL_ID],
     queryFn: () =>
@@ -207,19 +236,28 @@ export default function HotelOverview() {
     enabled: !!HOTEL_ID,
   });
 
-  // Fetch hotel images
-  const imageQueries = useQueries({
-    queries: (hotel?.image_ids || []).map((id) => ({
-      queryKey: ["hotelImage", id],
-      queryFn: () =>
-        hotelClient
-          .get(`/hotel-images/${id}/`)
-          .then((res) => res.data as HotelImage),
-      enabled: !!hotel,
-    })),
+  const { data: hotelImagesData } = useQuery({
+    queryKey: ["hotelImages", HOTEL_ID],
+    queryFn: () =>
+      hotelClient
+        .get(`/hotel-images/?hotel=${HOTEL_ID}`)
+        .then((res) => res.data.results as HotelImage[]),
+    enabled: !!HOTEL_ID,
   });
 
-  // Fetch amenities
+  const deleteImageMutation = useMutation({
+    mutationFn: (imageId: string) =>
+      hotelClient.delete(`/hotel-images/${imageId}/`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["hotelImages", HOTEL_ID] });
+      setImageToDelete(null);
+    },
+    onError: (error: any) => {
+      console.error("Failed to delete image", error);
+      alert("Could not delete the image.");
+    },
+  });
+
   const amenityQueries = useQueries({
     queries: (hotel?.amenities || []).map((id) => ({
       queryKey: ["amenity", id],
@@ -229,7 +267,6 @@ export default function HotelOverview() {
     })),
   });
 
-  // Fetch facilities
   const facilityQueries = useQueries({
     queries: (hotel?.facilities || []).map((id) => ({
       queryKey: ["facility", id],
@@ -241,7 +278,6 @@ export default function HotelOverview() {
     })),
   });
 
-  // Fetch services
   const serviceQueries = useQueries({
     queries: (hotel?.services || []).map((id) => ({
       queryKey: ["service", id],
@@ -251,7 +287,6 @@ export default function HotelOverview() {
     })),
   });
 
-  // Fetch meal types
   const mealTypeQueries = useQueries({
     queries: (hotel?.meal_types || []).map((id) => ({
       queryKey: ["mealType", id],
@@ -267,10 +302,6 @@ export default function HotelOverview() {
     return <div className="p-6">Loading hotel information...</div>;
   if (!hotel) return <div className="p-6">No hotel data available.</div>;
 
-  // Process fetched data
-  const hotelImages = imageQueries
-    .filter((q) => q.isSuccess)
-    .map((q) => q.data.original);
   const amenities = amenityQueries
     .filter((q) => q.isSuccess)
     .map((q) => q.data);
@@ -282,7 +313,6 @@ export default function HotelOverview() {
     .filter((q) => q.isSuccess)
     .map((q) => q.data);
 
-  // Room status data
   const roomStatusData = {
     Available: hotel.availability_stats.status_counts.Available || 0,
     Booked: hotel.availability_stats.status_counts.Booked || 0,
@@ -531,11 +561,10 @@ export default function HotelOverview() {
           </CardContent>
         </Card>
       </div>
-      {/* - - - - -  */}
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Gallery Card */}
+        {/* MODIFIED GALLERY CARD */}
         <Card className="col-span-1 md:col-span-2 lg:col-span-3 rounded-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-[#155DFC]">
@@ -543,22 +572,60 @@ export default function HotelOverview() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {[
-                "https://placehold.co/600x400",
-                "https://placehold.co/600x400",
-                "https://placehold.co/600x400",
-                "https://placehold.co/600x400",
-                "https://placehold.co/600x400",
-              ].map((src, index) => (
-                <img
-                  key={index}
-                  src={src}
-                  alt={`Hotel ${index + 1}`}
-                  className="h-60 w-auto rounded-md object-cover shadow-sm"
-                />
-              ))}
-            </div>
+            {hotelImagesData && hotelImagesData.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {hotelImagesData.map((image) => (
+                  <div key={image.id} className="relative group aspect-square">
+                    <img
+                      src={image.original}
+                      alt={image.tag || "Hotel image"}
+                      className="h-full w-full rounded-md object-cover shadow-sm"
+                    />
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-white border-white hover:bg-white hover:text-black"
+                        onClick={() => handleOpenEditModal(image)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-red-400 border-red-400 hover:bg-red-500 hover:text-white"
+                        onClick={() => setImageToDelete(image)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex items-center justify-center border-2 border-dashed rounded-md aspect-square">
+                  <Button
+                    variant="ghost"
+                    onClick={handleOpenAddModal}
+                    className="flex flex-col h-full w-full"
+                  >
+                    <PlusCircle className="h-8 w-8 text-muted-foreground" />
+                    <span className="mt-2 text-sm">Add More</span>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg">
+                <p className="text-muted-foreground font-medium">
+                  No images have been set for your hotel gallery.
+                </p>
+                <p className="text-sm text-muted-foreground mt-1 mb-4">
+                  Please add at least 3 to 6 images for your cover gallery.
+                </p>
+                <Button onClick={handleOpenAddModal}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Images
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -708,7 +775,6 @@ export default function HotelOverview() {
             </Table>
           </CardContent>
         </Card>
-        {/*  - - - - - Table Card End Here */}
 
         {/* Amenities Card */}
         <Card className="rounded-md">
@@ -911,6 +977,43 @@ export default function HotelOverview() {
           </CardContent>
         </Card>
       </div>
+
+      {/* RENDER MODALS */}
+      <AddEditImageModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        image={editingImage}
+        hotelId={HOTEL_ID}
+      />
+
+      <AlertDialog
+        open={!!imageToDelete}
+        onOpenChange={() => setImageToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              image from your gallery.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (imageToDelete) {
+                  deleteImageMutation.mutate(imageToDelete.id);
+                }
+              }}
+              disabled={deleteImageMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteImageMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

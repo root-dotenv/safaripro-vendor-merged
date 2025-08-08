@@ -40,6 +40,10 @@ import EventSpaces from "@/pages/inventory/events-spaces";
 import EventSpaceTypes from "@/pages/inventory/event-space-types";
 import RoomTypesTabController from "@/pages/rooms/room-types/RoomTypesTabController";
 import HotelDetails from "@/pages/hotel/hotel-details";
+import Payouts from "@/pages/billings/payouts";
+import Charges from "@/pages/billings/charges";
+import SafariProInvoices from "@/pages/billings/safaripro-invoices";
+import AllocateRooms from "@/pages/rooms/allocations/allocate-rooms";
 
 const RootLayout = () => {
   return (
@@ -112,6 +116,7 @@ export const router = createBrowserRouter([
                 element: <AvailableRoomsByDate />,
               },
               { path: "rooms/:room_id", element: <RoomDetailsPage /> },
+              { path: "rooms/allocate-rooms", element: <AllocateRooms /> },
               // - - - Reservations routes
               { path: "reservations/checkin", element: <CheckedInGuests /> },
               { path: "reservations/checkout", element: <CheckedOutGuests /> },
@@ -139,6 +144,18 @@ export const router = createBrowserRouter([
               {
                 path: "house-keeping/event-spaces",
                 element: <EventSpaces />,
+              },
+              {
+                path: "billings/payouts",
+                element: <Payouts />,
+              },
+              {
+                path: "billings/charges",
+                element: <Charges />,
+              },
+              {
+                path: "billings/invoices",
+                element: <SafariProInvoices />,
               },
             ],
           },

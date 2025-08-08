@@ -81,6 +81,10 @@ const data = {
           title: "Available Rooms By Dates",
           url: "rooms/available-rooms-dates",
         },
+        {
+          title: "Allocate Rooms",
+          url: "rooms/allocate-rooms",
+        },
       ],
     },
     {
@@ -112,6 +116,25 @@ const data = {
           url: "/house-keeping/event-space-types",
         },
         { title: "Event Spaces", url: "/house-keeping/event-spaces" },
+      ],
+    },
+    {
+      title: "Billings & Payments",
+      url: "#",
+      icon: MdOutlineInventory2,
+      items: [
+        {
+          title: "Payouts",
+          url: "/billings/payouts",
+        },
+        {
+          title: "Charges",
+          url: "/billings/charges",
+        },
+        {
+          title: "SafariPro Invoices",
+          url: "/billings/invoices",
+        },
       ],
     },
   ],
