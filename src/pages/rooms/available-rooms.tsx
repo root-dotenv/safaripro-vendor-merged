@@ -192,17 +192,18 @@ export default function AvailableRooms() {
   });
 
   const deleteRoomMutation = useMutation({
-    mutationFn: (roomId: string) => hotelClient.delete(`/rooms/${roomId}/`),
+    mutationFn: (roomId: string) => hotelClient.delete(`rooms/${roomId}/`),
     onSuccess: () => {
       toast.success("Room deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ["available-rooms"] });
     },
     onError: (error: any) => {
-      toast.error(
-        `Failed to delete room: ${
-          error.response?.data?.detail || error.message
-        }`
-      );
+      // toast.error(
+      //   `Failed to delete room: ${
+      //     error.response?.data?.detail || error.message
+      //   }`
+      // );
+      console.log(`An error has occured: ${error}`);
     },
   });
 
@@ -273,7 +274,7 @@ export default function AvailableRooms() {
       toast.success("Rooms exported successfully!");
     } catch (err) {
       console.error("Export failed:", err);
-      toast.error("An error occurred during the export.");
+      // toast.error("An error occurred during the export.");
     } finally {
       setIsExporting(false);
     }

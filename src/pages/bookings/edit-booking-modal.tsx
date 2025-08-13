@@ -34,7 +34,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast"; // ADDED: New toast hook
+import { useToast } from "@/hooks/use-toast";
 
 // --- Type Definitions ---
 interface Booking {

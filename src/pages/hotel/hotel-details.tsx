@@ -240,7 +240,7 @@ export default function HotelOverview() {
     queryKey: ["hotelImages", HOTEL_ID],
     queryFn: () =>
       hotelClient
-        .get(`/hotel-images/?hotel=${HOTEL_ID}`)
+        .get(`/hotel-images/?hotel_id=${HOTEL_ID}`)
         .then((res) => res.data.results as HotelImage[]),
     enabled: !!HOTEL_ID,
   });
@@ -585,7 +585,7 @@ export default function HotelOverview() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="text-white border-white hover:bg-white hover:text-black"
+                        className="border-white hover:bg-white hover:text-black"
                         onClick={() => handleOpenEditModal(image)}
                       >
                         <Pencil className="h-4 w-4" />
@@ -593,7 +593,7 @@ export default function HotelOverview() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="text-red-400 border-red-400 hover:bg-red-500 hover:text-white"
+                        className="text-red-400 border-none hover:bg-red-500 hover:text-white"
                         onClick={() => setImageToDelete(image)}
                       >
                         <Trash2 className="h-4 w-4" />

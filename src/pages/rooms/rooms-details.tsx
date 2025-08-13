@@ -69,7 +69,7 @@ export default function RoomDetailsPage() {
     error,
   } = useQuery<RoomDetails>({
     queryKey: ["roomDetails", room_id],
-    queryFn: async () => (await hotelClient.get(`/rooms/${room_id}`)).data,
+    queryFn: async () => (await hotelClient.get(`rooms/${room_id}`)).data,
     enabled: !!room_id,
   });
 

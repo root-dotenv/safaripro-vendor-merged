@@ -1125,7 +1125,7 @@ export default function MaintenanceRooms() {
         hotel_id: hotel_id!,
         availability_status: "Maintenance",
         page: String(pagination.pageIndex + 1),
-        page_size: String(pagination.pageIndex === 0 ? 15 : 7), // 15 for first page, 7 for second
+        page_size: String(pagination.pageIndex === 0 ? 15 : 7),
       });
       if (debouncedGlobalFilter) params.append("search", debouncedGlobalFilter);
       if (sorting.length > 0) {
@@ -1147,7 +1147,7 @@ export default function MaintenanceRooms() {
       queryClient.invalidateQueries({ queryKey: ["maintenance-rooms"] });
     },
     onError: (error: any) => {
-      toast.error(
+      console.error(
         `Failed to delete room: ${
           error.response?.data?.detail || error.message
         }`
@@ -1157,7 +1157,7 @@ export default function MaintenanceRooms() {
 
   const roomsForCurrentPage = paginatedResponse?.results ?? [];
   const totalRoomsCount = paginatedResponse?.count ?? 0;
-  const totalPages = Math.ceil(totalRoomsCount / 15); // Based on first page size
+  const totalPages = Math.ceil(totalRoomsCount / 15);
   const hasNextPage = paginatedResponse?.next !== null;
   const hasPreviousPage = paginatedResponse?.previous !== null;
 

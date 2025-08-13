@@ -134,7 +134,6 @@ export default function CashBooking() {
     };
 
     console.log("Booking Payload:", bookingData);
-
     try {
       const response = await fetch(`${BOOKING_API_URL}bookings/web-create`, {
         method: "POST",

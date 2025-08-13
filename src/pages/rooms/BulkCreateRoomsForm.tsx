@@ -198,7 +198,11 @@ export function BulkCreateRoomsForm({
         />
       </div>
       <div className="flex justify-end pt-4">
-        <Button type="submit" disabled={!isValid || mutation.isPending}>
+        <Button
+          className="bg-blue-500 hover:bg-blue-600 transition-all"
+          type="submit"
+          disabled={!isValid || mutation.isPending}
+        >
           {mutation.isPending && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}

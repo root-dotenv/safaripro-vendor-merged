@@ -880,7 +880,11 @@ function SingleRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end pt-8">
-          <Button type="submit" disabled={!isValid || mutation.isPending}>
+          <Button
+            className="bg-blue-500 hover:bg-blue-600 transition-all"
+            type="submit"
+            disabled={!isValid || mutation.isPending}
+          >
             {mutation.isPending ? (
               <Loader2 className="animate-spin mr-2" />
             ) : (
@@ -928,7 +932,7 @@ function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
       setTimeout(onSuccess, 1500);
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.detail || "Failed to create rooms."),
+      console.error(error.response?.data?.detail || "Failed to create rooms."),
   });
 
   // This function now transforms the image_urls string into an array before mutation

@@ -43,6 +43,7 @@ import HotelDetails from "@/pages/hotel/hotel-details";
 import Payouts from "@/pages/billings/payouts";
 import Charges from "@/pages/billings/charges";
 import SafariProInvoices from "@/pages/billings/safaripro-invoices";
+import WelcomeWalkthroughs from "@/pages/miscellaneous/welcome-walkthroughs";
 import AllocateRooms from "@/pages/rooms/allocations/allocate-rooms";
 
 const RootLayout = () => {
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
       {
         path: "/verify-otp",
         element: <OtpVerificationPage />,
+      },
+      {
+        path: "/welcome",
+        element: <WelcomeWalkthroughs />,
       },
 
       // --- Protected Routes ---
