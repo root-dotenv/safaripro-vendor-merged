@@ -1,7 +1,6 @@
 "use client";
-
 import { useQuery, useQueries } from "@tanstack/react-query";
-import axios from "axios";
+import hotelClient from "../../api/hotel-client";
 import {
   Users,
   BedDouble,
@@ -25,9 +24,19 @@ import {
   MapPin,
   Building2,
   Hotel,
+  ChevronLeft,
+  ChevronRight,
+  Link as LinkIcon,
 } from "lucide-react";
 import { RiHotelLine } from "react-icons/ri";
-import { IoAdd } from "react-icons/io5";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaTwitter,
+  FaYoutube,
+  FaGlobe,
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 // Shadcn UI Components
 import {
@@ -41,7 +50,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useHotel } from "@/providers/hotel-provider";
+import { useState, useRef } from "react";
 
 // Color Palette
 const colors = {
@@ -51,11 +62,6 @@ const colors = {
   neutralGray: "#6B7280",
   neutralLight: "#F7F7F7",
 };
-
-// API Client
-const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-});
 
 // Type Definitions
 type FeatureType =
@@ -70,6 +76,26 @@ type FetchedFeature = {
   id: string;
   name: string;
   description: string;
+};
+
+type HotelImage = {
+  id: string;
+  original: string;
+  tag: string;
+};
+
+type Vendor = {
+  id: string;
+  logo: string;
+  website: string | null;
+  social_media: {
+    id: string;
+    platform: string;
+    platform_display: string;
+    url: string;
+    handle: string;
+    is_active: boolean;
+  }[];
 };
 
 // Skeleton & UI Helper Components
@@ -99,7 +125,7 @@ const InfoItem = ({
   value: React.ReactNode;
 }) => (
   <div className="flex items-center gap-3">
-    <Icon className="h-5 w-5 text-blue flex-shrink-0" />
+    <Icon className="h-5 w-5 text-blue-500 flex-shrink-0" />
     <div>
       <div className="text-neutralGray text-xs font-medium">{label}</div>
       <div className="font-semibold text-sm text-gray-900">
@@ -125,7 +151,7 @@ const SocialIconLink = ({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="p-2 rounded-full text-neutralGray bg-neutralLight hover:bg-blue hover:text-white transition-colors duration-200"
+      className="p-2 rounded-full text-neutralGray bg-neutralLight hover:bg-blue-500 hover:text-white transition-colors duration-200"
     >
       <Icon className="h-5 w-5" />
     </a>
@@ -155,7 +181,7 @@ const IndividualFeatureCard = ({
 
   return (
     <div className="p-4 border border-neutralGray/20 rounded-lg flex items-start gap-4 bg-white hover:bg-lightGreen/30 transition-colors shadow-sm hover:shadow-md">
-      <Icon className="h-5 w-5 text-blue flex-shrink-0 mt-1" />
+      <Icon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-1" />
       <div className="flex-1">
         <p className="font-semibold text-md text-gray-900">{data.name}</p>
         <p className="text-sm text-neutralGray mt-1">{data.description}</p>
@@ -186,7 +212,7 @@ const FeatureList = ({
       queryKey: [featureType, id],
       queryFn: async (): Promise<FetchedFeature> => {
         const url = `${HOTEL_BASE_URL}${featureType}/${id}`;
-        const response = await apiClient.get(url);
+        const response = await hotelClient.get(url);
         const data = response.data;
 
         if (featureType === "translations") {
@@ -215,7 +241,7 @@ const FeatureList = ({
   return (
     <section>
       <h3 className="mb-4 text-lg font-semibold tracking-tight flex items-center gap-3 text-gray-900">
-        <Icon className="h-5 w-5 text-blue" />
+        <Icon className="h-5 w-5 text-blue-500" />
         {title}
       </h3>
       <div className="space-y-3">
@@ -233,16 +259,158 @@ const FeatureList = ({
   );
 };
 
+const ImageSlider = ({ images }: { images: HotelImage[] }) => {
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    if (sliderRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth);
+    }
+  };
+
+  const scrollLeft = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
+  if (!images || images.length === 0) {
+    return (
+      <div className="w-full h-64 bg-neutralLight flex items-center justify-center text-neutralGray">
+        No images available
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <div
+        ref={sliderRef}
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-4"
+        onScroll={checkScroll}
+      >
+        {images.map((image) => (
+          <div key={image.id} className="flex-shrink-0 w-64 h-64 snap-center">
+            <img
+              src={image.original}
+              alt={image.tag || "Hotel image"}
+              className="w-full h-full object-cover rounded-lg shadow-md"
+            />
+          </div>
+        ))}
+      </div>
+      {canScrollLeft && (
+        <button
+          onClick={scrollLeft}
+          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow"
+        >
+          <ChevronLeft className="h-5 w-5 text-blue-500" />
+        </button>
+      )}
+      {canScrollRight && (
+        <button
+          onClick={scrollRight}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow"
+        >
+          <ChevronRight className="h-5 w-5 text-blue-500" />
+        </button>
+      )}
+    </div>
+  );
+};
+
+const QuickLinks = () => {
+  return (
+    <section className="p-4 bg-white border-t border-neutralGray/20">
+      <h3 className="mb-4 text-lg font-semibold tracking-tight flex items-center gap-3 text-gray-900">
+        <LinkIcon className="h-5 w-5 text-green-500" />
+        Quick Links
+      </h3>
+      <div className="grid grid-cols-2 gap-2">
+        <Link to="/hotel/hotel-features">
+          <Button
+            variant="outline"
+            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+          >
+            Hotel Features
+          </Button>
+        </Link>
+        <Link to="/bookings/all-bookings">
+          <Button
+            variant="outline"
+            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+          >
+            All Bookings
+          </Button>
+        </Link>
+        <Link to="/rooms/available-rooms">
+          <Button
+            variant="outline"
+            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+          >
+            Available Rooms
+          </Button>
+        </Link>
+        <Link to="/reservations/checkin">
+          <Button
+            variant="outline"
+            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+          >
+            Checked-In Guests
+          </Button>
+        </Link>
+      </div>
+    </section>
+  );
+};
+
 // Main Component
 export function HotelDetailsSheet() {
-  const HOTEL_BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
   const { hotel } = useHotel();
+
+  const VENDOR_ID = import.meta.env.VITE_VENDOR_ID;
+  const VENDOR_BASE_URL = "http://vendor.safaripro.net/api/v1/vendors/";
+
+  const { data: vendor, isLoading: isLoadingVendor } = useQuery<Vendor>({
+    queryKey: ["vendor", VENDOR_ID],
+    queryFn: async () => {
+      const { data } = await hotelClient.get(`${VENDOR_BASE_URL}${VENDOR_ID}`);
+      return data;
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const { data: imagesData, isLoading: isLoadingImages } = useQuery<{
+    results: HotelImage[];
+  }>({
+    queryKey: ["hotelImages", hotel?.id],
+    queryFn: async () => {
+      const { data } = await hotelClient.get(
+        `/hotel-images/?hotel_id=${hotel?.id}`
+      );
+      return data;
+    },
+    enabled: !!hotel?.id,
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const images = imagesData?.results || [];
 
   const { data: hotelTypeData, isLoading: isLoadingHotelType } = useQuery({
     queryKey: ["hotel-type", hotel?.hotel_type],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        `${HOTEL_BASE_URL}hotel-types/${hotel.hotel_type}`
+      const { data } = await hotelClient.get(
+        `/hotel-types/${hotel.hotel_type}`
       );
       return data as { name: string };
     },
@@ -260,13 +428,12 @@ export function HotelDetailsSheet() {
     }).format(amount);
   };
 
-  const socialLinks = [
-    { label: "Website", href: hotel.website_url, icon: IoAdd },
-    { label: "Facebook", href: hotel.facebook_url, icon: IoAdd },
-    { label: "Instagram", href: hotel.instagram_url, icon: IoAdd },
-    { label: "Twitter", href: hotel.twitter_url, icon: IoAdd },
-    { label: "YouTube", href: hotel.youtube_url, icon: IoAdd },
-  ];
+  const platformIcons: { [key: string]: React.ElementType } = {
+    facebook: FaFacebookF,
+    instagram: FaInstagram,
+    twitter: FaTwitter,
+    youtube: FaYoutube,
+  };
 
   return (
     <Sheet>
@@ -278,6 +445,17 @@ export function HotelDetailsSheet() {
       <SheetContent className="w-full sm:max-w-md md:max-w-lg p-0 bg-neutral-100">
         <div className="h-full flex flex-col">
           <SheetHeader className="p-6 bg-white border-b border-neutralGray/20 sticky top-0 z-10 shadow-sm">
+            {isLoadingVendor ? (
+              <SkeletonLoader className="h-16 w-16 mx-auto rounded-full" />
+            ) : (
+              vendor?.logo && (
+                <img
+                  src={vendor.logo}
+                  alt="Hotel Logo"
+                  className="h-16 w-16 mx-auto rounded-full object-cover mb-4"
+                />
+              )
+            )}
             <SheetTitle className="text-2xl font-bold tracking-tight text-gray-900">
               {hotel.name}
             </SheetTitle>
@@ -286,7 +464,7 @@ export function HotelDetailsSheet() {
               {hotelTypeData && (
                 <Badge
                   variant="secondary"
-                  className="py-1 px-3 text-sm bg-lightGreen text-blue"
+                  className="py-1 px-3 text-sm bg-lightGreen text-blue-500"
                 >
                   <Building2 className="h-4 w-4 mr-2" />
                   {hotelTypeData.name}
@@ -300,7 +478,7 @@ export function HotelDetailsSheet() {
                     key={i}
                     className={`h-5 w-5 ${
                       i < (hotel.star_rating ?? 0)
-                        ? "text-lightOrange fill-lightOrange"
+                        ? "text-yellow-400 fill-yellow-400"
                         : "text-neutralGray/30"
                     }`}
                   />
@@ -315,6 +493,11 @@ export function HotelDetailsSheet() {
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-neutralLight/50">
+            {isLoadingImages ? (
+              <SkeletonLoader className="w-full h-64 rounded-lg" />
+            ) : (
+              <ImageSlider images={images} />
+            )}
             <Card className="border-neutralGray/20 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-gray-900">
@@ -404,7 +587,7 @@ export function HotelDetailsSheet() {
 
             <section>
               <h3 className="mb-4 text-lg font-semibold tracking-tight flex items-center gap-3 text-gray-900">
-                <Hotel className="h-5 w-5 text-blue" />
+                <Hotel className="h-5 w-5 text-blue-500" />
                 Room Types
               </h3>
               <div className="space-y-4">
@@ -427,7 +610,7 @@ export function HotelDetailsSheet() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-md text-blue">
+                      <p className="font-semibold text-md text-green-500">
                         {formatCurrency(room.pricing?.avg_price)}
                       </p>
                       <p className="text-xs text-neutralGray">avg/night</p>
@@ -483,16 +666,25 @@ export function HotelDetailsSheet() {
                 Connect With Us
               </h3>
               <div className="flex items-center justify-center gap-4">
-                {socialLinks.map((link) => (
-                  <SocialIconLink
-                    key={link.label}
-                    href={link.href}
-                    icon={link.icon}
-                    label={link.label}
-                  />
-                ))}
+                <SocialIconLink
+                  href={vendor?.website}
+                  icon={FaGlobe}
+                  label="Website"
+                />
+                {vendor?.social_media
+                  ?.filter((sm) => sm.is_active)
+                  .map((sm) => (
+                    <SocialIconLink
+                      key={sm.id}
+                      href={sm.url}
+                      icon={platformIcons[sm.platform] || Globe}
+                      label={sm.platform_display}
+                    />
+                  ))}
               </div>
             </div>
+
+            <QuickLinks />
           </div>
         </div>
       </SheetContent>

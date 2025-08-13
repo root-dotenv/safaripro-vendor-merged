@@ -972,6 +972,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Search,
+  Loader,
 } from "lucide-react";
 import Papa from "papaparse";
 import { toast } from "sonner";
@@ -1675,7 +1676,7 @@ export default function BookedRooms() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    Loading booked rooms...
+                    <Loader />{" "}
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (

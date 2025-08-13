@@ -128,7 +128,7 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.message || error.message;
-      toast.error(`Error: ${errorMessage}`);
+      console.error(`Error: ${errorMessage}`);
     },
   });
 

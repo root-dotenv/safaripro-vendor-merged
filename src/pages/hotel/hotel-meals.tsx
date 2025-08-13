@@ -111,7 +111,7 @@ export default function HotelMealTypes() {
 
   if (isHotelLoading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700 dark:bg-gray-900 dark:text-gray-300">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
         <p></p>
       </div>
@@ -123,7 +123,7 @@ export default function HotelMealTypes() {
   const areMealTypesLoading = mealTypeQueries.some((q) => q.isLoading);
   if (areMealTypesLoading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700 dark:bg-gray-900 dark:text-gray-300">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
         <p></p>
       </div>

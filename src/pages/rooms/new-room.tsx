@@ -721,7 +721,6 @@ export default function NewRoom() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading Form Data...</span>
       </div>
     );
   }
@@ -729,9 +728,19 @@ export default function NewRoom() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-white min-h-screen">
       <Tabs defaultValue="single" className="max-w-7xl mx-auto">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="single">Create Single Room</TabsTrigger>
-          <TabsTrigger value="bulk">Create Multiple Rooms</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 gap-x-4">
+          <TabsTrigger
+            className="bg-[#FFF] shadow border-[1px] border-[#DADCE0]"
+            value="single"
+          >
+            Create Single Room
+          </TabsTrigger>
+          <TabsTrigger
+            className="bg-[#FFF] shadow border-[1px] border-[#DADCE0]"
+            value="bulk"
+          >
+            Create Multiple Rooms
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="single">
           <SingleRoomForm
@@ -1013,11 +1022,15 @@ function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
           />
         </CardContent>
         <CardFooter className="flex justify-end pt-8">
-          <Button type="submit" disabled={!isValid || mutation.isPending}>
+          <Button
+            className="bg-blue-500 hover:bg-blue-600 transition-all"
+            type="submit"
+            disabled={!isValid || mutation.isPending}
+          >
             {mutation.isPending ? (
               <Loader2 className="animate-spin mr-2" />
             ) : (
-              <IoCreateOutline className="mr-2" />
+              <IoCreateOutline className="mr-1" />
             )}
             {mutation.isPending ? "Creating Rooms..." : "Create Rooms"}
           </Button>

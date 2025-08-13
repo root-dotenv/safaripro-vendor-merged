@@ -37,6 +37,7 @@ import {
   ChevronRightIcon,
   Search,
   Loader2,
+  Loader,
 } from "lucide-react";
 import Papa from "papaparse";
 import { toast } from "sonner";
@@ -571,7 +572,7 @@ export default function AvailableRooms() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      Loading rooms...
+                      <Loader/>
                     </TableCell>
                   </TableRow>
                 ) : table.getRowModel().rows?.length ? (

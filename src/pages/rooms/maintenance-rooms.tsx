@@ -970,6 +970,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Search,
+  Loader,
 } from "lucide-react";
 import Papa from "papaparse";
 import { toast } from "sonner";
@@ -1673,7 +1674,7 @@ export default function MaintenanceRooms() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    Loading rooms under maintenance...
+                    <Loader />
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (
