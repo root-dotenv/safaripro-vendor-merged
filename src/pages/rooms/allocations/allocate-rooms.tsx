@@ -57,14 +57,13 @@ import {
   Loader2,
   Pencil,
   Plus,
-  PlusCircle,
   RefreshCw,
   Trash2,
   Wrench,
 } from "lucide-react";
 
 // --- Constants ---
-const HOTEL_ID = "04fc1298-f4ca-4370-b302-e60827e9dcec";
+const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
 
 // --- Type Definitions ---
 interface RoomStats {
