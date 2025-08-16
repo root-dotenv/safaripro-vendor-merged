@@ -1086,8 +1086,8 @@ import {
   ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  Loader,
 } from "lucide-react";
-import { TbFileTypeCsv } from "react-icons/tb";
 import { Checkbox } from "@/components/ui/checkbox";
 import bookingClient from "@/api/booking-client";
 import { Badge } from "@/components/ui/badge";
@@ -1149,6 +1149,7 @@ import {
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import { IoRefreshOutline } from "react-icons/io5";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Booking {
@@ -1352,7 +1353,7 @@ export default function SafariproBookings() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         cell: ({ row }) => (
@@ -1360,7 +1361,7 @@ export default function SafariproBookings() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         size: 28,
@@ -1527,10 +1528,7 @@ export default function SafariproBookings() {
     table.resetRowSelection();
   };
 
-  if (isError)
-    return (
-      <p className="p-6 text-red-600">Error: {(error as Error).message}</p>
-    );
+  if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
   return (
     <>
@@ -1672,7 +1670,7 @@ export default function SafariproBookings() {
                               onCheckedChange={(checked: boolean) =>
                                 handleStatusChange(checked, value)
                               }
-                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
                             />
                             <Label
                               htmlFor={`${id}-${i}`}
@@ -1808,7 +1806,9 @@ export default function SafariproBookings() {
                         colSpan={columns.length}
                         className="h-24 text-center"
                       >
-                        Loading online bookings...
+                        <div className="w-full flex items-center justify-center">
+                          <Loader />
+                        </div>{" "}
                       </TableCell>
                     </TableRow>
                   ) : table.getRowModel().rows?.length ? (

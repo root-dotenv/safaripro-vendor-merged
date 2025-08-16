@@ -26,6 +26,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ServerPagination from "@/components/comp-459";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Booking {
@@ -291,11 +292,7 @@ export default function SpecialRequests() {
             </div>
           )}
 
-          {isError && (
-            <div className="text-center p-12 text-destructive">
-              Error: {(error as Error).message}
-            </div>
-          )}
+          {isError && <ErrorPage error={error as Error} onRetry={refetch} />}
 
           {!isLoading && allNotes.length === 0 && (
             <div className="text-center py-12 border-2 border-dashed rounded-lg">

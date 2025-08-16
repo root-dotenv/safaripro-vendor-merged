@@ -1050,15 +1050,7 @@ const AllocationCard = ({
   };
 
   return (
-    <Card className="overflow-hidden bg-[#FFF] border-[#DADCE0] hover:shadow-sm transition-shadow duration-300 flex flex-col pt-0">
-      <img
-        src={
-          allocation.room_type.image ||
-          "https://placehold.co/600x400/EEE/31343C?text=No+Image"
-        }
-        alt={allocation.room_type.name}
-        className="w-full h-48 object-cover"
-      />
+    <Card className="overflow-hidden bg-[#FFF] border-[#DADCE0] hover:shadow-sm transition-shadow duration-300 flex flex-col pt-6">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>

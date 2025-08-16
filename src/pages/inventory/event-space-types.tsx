@@ -5,7 +5,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Loader2, MoreHorizontal } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Loader2,
+  MoreHorizontal,
+  Loader,
+} from "lucide-react";
 
 // Shadcn UI Components
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ErrorPage from "@/components/custom/error-page";
 
 // Type Definitions
 interface EventSpaceType {
@@ -79,6 +87,7 @@ export default function EventSpaceTypes() {
   const {
     data: eventSpaceTypesResponse,
     isLoading,
+    refetch,
     isError,
     error,
   } = useQuery<PaginatedEventSpaceTypesResponse>({
@@ -202,11 +211,11 @@ export default function EventSpaceTypes() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : isError ? (
-            <div className="text-center py-4 text-red-500">
-              Error: {error.message}
+            <div className="text-center py-4 flex items-center justify-center">
+              <Loader />
             </div>
+          ) : isError ? (
+            <ErrorPage error={error as Error} onRetry={refetch} />
           ) : eventSpaceTypesResponse?.results?.length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {eventSpaceTypesResponse.results.map((eventSpaceType) => (

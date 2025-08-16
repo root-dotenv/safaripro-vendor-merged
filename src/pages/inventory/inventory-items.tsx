@@ -21,7 +21,7 @@ import {
   Columns3Icon,
   EllipsisIcon,
   FilterIcon,
-  Loader2,
+  Loader,
   Plus,
   Edit,
   Trash2,
@@ -82,6 +82,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { BiPrinter } from "react-icons/bi";
 import { Switch } from "@/components/ui/switch";
+import ErrorPage from "@/components/custom/error-page";
+import { IoRefreshOutline } from "react-icons/io5";
 
 // Type Definitions
 interface InventoryItem {
@@ -404,11 +406,7 @@ export default function InventoryItems() {
   };
 
   if (isItemsError) {
-    return (
-      <div className="p-6 text-center text-red-600">
-        Error: {(itemsError as Error).message}
-      </div>
-    );
+    return <ErrorPage error={itemsError as Error} onRetry={refetch} />;
   }
 
   return (
@@ -534,7 +532,7 @@ export default function InventoryItems() {
                       className="bg-red-600 hover:bg-red-700 text-white"
                     >
                       {deleteItemMutation.isPending && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader className="mr-2 h-4 w-4 animate-spin" />
                       )}{" "}
                       Delete
                     </Button>
@@ -547,7 +545,7 @@ export default function InventoryItems() {
               onClick={() => refetch()}
               disabled={isRefetching || isLoadingItems}
             >
-              <Loader2
+              <IoRefreshOutline
                 className={cn(
                   "mr-2 h-4 w-4",
                   (isRefetching || isLoadingItems) && "animate-spin"
@@ -580,7 +578,9 @@ export default function InventoryItems() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    Loading items...
+                    <div className="w-full flex items-center justify-center">
+                      <Loader />
+                    </div>{" "}
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows.length ? (
@@ -726,7 +726,7 @@ export default function InventoryItems() {
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               {deleteItemMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
               )}{" "}
               Delete Item
             </Button>
@@ -927,7 +927,7 @@ function ItemFormDialog({
               disabled={isLoading}
               className="bg-blue-600 text-white"
             >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
               {item ? "Save Changes" : "Create Item"}
             </Button>
           </DialogFooter>

@@ -20,6 +20,7 @@ import {
   Award,
   TrendingUp,
   AlertCircle,
+  Loader,
 } from "lucide-react";
 
 // --- Shadcn UI Components ---
@@ -61,6 +62,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Department {
@@ -254,6 +256,7 @@ export default function HotelDepartments() {
     data: departmentsResponse,
     isLoading,
     isError,
+    refetch,
     error,
   } = useQuery<PaginatedDepartmentsResponse>({
     queryKey: ["departments", HOTEL_ID],
@@ -419,8 +422,7 @@ export default function HotelDepartments() {
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                      <p className="mt-2">Loading departments...</p>
+                      <Loader className="h-6 w-6 animate-spin mx-auto" />
                     </TableCell>
                   </TableRow>
                 ) : isError ? (
@@ -429,7 +431,7 @@ export default function HotelDepartments() {
                       colSpan={6}
                       className="h-24 text-center text-red-500"
                     >
-                      Error: {error?.message || "Failed to load departments"}
+                      <ErrorPage error={error as Error} onRetry={refetch} />
                     </TableCell>
                   </TableRow>
                 ) : departments.length === 0 ? (

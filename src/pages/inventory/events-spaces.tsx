@@ -4,7 +4,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Loader2, MoreHorizontal } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Loader2,
+  MoreHorizontal,
+  Loader,
+} from "lucide-react";
 
 // Shadcn UI Components
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +61,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
+import ErrorPage from "@/components/custom/error-page";
 
 // Type Definitions
 interface Amenity {
@@ -126,6 +134,7 @@ export default function EventSpaces() {
   const {
     data: eventSpacesResponse,
     isLoading,
+    refetch,
     isError,
     error,
   } = useQuery<PaginatedEventSpacesResponse>({
@@ -277,11 +286,11 @@ export default function EventSpaces() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : isError ? (
-            <div className="text-center py-4 text-red-500">
-              Error: {error.message}
+            <div className="text-center w-full flex items-center justify-center py-4">
+              <Loader />
             </div>
+          ) : isError ? (
+            <ErrorPage error={error as Error} onRetry={refetch} />
           ) : eventSpacesResponse?.results?.length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {eventSpacesResponse.results.map((eventSpace) => (

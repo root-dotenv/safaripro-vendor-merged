@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useCallback,
-  useRef,
-  useId,
-} from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   type ColumnDef,
@@ -36,6 +29,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Receipt,
+  Loader,
 } from "lucide-react";
 import { TbFileTypeCsv } from "react-icons/tb";
 
@@ -72,13 +66,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -86,6 +73,7 @@ import { IoRefreshOutline } from "react-icons/io5";
 import axios from "axios";
 import { DualCurrencyDisplay } from "./DualCurrencyDisplay";
 import { InvoiceTicket } from "./invoice-ticket";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Invoice {
@@ -150,7 +138,6 @@ const formatCurrencySimple = (amount: number, currency: string) => {
 // --- Main Component ---
 export default function SafariProInvoices() {
   const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
-  const id = useId();
 
   // --- State ---
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -203,7 +190,7 @@ export default function SafariProInvoices() {
         }
       });
       const response = await axios.get(
-        `http://192.168.1.193:8030/api/v1/invoices?hotel_id=c53e58d4-2465-4930-bebb-30a970f65558`,
+        `http://192.168.1.193:8030/api/v1/invoices?hotel_id=${HOTEL_ID}`,
         { params }
       );
       return response.data;
@@ -279,7 +266,7 @@ export default function SafariProInvoices() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         cell: ({ row }) => (
@@ -287,7 +274,7 @@ export default function SafariProInvoices() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         size: 40,
@@ -398,10 +385,7 @@ export default function SafariProInvoices() {
       ?.setFilterValue(newFilter.length ? newFilter : undefined);
   };
 
-  if (isError)
-    return (
-      <div className="p-6 text-red-600">Error: {(error as Error).message}</div>
-    );
+  if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
   return (
     <>
@@ -412,6 +396,7 @@ export default function SafariProInvoices() {
             variant="outline"
             onClick={handleExport}
             disabled={isExporting}
+            className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
           >
             {isExporting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -422,7 +407,7 @@ export default function SafariProInvoices() {
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid px-6 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -461,7 +446,7 @@ export default function SafariProInvoices() {
           </Card>
         </div>
 
-        <Card>
+        <Card className="bg-none p-0 shadow-none border-none">
           <CardHeader>
             <CardTitle>Invoices List</CardTitle>
             <CardDescription>
@@ -509,7 +494,7 @@ export default function SafariProInvoices() {
                             onCheckedChange={(checked) =>
                               handleStatusChange(!!checked, value)
                             }
-                            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+                            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
                           />
                           <Label
                             htmlFor={`status-${value}`}
@@ -592,7 +577,9 @@ export default function SafariProInvoices() {
                         colSpan={columns.length}
                         className="h-24 text-center"
                       >
-                        Loading invoices...
+                        <div className="w-full flex items-center justify-center">
+                          <Loader />
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : table.getRowModel().rows?.length ? (
@@ -631,26 +618,6 @@ export default function SafariProInvoices() {
                 {table.getFilteredRowModel().rows.length} row(s) selected.
               </div>
               <div className="flex items-center gap-6">
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm font-medium">Rows per page</p>
-                  <Select
-                    value={`${table.getState().pagination.pageSize}`}
-                    onValueChange={(value) => table.setPageSize(Number(value))}
-                  >
-                    <SelectTrigger className="h-8 w-[70px]">
-                      <SelectValue
-                        placeholder={table.getState().pagination.pageSize}
-                      />
-                    </SelectTrigger>
-                    <SelectContent side="top">
-                      {[10, 25, 50, 100].map((pageSize) => (
-                        <SelectItem key={pageSize} value={`${pageSize}`}>
-                          {pageSize}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div className="flex items-center justify-center text-sm font-medium">
                   Page {table.getState().pagination.pageIndex + 1} of{" "}
                   {table.getPageCount()}

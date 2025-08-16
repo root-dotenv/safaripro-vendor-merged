@@ -9,3 +9,5 @@
 - AlertDialogContent (DELETE) - className="bg-[#FFF] border-[1.5px] rounded-md border-[#DADCE0]"
 
 - Editing Icon - <TbEdit className="h-4 w-4" />
+
+- className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"

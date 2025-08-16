@@ -23,6 +23,7 @@ import {
   Search,
   CircleXIcon,
   RefreshCw,
+  Loader,
 } from "lucide-react";
 import { CiGrid42 } from "react-icons/ci";
 import { TbFileTypeCsv } from "react-icons/tb";
@@ -66,6 +67,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ServerPagination from "@/components/comp-459";
 import { cn } from "@/lib/utils";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Booking {
@@ -362,10 +364,7 @@ export default function CheckedOutGuests() {
     pageCount: totalPages,
   });
 
-  if (isError)
-    return (
-      <div className="p-6 text-red-600">Error: {(error as Error).message}</div>
-    );
+  if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -395,7 +394,7 @@ export default function CheckedOutGuests() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 px-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -418,7 +417,7 @@ export default function CheckedOutGuests() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="p-0 border-none bg-none shadow-none">
         <CardHeader>
           <CardTitle>Checked-Out Guests List</CardTitle>
           <CardDescription>
@@ -516,7 +515,9 @@ export default function CheckedOutGuests() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      Loading guests...
+                      <div className="w-full flex items-center justify-center">
+                        <Loader />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : table.getRowModel().rows?.length ? (

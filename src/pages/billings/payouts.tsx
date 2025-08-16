@@ -1,11 +1,8 @@
 // src/pages/Payouts.tsx
 "use client";
-
 import { useState, useMemo } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import axios from "axios";
-
-// UI Components
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +85,7 @@ const payoutClient = axios.create({
 
 export default function Payouts() {
   const [page, setPage] = useState(1);
-  const VENDOR_ID = "2019ab69-ad9d-4a63-864a-1ae101ed3264";
+  const VENDOR_ID = import.meta.env.VITE_VENDOR_ID;
 
   const { data, isLoading } = useQuery<PayoutsApiResponse>({
     queryKey: ["vendorPayouts", VENDOR_ID, page],

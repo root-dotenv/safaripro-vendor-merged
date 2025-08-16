@@ -35,7 +35,6 @@ import {
   EllipsisIcon,
   Eye,
   FilterIcon,
-  Loader2,
   Plus,
   Search,
   Trash2,
@@ -44,6 +43,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Users,
+  Loader,
 } from "lucide-react";
 import { TbFileTypeCsv } from "react-icons/tb";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -93,13 +93,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -107,6 +100,7 @@ import {
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import { IoRefreshOutline } from "react-icons/io5";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions (Updated to match your API response) ---
 interface Booking {
@@ -126,7 +120,7 @@ interface Booking {
     | "Checked In"
     | "Checked Out"
     | "Cancelled"
-    | "Completed"; // Added "Completed"
+    | "Completed";
   booking_type: "Physical" | "Online";
   amount_paid: string;
   payment_reference: string;
@@ -397,7 +391,7 @@ export default function AllBookings() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         cell: ({ row }) => (
@@ -405,7 +399,7 @@ export default function AllBookings() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         size: 28,
@@ -615,10 +609,7 @@ export default function AllBookings() {
     table.resetRowSelection();
   };
 
-  if (isError)
-    return (
-      <div className="p-6 text-red-600">Error: {(error as Error).message}</div>
-    );
+  if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
   return (
     <>
@@ -627,12 +618,13 @@ export default function AllBookings() {
           <h2 className="text-3xl font-bold tracking-tight">All Bookings</h2>
           <div className="flex items-center space-x-2">
             <Button
+              className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
               variant="outline"
               onClick={handleExport}
               disabled={isExporting}
             >
               {isExporting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <TbFileTypeCsv className="mr-2 h-4 w-4" />
               )}
@@ -685,7 +677,7 @@ export default function AllBookings() {
             <CardContent>
               <div className="text-2xl font-bold">
                 {isCheckInLoading ? (
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <Loader className="h-6 w-6 animate-spin" />
                 ) : (
                   activeCheckInsCount
                 )}
@@ -766,7 +758,7 @@ export default function AllBookings() {
                               onCheckedChange={(checked: boolean) =>
                                 handleStatusChange(checked, value)
                               }
-                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
                             />
                             <Label
                               htmlFor={`${id}-status-${i}`}
@@ -806,7 +798,7 @@ export default function AllBookings() {
                           <div key={value} className="flex items-center gap-2">
                             <Checkbox
                               id={`${id}-booking-type-${i}`}
-                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
                               checked={selectedBookingTypes.includes(value)}
                               onCheckedChange={(checked: boolean) =>
                                 handleBookingTypeChange(checked, value)
@@ -946,7 +938,9 @@ export default function AllBookings() {
                         colSpan={columns.length}
                         className="h-24 text-center"
                       >
-                        Loading bookings...
+                        <div className="w-full flex items-center justify-center">
+                          <Loader />
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : table.getRowModel().rows?.length ? (
@@ -1141,7 +1135,7 @@ function RowActions({
             disabled={!canCheckIn || isCheckingIn}
           >
             {isCheckingIn ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <DoorOpen className="mr-2 h-4 w-4" />
             )}
@@ -1151,7 +1145,7 @@ function RowActions({
         <DropdownMenuSeparator />
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive focus:text-destructive">
+            <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive">
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </div>

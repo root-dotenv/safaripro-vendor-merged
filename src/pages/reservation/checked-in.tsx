@@ -24,6 +24,7 @@ import {
   CircleXIcon,
   RefreshCw,
   LogOut,
+  Loader,
 } from "lucide-react";
 import { CiGrid42 } from "react-icons/ci";
 import { TbFileTypeCsv } from "react-icons/tb";
@@ -67,6 +68,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ServerPagination from "@/components/comp-459";
 import { cn } from "@/lib/utils";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Booking {
@@ -385,17 +387,15 @@ export default function CheckedInGuests() {
     setCurrentPage(page);
   };
 
-  if (isError)
-    return (
-      <div className="p-6 text-red-600">Error: {(error as Error).message}</div>
-    );
+  if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="flex-1 space-y-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Checked-In Guests</h2>
         <div className="flex items-center space-x-2">
           <Button
+            className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
             variant="outline"
             onClick={handleExportCSV}
             disabled={isExporting}
@@ -415,7 +415,7 @@ export default function CheckedInGuests() {
           </Button>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid px-4 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -437,7 +437,7 @@ export default function CheckedInGuests() {
           </CardContent>
         </Card>
       </div>
-      <Card>
+      <Card className="p-0 border-none bg-none shadow-none">
         <CardHeader>
           <CardTitle>Guests List</CardTitle>
           <CardDescription>
@@ -535,7 +535,9 @@ export default function CheckedInGuests() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      Loading guests...
+                      <div className="w-full flex items-center justify-center">
+                        <Loader />
+                      </div>{" "}
                     </TableCell>
                   </TableRow>
                 ) : table.getRowModel().rows?.length ? (

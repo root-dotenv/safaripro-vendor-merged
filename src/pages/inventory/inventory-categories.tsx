@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect, useId } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import {
@@ -24,7 +24,6 @@ import {
   ChevronUpIcon,
   Columns3Icon,
   EllipsisIcon,
-  FilterIcon,
   Loader2,
   Plus,
   Edit,
@@ -33,6 +32,7 @@ import {
   ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  Loader,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -67,11 +67,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -81,6 +76,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { BiPrinter } from "react-icons/bi";
 import { Switch } from "@/components/ui/switch";
+import { IoRefreshOutline } from "react-icons/io5";
+import ErrorPage from "@/components/custom/error-page";
 
 // Type Definitions
 interface InventoryCategory {
@@ -126,7 +123,6 @@ const CATEGORIES_PER_PAGE = 10;
 // Main Component
 export default function InventoryCategories() {
   const queryClient = useQueryClient();
-  const id = useId();
 
   // State Management
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -281,7 +277,7 @@ export default function InventoryCategories() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         size: 28,
@@ -398,25 +394,6 @@ export default function InventoryCategories() {
     pageCount: totalPages,
   });
 
-  const uniqueStatusValues = useMemo(() => ["Active", "Inactive"], []);
-
-  const selectedStatuses =
-    (table.getColumn("is_active")?.getFilterValue() as string[]) ?? [];
-
-  const handleStatusChange = (checked: boolean, value: string) => {
-    const currentFilter =
-      (table.getColumn("is_active")?.getFilterValue() as string[]) ?? [];
-    let newFilter;
-    if (checked) {
-      newFilter = [...currentFilter, value];
-    } else {
-      newFilter = currentFilter.filter((v) => v !== value);
-    }
-    table
-      .getColumn("is_active")
-      ?.setFilterValue(newFilter.length ? newFilter : undefined);
-  };
-
   const handleDeleteRows = () => {
     const selectedRows = table.getSelectedRowModel().rows;
     selectedRows.forEach((row) => {
@@ -426,11 +403,7 @@ export default function InventoryCategories() {
   };
 
   if (isError) {
-    return (
-      <div className="p-6 text-center text-red-600">
-        Error: {(error as Error).message}
-      </div>
-    );
+    <ErrorPage error={error as Error} onRetry={refetch} />;
   }
 
   return (
@@ -463,45 +436,6 @@ export default function InventoryCategories() {
 
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline">
-                  <FilterIcon className="-ms-1 opacity-60" size={16} />
-                  Status
-                  {selectedStatuses.length > 0 && (
-                    <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
-                      {selectedStatuses.length}
-                    </span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto min-w-36 p-3" align="start">
-                <div className="space-y-3">
-                  <div className="text-muted-foreground text-xs font-medium">
-                    Filter by status
-                  </div>
-                  <div className="space-y-3">
-                    {uniqueStatusValues.map((value) => (
-                      <div key={value} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`status-${value}`}
-                          checked={selectedStatuses.includes(value)}
-                          onCheckedChange={(checked) =>
-                            handleStatusChange(!!checked, value)
-                          }
-                        />
-                        <Label
-                          htmlFor={`status-${value}`}
-                          className="font-normal"
-                        >
-                          {value}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
@@ -570,7 +504,7 @@ export default function InventoryCategories() {
               onClick={() => refetch()}
               disabled={isRefetching || isLoading}
             >
-              <Loader2
+              <IoRefreshOutline
                 className={cn(
                   "mr-2 h-4 w-4",
                   (isRefetching || isLoading) && "animate-spin"
@@ -607,7 +541,9 @@ export default function InventoryCategories() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    Loading categories...
+                    <div className="w-full flex items-center justify-center">
+                      <Loader />
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (
