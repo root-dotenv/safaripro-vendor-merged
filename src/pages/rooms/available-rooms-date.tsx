@@ -1,8 +1,13 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, ListFilterIcon, Eye } from "lucide-react";
+import { format, addDays } from "date-fns";
+import {
+  Calendar as CalendarIcon,
+  ListFilterIcon,
+  Eye,
+  Loader,
+} from "lucide-react";
 import { LuArrowDownUp, LuTicketPlus } from "react-icons/lu";
 import { type DateRange } from "react-day-picker";
 import {
@@ -46,8 +51,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAvailabilitySearchStore } from "@/store/availability.store";
+import ErrorPage from "@/components/custom/error-page";
 
-// Type definitions (assuming they are correct as provided)
+// Type definitions remain the same
 interface Room {
   room_id: string;
   room_code: string;
@@ -73,7 +80,7 @@ interface EnrichedRoom {
   roomTypeId: string;
 }
 
-// --- API Fetching Logic ---
+// API fetching logic remains the same
 const fetchEnrichedRooms = async (
   hotelId: string,
   startDate: string,
@@ -111,12 +118,39 @@ const fetchEnrichedRooms = async (
   });
 };
 
+// --- Reusable Sortable Header Component ---
+const SortableHeader = ({ column, title }: { column: any; title: string }) => (
+  <div
+    className="flex items-center gap-2 cursor-pointer select-none"
+    onClick={column.getToggleSortingHandler()}
+  >
+    {title}
+    <LuArrowDownUp size={14} className="text-muted-foreground/70" />
+  </div>
+);
+
 export default function AvailableRoomsByDate() {
   const navigate = useNavigate();
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
+
+  const { dateRange: persistedDateRange, setDateRange: setPersistedDateRange } =
+    useAvailabilitySearchStore();
+  const [date, setDate] = useState<DateRange | undefined>(persistedDateRange);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [data, setData] = useState<EnrichedRoom[]>([]);
+
+  useEffect(() => {
+    if (!persistedDateRange) {
+      const today = new Date();
+      const defaultDateRange = {
+        from: today,
+        to: addDays(today, 7),
+      };
+      setDate(defaultDateRange);
+      setPersistedDateRange(defaultDateRange);
+    }
+  }, []);
 
   const hotelId = import.meta.env.VITE_HOTEL_ID;
   const startDate = date?.from ? format(date.from, "yyyy-MM-dd") : "";
@@ -146,6 +180,11 @@ export default function AvailableRoomsByDate() {
     }
   }, [fetchedData]);
 
+  const handleDateSelect = (selectedDate: DateRange | undefined) => {
+    setDate(selectedDate);
+    setPersistedDateRange(selectedDate);
+  };
+
   const handleBookNow = useCallback(
     (room: EnrichedRoom) => {
       if (!startDate || !endDate || !date?.from || !date?.to) return;
@@ -166,7 +205,6 @@ export default function AvailableRoomsByDate() {
       );
       params.append("maxOccupancy", room.maxOccupancy.toString());
 
-      // CORRECTED: The path now matches your router configuration.
       navigate(`/bookings/new-booking?${params.toString()}`);
     },
     [startDate, endDate, date, navigate]
@@ -174,18 +212,35 @@ export default function AvailableRoomsByDate() {
 
   const columns = useMemo<ColumnDef<EnrichedRoom>[]>(
     () => [
-      { accessorKey: "roomTypeName", header: "Room Type" },
-      { accessorKey: "roomCode", header: "Room Code" },
+      {
+        accessorKey: "roomTypeName",
+        header: ({ column }) => (
+          <SortableHeader column={column} title="Room Type" />
+        ),
+      },
+      {
+        accessorKey: "roomCode",
+        header: ({ column }) => (
+          <SortableHeader column={column} title="Room Code" />
+        ),
+      },
       {
         accessorKey: "pricePerNight",
-        header: "Price/Night",
+        header: ({ column }) => (
+          <SortableHeader column={column} title="Price/Night" />
+        ),
         cell: ({ row }) =>
           new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
           }).format(row.getValue("pricePerNight")),
       },
-      { accessorKey: "maxOccupancy", header: "Max Occupancy" },
+      {
+        accessorKey: "maxOccupancy",
+        header: ({ column }) => (
+          <SortableHeader column={column} title="Max Occupancy" />
+        ),
+      },
       {
         id: "actions",
         header: () => <div className="text-center">Actions</div>,
@@ -199,7 +254,7 @@ export default function AvailableRoomsByDate() {
                     size="icon"
                     onClick={() => navigate(`/rooms/${row.original.roomId}`)}
                   >
-                    <Eye size={18} className="text-blue-600" />
+                    <Eye size={18} className="text-gray-500" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -209,8 +264,8 @@ export default function AvailableRoomsByDate() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
                     size="sm"
+                    className="bg-blue-600 text-white hover:bg-blue-700 h-8 px-3"
                     onClick={() => handleBookNow(row.original)}
                   >
                     Book Now
@@ -241,6 +296,8 @@ export default function AvailableRoomsByDate() {
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 13 } },
   });
+
+  if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -285,7 +342,7 @@ export default function AvailableRoomsByDate() {
                 mode="range"
                 defaultMonth={date?.from}
                 selected={date}
-                onSelect={setDate}
+                onSelect={handleDateSelect}
                 numberOfMonths={2}
                 disabled={(day) =>
                   day < new Date(new Date().setHours(0, 0, 0, 0))
@@ -296,7 +353,7 @@ export default function AvailableRoomsByDate() {
         </CardContent>
       </Card>
       {startDate && endDate && (
-        <div className="bg-white rounded-lg p-6 border">
+        <div className="bg-none border-none">
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="relative flex-1">
               <Input
@@ -319,28 +376,13 @@ export default function AvailableRoomsByDate() {
                     className="hover:bg-transparent"
                   >
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id} className="h-11">
-                        {header.isPlaceholder ? null : (
-                          <div
-                            className={cn(
-                              "flex items-center gap-2",
-                              header.column.getCanSort() &&
-                                "cursor-pointer select-none"
-                            )}
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            {flexRender(
+                      <TableHead key={header.id} className="h-11 text-left">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                            {header.column.getCanSort() && (
-                              <LuArrowDownUp
-                                size={14}
-                                className="text-muted-foreground/70"
-                              />
-                            )}
-                          </div>
-                        )}
                       </TableHead>
                     ))}
                   </TableRow>
@@ -353,26 +395,16 @@ export default function AvailableRoomsByDate() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      Searching for available rooms...
-                    </TableCell>
-                  </TableRow>
-                ) : isError ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center text-destructive"
-                    >
-                      Could not fetch rooms:{" "}
-                      {error instanceof Error
-                        ? error.message
-                        : "An unknown error"}
+                      <div className="w-full flex items-center justify-center">
+                        <Loader className="animate-spin" />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className="text-left">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
