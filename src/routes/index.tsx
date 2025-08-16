@@ -45,6 +45,7 @@ import Charges from "@/pages/billings/charges";
 import SafariProInvoices from "@/pages/billings/safaripro-invoices";
 import WelcomeWalkthroughs from "@/pages/miscellaneous/welcome-walkthroughs";
 import AllocateRooms from "@/pages/rooms/allocations/allocate-rooms";
+import Allocations from "@/pages/rooms/allocations/allocations";
 
 const RootLayout = () => {
   return (
@@ -122,6 +123,7 @@ export const router = createBrowserRouter([
               },
               { path: "rooms/:room_id", element: <RoomDetailsPage /> },
               { path: "rooms/allocate-rooms", element: <AllocateRooms /> },
+              { path: "rooms/allocations", element: <Allocations /> },
               // - - - Reservations routes
               { path: "reservations/checkin", element: <CheckedInGuests /> },
               { path: "reservations/checkout", element: <CheckedOutGuests /> },

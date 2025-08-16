@@ -370,6 +370,7 @@ const navData = {
           title: "Available Rooms By Dates",
           url: "rooms/available-rooms-dates",
         },
+        { title: "Allocations", url: "rooms/allocations" },
         { title: "Allocate Rooms", url: "rooms/allocate-rooms" },
       ],
     },
