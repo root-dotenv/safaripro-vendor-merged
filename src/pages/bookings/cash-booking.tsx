@@ -41,8 +41,8 @@ export default function CashBooking() {
   >({
     full_name: "",
     phone_number: "",
-    email: "", // Added email
-    address: "", // Added address
+    email: "",
+    address: "",
     service_notes: "",
     special_requests: "",
     number_of_children: 0,

@@ -1167,7 +1167,7 @@ interface Booking {
     | "Checked In"
     | "Checked Out"
     | "Cancelled"
-    | "Completed";
+    | "Expired";
   booking_type: "Physical" | "Online";
   amount_paid: string;
   currency_paid: string;
@@ -1196,7 +1196,6 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 // --- Helper Functions ---
 const getStatusBadgeClasses = (status: string): string => {
   switch (status?.toLowerCase()) {
-    case "completed":
     case "confirmed":
     case "checked in":
       return "bg-green-100 text-green-800 border-green-200 hover:bg-green-100";
@@ -1204,6 +1203,8 @@ const getStatusBadgeClasses = (status: string): string => {
       return "bg-muted-foreground/60 text-primary-foreground";
     case "processing":
       return "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100";
+    case "expired":
+      return "bg-red-100 text-red-800 border-red-200 hover:bg-red-100";
     default:
       return "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-100";
   }
@@ -1503,7 +1504,7 @@ export default function SafariproBookings() {
         "Checked In",
         "Checked Out",
         "Cancelled",
-        "Completed",
+        "Expired",
       ].sort(),
     []
   );

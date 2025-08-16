@@ -22,6 +22,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useHotel } from "@/providers/hotel-provider";
 
 interface CheckinGuestProps {
   bookingId: string;
@@ -35,6 +36,8 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
     null
   );
   const [isCheckingIn, setIsCheckingIn] = useState(false);
+
+  const { hotel } = useHotel();
 
   const BOOKING_BASE_URL = import.meta.env.VITE_BOOKING_BASE_URL;
 
@@ -196,7 +199,7 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
                 Booking Receipt
               </CardTitle>
               <CardDescription className="text-gray-600">
-                Tanzania Wheels Co.
+                {hotel?.name}
               </CardDescription>
             </div>
             <div className="text-right">
@@ -291,13 +294,9 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
             </div>
           </div>
           <div className="mt-6 text-center text-xs text-gray-600 border-t pt-4">
+            <p>{hotel?.description}</p>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
-              scelerisque erat ut justo rhoncus, ac interdum.
-            </p>
-            <p>
-              Thank you for choosing Tanzania Wheels Co. We wish you a pleasant
-              stay!
+              Thank you for choosing {hotel?.name} We wish you a pleasant stay!
             </p>
           </div>
         </CardContent>

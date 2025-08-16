@@ -272,13 +272,9 @@ export const CheckinGuest: React.FC<CheckinGuestProps> = ({ bookingId }) => {
             </div>
           </div>
           <div className="mt-6 text-center text-xs text-gray-600 border-t pt-4">
+            <p>{hotel?.description}</p>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
-              scelerisque erat ut justo rhoncus, ac interdum.
-            </p>
-            <p>
-              Thank you for choosing Tanzania Wheels Co. We wish you a pleasant
-              stay!
+              Thank you for choosing {hotel?.name} We wish you a pleasant stay!
             </p>
           </div>
         </CardContent>

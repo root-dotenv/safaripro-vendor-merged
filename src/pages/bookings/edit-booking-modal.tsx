@@ -72,7 +72,7 @@ export default function EditBookingModal({
   onClose,
 }: EditBookingModalProps) {
   const queryClient = useQueryClient();
-  const { toast } = useToast(); // ADDED: Initialize the toast hook
+  const { toast } = useToast();
   const [isCheckoutRequested, setIsCheckoutRequested] = useState(false);
 
   const form = useForm<Partial<Booking>>({

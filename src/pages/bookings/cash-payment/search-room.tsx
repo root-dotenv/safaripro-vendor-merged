@@ -30,17 +30,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils"; // Assuming you have a utility for classnames
+import { cn } from "@/lib/utils";
 
 // --- NEW REUSABLE DATE PICKER COMPONENT ---
 // This component encapsulates the Popover and Calendar logic.
 interface DatePickerProps {
   label: string;
   id: string;
-  value: string; // Expects "YYYY-MM-DD"
-  onChange: (date: string) => void; // Returns "YYYY-MM-DD"
+  value: string;
+  onChange: (date: string) => void;
   disabled?: boolean;
-  disabledDays?: any; // Prop to pass to the Calendar for disabling dates
+  disabledDays?: any;
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({

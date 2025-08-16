@@ -38,8 +38,9 @@
 //   ChevronLastIcon,
 //   ChevronLeftIcon,
 //   ChevronRightIcon,
+//   Search,
+//   Loader,
 // } from "lucide-react";
-// import { TbFileTypeCsv } from "react-icons/tb";
 // import Papa from "papaparse";
 // import { toast } from "sonner";
 // import hotelClient from "../../api/hotel-client";
@@ -81,21 +82,11 @@
 //   PopoverContent,
 //   PopoverTrigger,
 // } from "@/components/ui/popover";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
-// import {
-//   Pagination,
-//   PaginationContent,
-//   PaginationItem,
-// } from "@/components/ui/pagination";
 // import { cn } from "@/lib/utils";
 // import { Checkbox } from "@/components/ui/checkbox";
-// import { BiPrinter } from "react-icons/bi";
+// import { IoRefreshOutline } from "react-icons/io5";
+// import { TbFileTypeCsv } from "react-icons/tb";
+// import ErrorPage from "@/components/custom/error-page";
 
 // // --- Type Definitions ---
 // interface Room {
@@ -109,6 +100,8 @@
 
 // interface PaginatedRoomsResponse {
 //   count: number;
+//   next: string | null;
+//   previous: string | null;
 //   results: Room[];
 // }
 
@@ -160,7 +153,6 @@
 //   const navigate = useNavigate();
 //   const queryClient = useQueryClient();
 //   const hotel_id = import.meta.env.VITE_HOTEL_ID;
-//   const ROOMS_PER_PAGE = 10;
 //   const id = useId();
 
 //   // --- State ---
@@ -169,7 +161,7 @@
 //   const [globalFilter, setGlobalFilter] = useState("");
 //   const [pagination, setPagination] = useState<PaginationState>({
 //     pageIndex: 0,
-//     pageSize: ROOMS_PER_PAGE,
+//     pageSize: 15, // First page shows 15 rooms
 //   });
 //   const debouncedGlobalFilter = useDebounce(globalFilter, 300);
 //   const [isExporting, setIsExporting] = useState(false);
@@ -187,7 +179,7 @@
 //     queryKey: [
 //       "booked-rooms",
 //       hotel_id,
-//       pagination.pageIndex + 1,
+//       pagination.pageIndex,
 //       debouncedGlobalFilter,
 //       sorting,
 //       columnFilters,
@@ -197,7 +189,7 @@
 //         hotel_id: hotel_id!,
 //         availability_status: "Booked",
 //         page: String(pagination.pageIndex + 1),
-//         page_size: String(pagination.pageSize),
+//         page_size: String(pagination.pageIndex === 0 ? 15 : 7), // 15 for first page, 7 for second
 //       });
 //       if (debouncedGlobalFilter) params.append("search", debouncedGlobalFilter);
 //       if (sorting.length > 0) {
@@ -229,7 +221,18 @@
 
 //   const roomsForCurrentPage = paginatedResponse?.results ?? [];
 //   const totalRoomsCount = paginatedResponse?.count ?? 0;
-//   const totalPages = Math.ceil(totalRoomsCount / ROOMS_PER_PAGE);
+//   const totalPages = Math.ceil(totalRoomsCount / 15); // Based on first page size
+//   const hasNextPage = paginatedResponse?.next !== null;
+//   const hasPreviousPage = paginatedResponse?.previous !== null;
+
+//   // Adjust page size dynamically for second page
+//   useEffect(() => {
+//     if (pagination.pageIndex === 1 && pagination.pageSize !== 7) {
+//       setPagination((prev) => ({ ...prev, pageSize: 7 }));
+//     } else if (pagination.pageIndex === 0 && pagination.pageSize !== 15) {
+//       setPagination((prev) => ({ ...prev, pageSize: 15 }));
+//     }
+//   }, [pagination.pageIndex]);
 
 //   // --- Export to CSV Function ---
 //   const handleExport = useCallback(async () => {
@@ -239,7 +242,7 @@
 //     }
 
 //     setIsExporting(true);
-//     toast.info("Exporting all rooms, please wait...");
+//     toast.info("Exporting all booked rooms, please wait...");
 
 //     try {
 //       const params = new URLSearchParams({
@@ -307,7 +310,7 @@
 //               table.toggleAllPageRowsSelected(!!value)
 //             }
 //             aria-label="Select all"
-//             className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+//             className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
 //           />
 //         ),
 //         cell: ({ row }) => (
@@ -315,7 +318,7 @@
 //             checked={row.getIsSelected()}
 //             onCheckedChange={(value) => row.toggleSelected(!!value)}
 //             aria-label="Select row"
-//             className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+//             className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
 //           />
 //         ),
 //         size: 28,
@@ -505,11 +508,7 @@
 //   };
 
 //   if (isError) {
-//     return (
-//       <div className="p-6 text-center text-red-600">
-//         Error: {(error as Error).message}
-//       </div>
-//     );
+//     return <ErrorPage error={error as Error} onRetry={refetch} />;
 //   }
 
 //   return (
@@ -528,13 +527,11 @@
 //             </Badge>
 //           </div>
 //           <div className="flex items-center space-x-2">
-//             <Button variant="outline" onClick={() => window.print()}>
-//               <BiPrinter className="mr-1" /> Print
-//             </Button>
 //             <Button
 //               variant="outline"
 //               onClick={handleExport}
 //               disabled={isExporting}
+//               className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
 //             >
 //               {isExporting ? (
 //                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -552,29 +549,22 @@
 //               <Input
 //                 id={`${id}-input`}
 //                 ref={inputRef}
-//                 className={cn(
-//                   "peer min-w-60 ps-9",
-//                   Boolean(table.getColumn("code")?.getFilterValue()) && "pe-9"
-//                 )}
-//                 value={
-//                   (table.getColumn("code")?.getFilterValue() ?? "") as string
-//                 }
-//                 onChange={(e) =>
-//                   table.getColumn("code")?.setFilterValue(e.target.value)
-//                 }
+//                 className={cn("peer min-w-60 ps-9", globalFilter && "pe-9")}
+//                 value={globalFilter}
+//                 onChange={(e) => setGlobalFilter(e.target.value)}
 //                 placeholder="Filter by code, description..."
 //                 type="text"
 //                 aria-label="Filter by code, description"
 //               />
 //               <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-//                 <FilterIcon size={16} aria-hidden="true" />
+//                 <Search size={16} aria-hidden="true" />
 //               </div>
-//               {Boolean(table.getColumn("code")?.getFilterValue()) && (
+//               {globalFilter && (
 //                 <button
 //                   className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
 //                   aria-label="Clear filter"
 //                   onClick={() => {
-//                     table.getColumn("code")?.setFilterValue("");
+//                     setGlobalFilter("");
 //                     if (inputRef.current) {
 //                       inputRef.current.focus();
 //                     }
@@ -614,6 +604,7 @@
 //                           onCheckedChange={(checked: boolean) =>
 //                             handleStatusChange(checked, value)
 //                           }
+//                           className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
 //                         />
 //                         <Label
 //                           htmlFor={`${id}-status-${i}`}
@@ -706,7 +697,7 @@
 //               onClick={() => refetch()}
 //               disabled={isRefetching || isLoading}
 //             >
-//               <Loader2
+//               <IoRefreshOutline
 //                 className={cn("mr-2 h-4 w-4", isRefetching && "animate-spin")}
 //               />
 //               Refresh
@@ -743,7 +734,9 @@
 //                     colSpan={columns.length}
 //                     className="h-24 text-center"
 //                   >
-//                     Loading booked rooms...
+//                     <div className="w-full flex items-center justify-center">
+//                       <Loader />
+//                     </div>
 //                   </TableCell>
 //                 </TableRow>
 //               ) : table.getRowModel().rows?.length ? (
@@ -776,29 +769,7 @@
 //           </Table>
 //         </div>
 
-//         <div className="w-full flex items-center justify-between gap-8 mt-4">
-//           <div className="flex items-center gap-3 w-full">
-//             <Label htmlFor={id} className="max-sm:sr-only">
-//               Rows per page
-//             </Label>
-//             <Select
-//               value={table.getState().pagination.pageSize.toString()}
-//               onValueChange={(value) => {
-//                 table.setPageSize(Number(value));
-//               }}
-//             >
-//               <SelectTrigger id={id} className="w-fit whitespace-nowrap">
-//                 <SelectValue placeholder="Select number of results" />
-//               </SelectTrigger>
-//               <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-//                 {[5, 10, 25, 50].map((pageSize) => (
-//                   <SelectItem key={pageSize} value={pageSize.toString()}>
-//                     {pageSize}
-//                   </SelectItem>
-//                 ))}
-//               </SelectContent>
-//             </Select>
-//           </div>
+//         <div className="flex items-center justify-between gap-8 mt-4">
 //           <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
 //             <p aria-live="polite">
 //               <span className="text-foreground">
@@ -809,67 +780,54 @@
 //                 {Math.min(
 //                   (table.getState().pagination.pageIndex + 1) *
 //                     table.getState().pagination.pageSize,
-//                   table.getRowCount()
+//                   totalRoomsCount
 //                 )}
 //               </span>{" "}
-//               of{" "}
-//               <span className="text-foreground">
-//                 {table.getRowCount().toString()}
-//               </span>
+//               of <span className="text-foreground">{totalRoomsCount}</span>
 //             </p>
 //           </div>
-//           <Pagination className="w-full justify-end">
-//             <PaginationContent>
-//               <PaginationItem>
-//                 <Button
-//                   size="icon"
-//                   variant="outline"
-//                   className="disabled:pointer-events-none disabled:opacity-50"
-//                   onClick={() => table.firstPage()}
-//                   disabled={!table.getCanPreviousPage()}
-//                   aria-label="Go to first page"
-//                 >
-//                   <ChevronFirstIcon size={16} aria-hidden="true" />
-//                 </Button>
-//               </PaginationItem>
-//               <PaginationItem>
-//                 <Button
-//                   size="icon"
-//                   variant="outline"
-//                   className="disabled:pointer-events-none disabled:opacity-50"
-//                   onClick={() => table.previousPage()}
-//                   disabled={!table.getCanPreviousPage()}
-//                   aria-label="Go to previous page"
-//                 >
-//                   <ChevronLeftIcon size={16} aria-hidden="true" />
-//                 </Button>
-//               </PaginationItem>
-//               <PaginationItem>
-//                 <Button
-//                   size="icon"
-//                   variant="outline"
-//                   className="disabled:pointer-events-none disabled:opacity-50"
-//                   onClick={() => table.nextPage()}
-//                   disabled={!table.getCanNextPage()}
-//                   aria-label="Go to next page"
-//                 >
-//                   <ChevronRightIcon size={16} aria-hidden="true" />
-//                 </Button>
-//               </PaginationItem>
-//               <PaginationItem>
-//                 <Button
-//                   size="icon"
-//                   variant="outline"
-//                   className="disabled:pointer-events-none disabled:opacity-50"
-//                   onClick={() => table.lastPage()}
-//                   disabled={!table.getCanNextPage()}
-//                   aria-label="Go to last page"
-//                 >
-//                   <ChevronLastIcon size={16} aria-hidden="true" />
-//                 </Button>
-//               </PaginationItem>
-//             </PaginationContent>
-//           </Pagination>
+//           <div className="flex items-center space-x-2">
+//             <Button
+//               size="icon"
+//               variant="outline"
+//               className="disabled:pointer-events-none disabled:opacity-50"
+//               onClick={() => table.firstPage()}
+//               disabled={!hasPreviousPage}
+//               aria-label="Go to first page"
+//             >
+//               <ChevronFirstIcon size={16} aria-hidden="true" />
+//             </Button>
+//             <Button
+//               size="icon"
+//               variant="outline"
+//               className="disabled:pointer-events-none disabled:opacity-50"
+//               onClick={() => table.previousPage()}
+//               disabled={!hasPreviousPage}
+//               aria-label="Go to previous page"
+//             >
+//               <ChevronLeftIcon size={16} aria-hidden="true" />
+//             </Button>
+//             <Button
+//               size="icon"
+//               variant="outline"
+//               className="disabled:pointer-events-none disabled:opacity-50"
+//               onClick={() => table.nextPage()}
+//               disabled={!hasNextPage}
+//               aria-label="Go to next page"
+//             >
+//               <ChevronRightIcon size={16} aria-hidden="true" />
+//             </Button>
+//             <Button
+//               size="icon"
+//               variant="outline"
+//               className="disabled:pointer-events-none disabled:opacity-50"
+//               onClick={() => table.lastPage()}
+//               disabled={!hasNextPage}
+//               aria-label="Go to last page"
+//             >
+//               <ChevronLastIcon size={16} aria-hidden="true" />
+//             </Button>
+//           </div>
 //         </div>
 //       </div>
 //     </div>
@@ -931,6 +889,7 @@
 //   );
 // }
 
+// * * * Quick Actions for Booking Status
 "use client";
 import {
   useState,
@@ -973,6 +932,8 @@ import {
   ChevronRightIcon,
   Search,
   Loader,
+  CheckCircle,
+  Wrench,
 } from "lucide-react";
 import Papa from "papaparse";
 import { toast } from "sonner";
@@ -1786,6 +1747,30 @@ function RowActions({ row }: { row: Row<Room> }) {
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({
+      roomId,
+      status,
+    }: {
+      roomId: string;
+      status: "Available" | "Maintenance";
+    }) =>
+      hotelClient.patch(`/rooms/${roomId}/`, { availability_status: status }),
+    onSuccess: () => {
+      toast.success("Room status updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["booked-rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["available-rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["maintenance-rooms"] });
+    },
+    onError: (error: any) => {
+      toast.error(
+        `Failed to update room status: ${
+          error.response?.data?.detail || error.message
+        }`
+      );
+    },
+  });
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -1801,12 +1786,33 @@ function RowActions({ row }: { row: Row<Room> }) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => navigate(`/rooms/${row.original.id}`)}>
+          <Eye className="mr-2 h-4 w-4" />
+          View Details
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={() => navigate(`/rooms/${row.original.id}`)}
+            onClick={() =>
+              updateStatusMutation.mutate({
+                roomId: row.original.id,
+                status: "Available",
+              })
+            }
           >
-            <Eye className="mr-2 h-4 w-4" />
-            View Details
+            <CheckCircle className="mr-2 h-4 w-4" />
+            <span>Mark as Available</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              updateStatusMutation.mutate({
+                roomId: row.original.id,
+                status: "Maintenance",
+              })
+            }
+          >
+            <Wrench className="mr-2 h-4 w-4" />
+            <span>Mark as Maintenance</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

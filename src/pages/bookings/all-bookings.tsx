@@ -120,7 +120,7 @@ interface Booking {
     | "Checked In"
     | "Checked Out"
     | "Cancelled"
-    | "Completed";
+    | "Expired";
   booking_type: "Physical" | "Online";
   amount_paid: string;
   payment_reference: string;
@@ -150,7 +150,6 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 // --- Helper Functions ---
 const getStatusBadgeClasses = (status: string): string => {
   switch (status?.toLowerCase()) {
-    case "completed":
     case "checked in":
     case "confirmed":
       return "bg-green-100 text-green-800 border-green-200";
@@ -567,7 +566,7 @@ export default function AllBookings() {
         "Checked In",
         "Checked Out",
         "Cancelled",
-        "Completed",
+        "Expired",
       ].sort(),
     []
   );

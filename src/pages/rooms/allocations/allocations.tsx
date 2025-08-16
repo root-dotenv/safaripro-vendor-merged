@@ -193,7 +193,7 @@ const AllocationDetailForm = ({
   onSubmit: (data: any) => void;
   isLoading: boolean;
 }) => {
-  const hotel_id = "9fbc1834-ed70-4a77-befa-e2707cf75c78";
+  const hotel_id = import.meta.env.VITE_HOTEL_ID;
 
   const [formData, setFormData] = useState({
     date: "",
@@ -450,7 +450,7 @@ const AllocationDetailForm = ({
 // --- Main Component ---
 export default function Allocations() {
   const queryClient = useQueryClient();
-  const hotel_id = "9fbc1834-ed70-4a77-befa-e2707cf75c78"; // From your example
+  const hotel_id = import.meta.env.VITE_HOTEL_ID;
 
   // --- State ---
   const [sorting, setSorting] = useState<SortingState>([]);
