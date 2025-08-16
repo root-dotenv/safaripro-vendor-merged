@@ -60,9 +60,7 @@ const apiClient = axios.create({
   baseURL: import.meta.env.VITE_HOTEL_BASE_URL,
 });
 
-/**
- * SafariProRoomTypes Component (Redesigned)
- *
+/*
  * Displays all room types from the SafariPro system in a filterable and
  * sortable table with expandable rows to show detailed information.
  */

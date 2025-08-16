@@ -9,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Loader } from "lucide-react";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- TYPE DEFINITIONS ---
 interface RoomCounts {
@@ -45,19 +47,21 @@ const apiClient = axios.create({
 export default function HotelRoomTypes() {
   const hotelId = import.meta.env.VITE_HOTEL_ID;
 
-  const { data, isLoading, isError, error } = useQuery<Hotel>({
+  const { data, isLoading, isError, refetch, error } = useQuery<Hotel>({
     queryKey: ["hotelDashboard", hotelId],
     queryFn: async () => (await apiClient.get(`hotels/${hotelId}`)).data,
     enabled: !!hotelId,
   });
 
-  if (isLoading) return <div className="p-6">Loading Hotel Data...</div>;
-  if (isError) {
+  if (isLoading)
     return (
-      <div className="p-6 text-destructive">
-        Error loading hotel data: {error.message}
+      <div className="w-full h-screen flex items-center justify-center">
+        <Loader />
       </div>
     );
+
+  if (isError) {
+    return <ErrorPage error={error as Error} onRetry={refetch} />;
   }
 
   return (

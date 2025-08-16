@@ -12,6 +12,11 @@ body {
   display: none;
 }
 
+::selection {
+  background: blue;
+  color: white;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 .group svg {

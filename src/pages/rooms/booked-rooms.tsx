@@ -1015,17 +1015,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IoRefreshOutline } from "react-icons/io5";
 import { TbFileTypeCsv } from "react-icons/tb";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Room {
@@ -1249,7 +1243,7 @@ export default function BookedRooms() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         cell: ({ row }) => (
@@ -1257,7 +1251,7 @@ export default function BookedRooms() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         size: 28,
@@ -1447,11 +1441,7 @@ export default function BookedRooms() {
   };
 
   if (isError) {
-    return (
-      <div className="p-6 text-center text-red-600">
-        Error: {(error as Error).message}
-      </div>
-    );
+    return <ErrorPage error={error as Error} onRetry={refetch} />;
   }
 
   return (
@@ -1474,6 +1464,7 @@ export default function BookedRooms() {
               variant="outline"
               onClick={handleExport}
               disabled={isExporting}
+              className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
             >
               {isExporting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1676,7 +1667,9 @@ export default function BookedRooms() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <Loader />{" "}
+                    <div className="w-full flex items-center justify-center">
+                      <Loader />
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (
@@ -1710,28 +1703,6 @@ export default function BookedRooms() {
         </div>
 
         <div className="flex items-center justify-between gap-8 mt-4">
-          <div className="flex items-center gap-3 w-full">
-            <Label htmlFor={id} className="max-sm:sr-only">
-              Rows per page
-            </Label>
-            <Select
-              value={table.getState().pagination.pageSize.toString()}
-              onValueChange={(value) => {
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger id={id} className="w-fit whitespace-nowrap">
-                <SelectValue placeholder="Select number of results" />
-              </SelectTrigger>
-              <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-                {[15, 7].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
           <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
             <p aria-live="polite">
               <span className="text-foreground">

@@ -317,12 +317,12 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
                       {allAmenities?.map((amenity) => (
                         <FormItem
                           key={amenity.id}
-                          className="has-data-[state=checked]:border-blue-400 border-input relative flex cursor-pointer flex-col justify-center gap-4 rounded-md border p-4 shadow-sm transition-colors"
+                          className="has-data-[state=checked]:border-[#DADCE0] border-input relative flex cursor-pointer flex-col justify-center gap-4 rounded-md border p-4 shadow-sm transition-colors"
                         >
                           <FormControl>
                             <Checkbox
                               id={amenity.id} // Add ID for the label's htmlFor to work
-                              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC] order-1 after:absolute after:inset-0"
+                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
                               checked={field.value?.includes(amenity.id)}
                               onCheckedChange={(checked) => {
                                 return checked

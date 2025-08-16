@@ -38,14 +38,14 @@ export default function RoomTypesTabController() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-6 min-h-screen">
-      <Card>
+      <Card className="bg-none border-none shadow-none">
         <Tabs defaultValue="hotel-room-types" className="w-full bg-none">
           <TabsList className="h-auto rounded-none border-b bg-none p-0 w-full grid grid-cols-1 md:grid-cols-2">
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="data-[state=active]:after:bg-none relative rounded-none py-3 px-4 after:absolute after:inset-x-0 after:bottom-[-1px] after:h-0.5 data-[state=active]:bg-none data-[state=active]:text-neutral-800 data-[state=active]:text-[1rem]  data-[state=active]:shadow-none bg-none"
+                className="data-[state=active]:after:bg-blue-500 relative rounded-none py-3 px-4 after:absolute after:inset-x-0 after:bottom-[-1px] after:h-0.5 data-[state=active]:bg-none data-[state=active]:text-neutral-800 data-[state=active]:text-[1rem] data-[state=active]:shadow-none bg-none"
               >
                 {tab.label}
               </TabsTrigger>

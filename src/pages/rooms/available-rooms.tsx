@@ -1,12 +1,5 @@
 "use client";
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useCallback,
-  useRef,
-  useId,
-} from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
@@ -57,7 +50,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
   CardDescription,
 } from "@/components/ui/card";
 import {
@@ -80,17 +72,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IoRefreshOutline } from "react-icons/io5";
 import { TbFileTypeCsv } from "react-icons/tb";
+import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Definitions ---
 interface Room {
@@ -139,7 +125,6 @@ export default function AvailableRooms() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const hotel_id = import.meta.env.VITE_HOTEL_ID;
-  const id = useId();
 
   // --- State ---
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -175,7 +160,7 @@ export default function AvailableRooms() {
         hotel_id: hotel_id!,
         availability_status: "Available",
         page: String(pagination.pageIndex + 1),
-        page_size: String(pagination.pageIndex === 0 ? 15 : 7), // 15 for first page, 7 for second
+        page_size: String(pagination.pageIndex === 0 ? 15 : 7),
       });
 
       if (debouncedGlobalFilter) params.append("search", debouncedGlobalFilter);
@@ -210,7 +195,7 @@ export default function AvailableRooms() {
 
   const roomsForCurrentPage = paginatedResponse?.results ?? [];
   const totalRoomsCount = paginatedResponse?.count ?? 0;
-  const totalPages = Math.ceil(totalRoomsCount / 15); // Based on first page size
+  const totalPages = Math.ceil(totalRoomsCount / 15);
   const hasNextPage = paginatedResponse?.next !== null;
   const hasPreviousPage = paginatedResponse?.previous !== null;
 
@@ -296,7 +281,7 @@ export default function AvailableRooms() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         cell: ({ row }) => (
@@ -304,7 +289,7 @@ export default function AvailableRooms() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
           />
         ),
         size: 40,
@@ -410,33 +395,26 @@ export default function AvailableRooms() {
     table.resetRowSelection();
   };
 
-  if (isError)
-    return (
-      <div className="p-6 text-red-600">Error: {(error as Error).message}</div>
-    );
+  if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-4">
-      <div className="flex items-center justify-between">
+    <div className="flex-1 space-y-4 md:p-4 pt-4 ">
+      <div className="flex items-center justify-between px-4">
         <h2 className="text-3xl font-bold tracking-tight">Available Rooms</h2>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Available</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalRoomsCount} Rooms</div>
-          <p className="text-xs text-muted-foreground">
-            Across all pages matching filter
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
+      <Card className="bg-none p-0 border-none shadow-none">
         <CardHeader>
-          <CardTitle>Rooms List</CardTitle>
           <CardDescription>
+            <Badge
+              className="px-4 py-1 block mb-3 rounded-full bg-[#FFF] border-[#DADCE0] dark:text-[#0A0A0A]"
+              variant={"outline"}
+            >
+              Total Rooms:{" "}
+              <span className="font-bold text-gray-700 ml-1">
+                {totalRoomsCount}
+              </span>
+            </Badge>
             A list of all currently available rooms.
           </CardDescription>
         </CardHeader>
@@ -495,7 +473,7 @@ export default function AvailableRooms() {
                 variant="outline"
                 onClick={handleExport}
                 disabled={isExporting}
-                className="gap-1"
+                className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
               >
                 {isExporting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -506,7 +484,7 @@ export default function AvailableRooms() {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-1">
+                  <Button variant="outline" className="gap-1 cursor-pointer">
                     <Columns3Icon size={14} /> View
                   </Button>
                 </DropdownMenuTrigger>
@@ -531,7 +509,7 @@ export default function AvailableRooms() {
                 variant="outline"
                 onClick={() => refetch()}
                 disabled={isRefetching || isLoading}
-                className="gap-1"
+                className="gap-1 cursor-pointer"
               >
                 <IoRefreshOutline
                   className={cn("h-4 w-4", isRefetching && "animate-spin")}
@@ -572,7 +550,9 @@ export default function AvailableRooms() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      <Loader/>
+                      <div className="w-full flex items-center justify-center">
+                        <Loader />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : table.getRowModel().rows?.length ? (
@@ -611,7 +591,7 @@ export default function AvailableRooms() {
               {table.getFilteredRowModel().rows.length} row(s) selected.
             </div>
             <div className="flex items-center gap-6">
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <p className="text-sm font-medium">Rows per page</p>
                 <Select
                   value={`${table.getState().pagination.pageSize}`}
@@ -630,7 +610,7 @@ export default function AvailableRooms() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div className="flex items-center justify-center text-sm font-medium">
                 Page {table.getState().pagination.pageIndex + 1} of{" "}
                 {table.getPageCount()}
@@ -731,12 +711,12 @@ function RowActions({
         <DropdownMenuSeparator />
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive focus:text-destructive">
+            <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive  ">
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </div>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="bg-[#FFF] rounded-md">
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -747,6 +727,7 @@ function RowActions({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
+                className="bg-red-500 border-none"
                 onClick={() => deleteRoomMutation.mutate(row.original.id)}
               >
                 Delete

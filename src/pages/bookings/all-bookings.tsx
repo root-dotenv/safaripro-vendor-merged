@@ -93,13 +93,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -397,7 +397,7 @@ export default function AllBookings() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#CCC]"
           />
         ),
         cell: ({ row }) => (
@@ -981,7 +981,7 @@ export default function AllBookings() {
 
             <div className="flex items-center justify-between gap-8 mt-4 w-full">
               <div className="flex items-center gap-3 w-full">
-                <Label htmlFor={`${id}-pagination`} className="max-sm:sr-only">
+                {/* <Label htmlFor={`${id}-pagination`} className="max-sm:sr-only">
                   Rows per page
                 </Label>
                 <Select
@@ -1003,7 +1003,7 @@ export default function AllBookings() {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
+                </Select> */}
               </div>
               <div className="text-muted-foreground flex grow justify-center text-sm whitespace-nowrap">
                 <p aria-live="polite">
