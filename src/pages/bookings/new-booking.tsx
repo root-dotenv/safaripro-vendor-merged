@@ -129,6 +129,7 @@ export default function NewBooking() {
       number_of_guests: Number(guestDetails.number_of_guests),
       number_of_infants: Number(guestDetails.number_of_infants),
       booking_type: "Physical",
+      booking_status: "Processing", // * SUNDAY: Added Booking Status Manually
       special_requests: guestDetails.special_requests || "no,thanks",
       payment_method: "Mobile",
     };

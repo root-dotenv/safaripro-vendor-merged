@@ -598,9 +598,12 @@ export default function HotelDetails() {
             </div>
             <p className="text-md text-gray-600 mt-2">{hotel.description}</p>
           </div>
-          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button
+            asChild
+            className="bg-[#FFFFFD] border-[1.25px] border-[#E7E5E4] text-[#19191A] shadow hover:bg-none hover:shadow-none hover:border-none"
+          >
             <Link to="/hotel/customize-hotel">
-              <Pencil className="mr-2 h-4 w-4" /> Customize Hotel
+              <Pencil className="mr-1 h-4 w-4" /> Customize Hotel
             </Link>
           </Button>
         </div>
