@@ -1,19 +1,13 @@
 // "use client";
 // import * as React from "react";
-// import { useState, useEffect } from "react";
-// import {
-//   PieChart,
-//   Hotel,
-//   Bed,
-//   Folder,
-//   Share,
-//   MoreHorizontal,
-// } from "lucide-react";
-// import { FiUserCheck } from "react-icons/fi";
+// import { useQuery } from "@tanstack/react-query";
+// import axios from "axios";
 // import { Link } from "react-router-dom";
+
+// // --- Hooks & Providers ---
 // import { useHotel } from "@/providers/hotel-provider";
-// import { MdOutlineInventory2 } from "react-icons/md";
-// // UI Components
+
+// // --- UI Components ---
 // import {
 //   Sidebar,
 //   SidebarContent,
@@ -26,22 +20,33 @@
 //   TooltipProvider,
 //   TooltipTrigger,
 // } from "@/components/ui/tooltip";
+// import { Separator } from "../ui/separator";
+
+// // --- Navigation Sub-components ---
 // import { NavMain } from "./nav-main";
 // import { NavProjects } from "./nav-projects";
 // import { NavSecondary } from "./nav-secondary";
 // import { NavUser } from "./nav-user";
 
-// // Icons
+// // --- Icons ---
+// import {
+//   PieChart,
+//   Hotel,
+//   Bed,
+//   Folder,
+//   Share,
+//   MoreHorizontal,
+//   Loader2,
+// } from "lucide-react";
+// import { FiUserCheck } from "react-icons/fi";
+// import { MdOutlineInventory2, MdOutlineFeedback } from "react-icons/md";
 // import { BiSupport } from "react-icons/bi";
 // import { HiOutlineDocumentReport } from "react-icons/hi";
 // import { LuTicketCheck } from "react-icons/lu";
 // import { TbFileTypeCsv } from "react-icons/tb";
-// import { MdOutlineFeedback } from "react-icons/md";
-// import { BsGrid } from "react-icons/bs";
-// import { Separator } from "../ui/separator";
 
-// // Data (as provided in your code)
-// const data = {
+// // --- Static Navigation Data ---
+// const navData = {
 //   user: {
 //     name: "Root Dotenv",
 //     email: "dotenv@ostub.com",
@@ -81,10 +86,8 @@
 //           title: "Available Rooms By Dates",
 //           url: "rooms/available-rooms-dates",
 //         },
-//         {
-//           title: "Allocate Rooms",
-//           url: "rooms/allocate-rooms",
-//         },
+//         { title: "Allocations", url: "rooms/allocations" },
+//         { title: "Allocate Rooms", url: "rooms/allocate-rooms" },
 //       ],
 //     },
 //     {
@@ -102,10 +105,7 @@
 //       url: "#",
 //       icon: MdOutlineInventory2,
 //       items: [
-//         {
-//           title: "Departments",
-//           url: "/house-keeping/departments",
-//         },
+//         { title: "Departments", url: "/house-keeping/departments" },
 //         {
 //           title: "Inventory Categories",
 //           url: "/house-keeping/inventory-categories",
@@ -123,18 +123,9 @@
 //       url: "#",
 //       icon: MdOutlineInventory2,
 //       items: [
-//         {
-//           title: "Payouts",
-//           url: "/billings/payouts",
-//         },
-//         {
-//           title: "Charges",
-//           url: "/billings/charges",
-//         },
-//         {
-//           title: "SafariPro Invoices",
-//           url: "/billings/invoices",
-//         },
+//         { title: "Payouts", url: "/billings/payouts" },
+//         { title: "Charges", url: "/billings/charges" },
+//         { title: "SafariPro Invoices", url: "/billings/invoices" },
 //       ],
 //     },
 //   ],
@@ -143,31 +134,15 @@
 //     { title: "Feedback", url: "/feedback", icon: MdOutlineFeedback },
 //   ],
 //   projects: [
-//     {
-//       name: "Analytics",
-//       url: "/analytics",
-//       icon: PieChart,
-//     },
+//     { name: "Analytics", url: "/analytics", icon: PieChart },
 //     {
 //       name: "Reports",
 //       url: "/reports",
 //       icon: HiOutlineDocumentReport,
 //       actions: [
-//         {
-//           label: "View Reports",
-//           url: "/view-reports",
-//           icon: Folder,
-//         },
-//         {
-//           label: "Share Report",
-//           url: "/share-reports",
-//           icon: Share,
-//         },
-//         {
-//           label: "Export Report",
-//           url: "/export-report",
-//           icon: TbFileTypeCsv,
-//         },
+//         { label: "View Reports", url: "/view-reports", icon: Folder },
+//         { label: "Share Report", url: "/share-reports", icon: Share },
+//         { label: "Export Report", url: "/export-report", icon: TbFileTypeCsv },
 //       ],
 //     },
 //   ],
@@ -179,45 +154,64 @@
 //   ],
 // };
 
-// // --- Type definition for the fetched image data ---
+// // --- API & Type Definitions ---
 // interface HotelImageData {
 //   id: string;
 //   original: string;
 //   tag: string;
 // }
 
+// interface VendorData {
+//   id: string;
+//   logo: string;
+//   business_name: string;
+//   // ... other vendor properties
+// }
+
+// const VENDOR_ID = "1c9ec39e-697d-4690-bf97-a23507efb831";
+// const VENDOR_API_URL = `http://vendor.safaripro.net/api/v1/vendors/${VENDOR_ID}`;
+// const HOTEL_BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
+
+// // --- Helper Functions to Fetch Data ---
+// const fetchVendor = async (): Promise<VendorData> => {
+//   const { data } = await axios.get(VENDOR_API_URL);
+//   return data;
+// };
+
+// const fetchHotelImage = async (imageId: string): Promise<HotelImageData> => {
+//   const { data } = await axios.get(`${HOTEL_BASE_URL}hotel-images/${imageId}`);
+//   return data;
+// };
+
 // export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 //   const { hotel } = useHotel();
-//   const [hotelImage, setHotelImage] = useState<HotelImageData | null>(null);
-//   const HOTEL_BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
-//   useEffect(() => {
-//     if (hotel && hotel.image_ids && hotel.image_ids.length > 0) {
-//       const firstImageId = hotel.image_ids[0];
 
-//       const fetchHotelImage = async () => {
-//         try {
-//           const response = await fetch(
-//             `${HOTEL_BASE_URL}hotel-images/${firstImageId}`
-//           );
-//           if (!response.ok) {
-//             throw new Error("Network response was not ok");
-//           }
-//           const data: HotelImageData = await response.json();
-//           setHotelImage(data);
-//         } catch (error) {
-//           console.error("Failed to fetch hotel image:", error);
-//           setHotelImage(null);
-//         }
-//       };
+//   // --- Data Fetching with React Query ---
+//   const {
+//     data: vendor,
+//     isLoading: isVendorLoading,
+//     isError: isVendorError,
+//   } = useQuery<VendorData>({
+//     queryKey: ["vendorDetails", VENDOR_ID],
+//     queryFn: fetchVendor,
+//   });
 
-//       fetchHotelImage();
-//     }
-//   }, [hotel, HOTEL_BASE_URL]);
+//   const firstImageId = hotel?.image_ids?.[0];
+
+//   const { data: hotelImage, isLoading: isHotelImageLoading } =
+//     useQuery<HotelImageData>({
+//       queryKey: ["hotelImage", firstImageId],
+//       queryFn: () => fetchHotelImage(firstImageId!),
+//       enabled: !!firstImageId,
+//     });
+
+//   if (isVendorError) {
+//     console.log(`An Error`);
+//   }
 
 //   return (
 //     <Sidebar variant="inset" {...props}>
 //       <SidebarHeader>
-//         {/* --- Tooltip Implementation --- */}
 //         <TooltipProvider delayDuration={0}>
 //           <Tooltip>
 //             <TooltipTrigger asChild>
@@ -225,16 +219,20 @@
 //                 to="/"
 //                 className="flex items-center gap-2 font-semibold text-lg"
 //               >
-//                 <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-//                   {vendor.logo && (
+//                 <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+//                   {isVendorLoading ? (
+//                     <Loader2 className="h-6 w- animate-spin text-gray-400" />
+//                   ) : vendor?.logo ? (
 //                     <img
 //                       src={vendor.logo}
 //                       alt="Logo"
 //                       className="w-full h-full object-cover"
 //                     />
-//                   )}
+//                   ) : null}
 //                 </div>
-//                 <span className="flex-1 truncate">{hotel?.name}</span>
+//                 <span className="flex-1 truncate">
+//                   {hotel?.name ?? "Loading..."}
+//                 </span>
 //               </Link>
 //             </TooltipTrigger>
 //             <TooltipContent
@@ -243,11 +241,16 @@
 //             >
 //               {hotel ? (
 //                 <div className="space-y-2">
-//                   <img
-//                     className="w-full h-auto rounded object-cover"
-//                     src={"../../../public/images/hotel_image_one.jpg"}
-//                     alt={"hotel image"}
-//                   />
+//                   {isHotelImageLoading ? (
+//                     <div className="w-full h-32 bg-gray-200 rounded animate-pulse" />
+//                   ) : hotelImage ? (
+//                     <img
+//                       className="w-full h-auto rounded object-cover"
+//                       src={hotelImage.original}
+//                       alt={hotel.name}
+//                     />
+//                   ) : null}
+
 //                   <div className="space-y-1">
 //                     <p className="text-[0.9375rem] text-[#111828] font-bold uppercase">
 //                       {hotel.name}
@@ -270,13 +273,16 @@
 //       </SidebarHeader>
 
 //       <SidebarContent>
-//         <NavMain items={data.navMain} />
-//         <NavProjects projects={data.projects} moreLinks={data.moreLinks} />
-//         <NavSecondary items={data.navSecondary} className="mt-auto" />
+//         <NavMain items={navData.navMain} />
+//         <NavProjects
+//           projects={navData.projects}
+//           moreLinks={navData.moreLinks}
+//         />
+//         <NavSecondary items={navData.navSecondary} className="mt-auto" />
 //       </SidebarContent>
 
 //       <SidebarFooter>
-//         <NavUser user={data.user} />
+//         <NavUser user={navData.user} />
 //       </SidebarFooter>
 //     </Sidebar>
 //   );
@@ -319,8 +325,8 @@ import {
   Bed,
   Folder,
   Share,
-  MoreHorizontal,
   Loader2,
+  Receipt,
 } from "lucide-react";
 import { FiUserCheck } from "react-icons/fi";
 import { MdOutlineInventory2, MdOutlineFeedback } from "react-icons/md";
@@ -328,6 +334,7 @@ import { BiSupport } from "react-icons/bi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { LuTicketCheck } from "react-icons/lu";
 import { TbFileTypeCsv } from "react-icons/tb";
+import { GiCash } from "react-icons/gi";
 
 // --- Static Navigation Data ---
 const navData = {
@@ -405,7 +412,7 @@ const navData = {
     {
       title: "Billings & Payments",
       url: "#",
-      icon: MdOutlineInventory2,
+      icon: GiCash,
       items: [
         { title: "Payouts", url: "/billings/payouts" },
         { title: "Charges", url: "/billings/charges" },
@@ -431,10 +438,19 @@ const navData = {
     },
   ],
   moreLinks: [
-    { label: "Demo Link 1", url: "#", icon: MoreHorizontal },
-    { label: "Demo Link 2", url: "#", icon: MoreHorizontal },
-    { label: "Demo Link 3", url: "#", icon: MoreHorizontal },
-    { label: "Demo Link 4", url: "#", icon: MoreHorizontal },
+    {
+      label: "All Bookings",
+      url: "/bookings/all-bookings",
+      icon: LuTicketCheck,
+    },
+    { label: "Available Rooms", url: "/rooms/available-rooms", icon: Bed },
+    { label: "Invoices", url: "/billings/invoices", icon: Receipt },
+    { label: "Check-ins", url: "/reservations/checkin", icon: FiUserCheck },
+    {
+      label: "Inventory",
+      url: "/house-keeping/inventory-items",
+      icon: MdOutlineInventory2,
+    },
   ],
 };
 
@@ -486,8 +502,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     useQuery<HotelImageData>({
       queryKey: ["hotelImage", firstImageId],
       queryFn: () => fetchHotelImage(firstImageId!),
-      enabled: !!firstImageId, // Only run this query if firstImageId exists
+      enabled: !!firstImageId,
     });
+
+  if (isVendorError) {
+    console.log(`An Error`);
+  }
 
   return (
     <Sidebar variant="inset" {...props}>
