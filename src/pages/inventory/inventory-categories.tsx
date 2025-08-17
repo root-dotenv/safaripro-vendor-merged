@@ -117,7 +117,7 @@ const BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
 const apiClient = axios.create({
   baseURL: BASE_URL,
 });
-const HOTEL_ID = import.meta.env.VITE_MICROSERVICE_ITEM_ID;
+const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
 const CATEGORIES_PER_PAGE = 10;
 
 // Main Component
@@ -173,10 +173,12 @@ export default function InventoryCategories() {
         const isActive = statusFilter.includes("Active");
         params.append("is_active", String(isActive));
       }
-
-      const response = await apiClient.get(`inventory-categories/`, {
-        params,
-      });
+      const response = await apiClient.get(
+        `inventory-categories/?hotel_id=${HOTEL_ID}`,
+        {
+          params,
+        }
+      );
       return response.data;
     },
     keepPreviousData: true,
