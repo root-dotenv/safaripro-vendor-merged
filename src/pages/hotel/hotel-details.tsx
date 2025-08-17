@@ -12,7 +12,15 @@ import bookingClient from "../../api/booking-client";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { format, startOfMonth } from "date-fns";
-import { FaUtensils } from "react-icons/fa";
+import {
+  FaUtensils,
+  FaRegBuilding,
+  FaStar,
+  FaMapMarkerAlt,
+  FaLeaf,
+  FaClock,
+  FaDirections,
+} from "react-icons/fa";
 import {
   Pencil,
   Trash2,
@@ -25,9 +33,18 @@ import {
   Shapes,
   ConciergeBell,
   CheckCircle,
-  Clock,
+  Clock as ClockIcon,
   XCircle,
   FileText,
+  Building,
+  ParkingCircle,
+  GlassWater,
+  Tally5,
+  Calendar,
+  Tag,
+  Info,
+  Image as ImageIcon,
+  Building2,
 } from "lucide-react";
 import {
   BarChart,
@@ -68,7 +85,12 @@ import {
 import ErrorPage from "@/components/custom/error-page";
 
 // --- Type Imports ---
-import type { HotelType, HotelImage, Service } from "../../types/hotel-types";
+import type {
+  HotelType,
+  HotelImage,
+  Service,
+  Department,
+} from "../../types/hotel-types";
 import type { Amenity } from "@/types/amenities";
 import type { Facility } from "@/types/facilities";
 import type { Booking } from "@/types/booking-types";
@@ -90,9 +112,9 @@ const StatCard = ({
   icon: React.ReactNode;
   stats?: {
     label: string;
-    value: number;
+    value: number | string;
     color: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
   }[];
   onManageClick?: () => void;
   isLoading?: boolean;
@@ -244,6 +266,12 @@ const ImageSlider = ({
           >
             <PlusCircle className="h-5 w-5 mr-2" /> Add Images
           </Button>
+          <AddEditImageModal
+            isOpen={isModalOpen}
+            onOpenChange={setIsModalOpen}
+            image={editingImage}
+            hotelId={hotelId}
+          />
         </div>
       </div>
     );
@@ -344,6 +372,24 @@ const ImageSlider = ({
   );
 };
 
+const DetailItem = ({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number | null;
+}) => (
+  <div className="flex items-start gap-3">
+    <div className="text-blue-600 mt-1">{icon}</div>
+    <div>
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className="font-semibold text-gray-800">{value || "N/A"}</p>
+    </div>
+  </div>
+);
+
 // --- Main Component ---
 export default function HotelDetails() {
   const {
@@ -366,7 +412,7 @@ export default function HotelDetails() {
       enabled: !!hotel?.hotel_type,
     });
 
-  const { data: hotelImagesData } = useQuery({
+  const { data: hotelImagesData, isLoading: isLoadingImages } = useQuery({
     queryKey: ["hotelImages", HOTEL_ID],
     queryFn: () =>
       hotelClient
@@ -377,6 +423,7 @@ export default function HotelDetails() {
 
   const { data: bookingsData, isLoading: isLoadingBookings } = useQuery<{
     results: Booking[];
+    count: number;
   }>({
     queryKey: ["hotelBookings", HOTEL_ID],
     queryFn: () =>
@@ -423,12 +470,23 @@ export default function HotelDetails() {
     })),
   });
 
+  const departmentQueries = useQueries({
+    queries: (hotel?.department_ids || []).map((id) => ({
+      queryKey: ["department", id],
+      queryFn: () =>
+        hotelClient
+          .get(`/departments/${id}/`)
+          .then((res) => res.data as Department),
+      enabled: !!hotel,
+    })),
+  });
+
   const bookingStats = useMemo(() => {
     if (!bookingsData)
       return { total: 0, confirmed: 0, pending: 0, cancelled: 0 };
     const bookings = bookingsData.results;
     return {
-      total: bookings.length,
+      total: bookingsData.count,
       confirmed: bookings.filter(
         (b) => b.booking_status.toLowerCase() === "confirmed"
       ).length,
@@ -483,6 +541,9 @@ export default function HotelDetails() {
   const mealTypes = mealTypeQueries
     .filter((q) => q.isSuccess)
     .map((q) => q.data);
+  const departments = departmentQueries
+    .filter((q) => q.isSuccess)
+    .map((q) => q.data);
 
   const roomStatusData = {
     Available: hotel.availability_stats?.status_counts?.Available || 0,
@@ -500,12 +561,30 @@ export default function HotelDetails() {
     },
   ].filter((entry) => entry.value > 0);
 
+  const renderStarRating = (rating: number) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      if (i < rating) {
+        stars.push(<FaStar key={i} className="text-yellow-400" />);
+      } else {
+        stars.push(<FaStar key={i} className="text-gray-300" />);
+      }
+    }
+    return <div className="flex items-center gap-1">{stars}</div>;
+  };
+
   return (
     <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
       <header className="mb-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-900">{hotel.name}</h1>
+            <div className="flex items-center gap-2 mt-2">
+              {renderStarRating(hotel.star_rating)}
+              <span className="text-sm text-gray-600">
+                ({hotel.star_rating} Stars)
+              </span>
+            </div>
             <p className="text-md text-gray-600 mt-2">{hotel.description}</p>
           </div>
           <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -516,6 +595,7 @@ export default function HotelDetails() {
         </div>
       </header>
 
+      {/* --- Main Stat Cards --- */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Rooms"
@@ -533,7 +613,7 @@ export default function HotelDetails() {
               label: "Booked",
               value: roomStatusData.Booked,
               color: "text-yellow-600 border-yellow-600",
-              icon: <Clock className="h-3 w-3 mr-1" />,
+              icon: <ClockIcon className="h-3 w-3 mr-1" />,
             },
             {
               label: "Maintenance",
@@ -560,7 +640,7 @@ export default function HotelDetails() {
               label: "Pending",
               value: bookingStats.pending,
               color: "text-yellow-600 border-yellow-600",
-              icon: <Clock className="h-3 w-3 mr-1" />,
+              icon: <ClockIcon className="h-3 w-3 mr-1" />,
             },
             {
               label: "Cancelled",
@@ -576,6 +656,23 @@ export default function HotelDetails() {
           value={`$${hotel.average_room_price.toFixed(2)}`}
           icon={<DollarSign className="h-5 w-5 text-purple-600" />}
           isLoading={isHotelLoading}
+          stats={[
+            {
+              label: "Min",
+              value: `$${hotel.pricing_data.min.toFixed(2)}`,
+              color: "text-blue-600 border-blue-600",
+            },
+            {
+              label: "Max",
+              value: `$${hotel.pricing_data.max.toFixed(2)}`,
+              color: "text-red-600 border-red-600",
+            },
+            {
+              label: "Discount",
+              value: `${hotel.discount}%`,
+              color: "text-green-600 border-green-600",
+            },
+          ]}
         />
         <StatCard
           title="Occupancy"
@@ -585,6 +682,23 @@ export default function HotelDetails() {
         />
       </div>
 
+      {/* --- Hotel Gallery --- */}
+      <div className="mt-6">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <ImageIcon className="h-6 w-6 text-blue-600" /> Hotel Gallery
+        </h2>
+        <Card className="bg-white border-gray-200">
+          <CardContent className="p-4">
+            {isLoadingImages ? (
+              <Skeleton className="h-64 w-full" />
+            ) : (
+              <ImageSlider images={hotelImagesData || []} hotelId={HOTEL_ID} />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* --- Charts --- */}
       <div className="grid gap-6 lg:grid-cols-5 mt-6">
         <Card className="lg:col-span-3 bg-white border-gray-200">
           <CardHeader>
@@ -654,6 +768,102 @@ export default function HotelDetails() {
         </Card>
       </div>
 
+      {/* --- Additional Hotel Details --- */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
+        {/* Hotel Information Card */}
+        <Card className="lg:col-span-2 bg-white border-gray-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg text-gray-800">
+              <Info /> Hotel Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <DetailItem
+              icon={<FaStar />}
+              label="Star Rating"
+              value={`${hotel.star_rating} Stars`}
+            />
+            <DetailItem
+              icon={<FaMapMarkerAlt />}
+              label="Address"
+              value={`${hotel.address}, ${hotel.zip_code}, ${hotel.destination}`}
+            />
+            <DetailItem
+              icon={<Calendar />}
+              label="Year Built"
+              value={hotel.year_built}
+            />
+            <DetailItem
+              icon={<FaLeaf />}
+              label="Eco Certified"
+              value={hotel.is_eco_certified ? "Yes" : "No"}
+            />
+            <DetailItem
+              icon={<FaClock />}
+              label="Check-in Time"
+              value={hotel.check_in_from}
+            />
+            <DetailItem
+              icon={<FaClock />}
+              label="Check-out Time"
+              value={hotel.check_out_to}
+            />
+            <DetailItem
+              icon={<Tag />}
+              label="Rate Options"
+              value={hotel.rate_options}
+            />
+            <DetailItem
+              icon={<FaDirections />}
+              label="Directions"
+              value={hotel.directions}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Property Details Card */}
+        <Card className="bg-white border-gray-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg text-gray-800">
+              <Building /> Property Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <DetailItem
+              icon={<FaRegBuilding />}
+              label="Floors"
+              value={hotel.number_floors}
+            />
+            <DetailItem
+              icon={<FaUtensils />}
+              label="Restaurants"
+              value={hotel.number_restaurants}
+            />
+            <DetailItem
+              icon={<GlassWater />}
+              label="Bars"
+              value={hotel.number_bars}
+            />
+            <DetailItem
+              icon={<ParkingCircle />}
+              label="Parks"
+              value={hotel.number_parks}
+            />
+            <DetailItem
+              icon={<Tally5 />}
+              label="Halls"
+              value={hotel.number_halls}
+            />
+            <DetailItem
+              icon={<Percent />}
+              label="Discount"
+              value={`${hotel.discount}%`}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* --- Room Types --- */}
       <div className="mt-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">
           Room Types
@@ -686,6 +896,7 @@ export default function HotelDetails() {
         </div>
       </div>
 
+      {/* --- Hotel Features --- */}
       <div className="mt-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">
           Hotel Features
@@ -714,6 +925,12 @@ export default function HotelDetails() {
             icon={<FaUtensils className="h-5 w-5 text-orange-600" />}
             items={mealTypes}
             isLoading={mealTypeQueries.some((q) => q.isLoading)}
+          />
+          <FeatureCard
+            title="Departments"
+            icon={<Building2 className="h-5 w-5 text-gray-600" />}
+            items={departments}
+            isLoading={departmentQueries.some((q) => q.isLoading)}
           />
         </div>
       </div>

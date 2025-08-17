@@ -361,6 +361,16 @@ export interface Feature {
   description: string;
 }
 
+export interface Department {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  is_active: boolean;
+  created_at: string;
+  hotel: string;
+}
+
 export interface RoomTypeDetails {
   id: string;
   name: string;

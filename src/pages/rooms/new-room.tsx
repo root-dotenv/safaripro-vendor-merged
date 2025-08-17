@@ -1,12 +1,11 @@
 "use client";
-import { useMemo, useId } from "react";
+import { useMemo, useId, type JSX } from "react";
 import { useForm, Controller, useController, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { IoCreateOutline } from "react-icons/io5";
 import {
   Card,
   CardContent,
@@ -33,6 +32,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import hotelClient from "../../api/hotel-client";
 
 // --- Icon Imports ---
+import { IoCreateOutline } from "react-icons/io5";
+import { FaPlus, FaLayerGroup } from "react-icons/fa";
 import { Loader2 } from "lucide-react";
 
 // --- TYPE DEFINITIONS ---
@@ -46,7 +47,7 @@ interface AmenityOption {
 }
 const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
 
-// --- FORM SCHEMAS ---
+// --- FORM SCHEMAS (Unchanged) ---
 const singleRoomSchema = yup.object({
   hotel: yup.string().required(),
   code: yup.string().required("Room code is required."),
@@ -87,33 +88,28 @@ const bulkCreateSchema = yup.object({
     .required("Price is required.")
     .positive("Price must be a positive number."),
   amenity_ids: yup.array().of(yup.string().required()).optional(),
-  // UPDATED: Added image_urls validation
   image_urls: yup
     .string()
     .required("At least one image URL is required.")
     .test("is-valid-urls", "Each line must contain a valid URL.", (value) => {
       if (!value) return false;
-      // Split by newline, trim whitespace, and filter out empty lines
       const urls = value
         .split("\n")
         .map((url) => url.trim())
         .filter((url) => url);
-      // Check if every non-empty line is a valid URL
       return urls.every((url) => yup.string().url().isValidSync(url));
     }),
 });
 
 type SingleRoomFormData = yup.InferType<typeof singleRoomSchema>;
-// This type is for the form state, the actual payload will have image_urls as an array
 type BulkCreateFormShape = yup.InferType<typeof bulkCreateSchema>;
 
-// --- API FUNCTIONS ---
+// --- API FUNCTIONS (Unchanged) ---
 const createSingleRoom = async (data: SingleRoomFormData) => {
   const response = await hotelClient.post("rooms/", data);
   return response.data;
 };
 
-// The data parameter here expects the final payload structure with image_urls as an array
 const bulkCreateRooms = async (
   data: Omit<BulkCreateFormShape, "image_urls"> & { image_urls: string[] }
 ) => {
@@ -121,8 +117,8 @@ const bulkCreateRooms = async (
   return response.data;
 };
 
-// --- MAIN COMPONENT ---
-export default function NewRoom() {
+// --- MAIN PAGE COMPONENT (Redesigned) ---
+export default function NewRoomPage() {
   const navigate = useNavigate();
 
   // --- Data Fetching (for both forms) ---
@@ -139,6 +135,37 @@ export default function NewRoom() {
     queryFn: async () => (await hotelClient.get("amenities/")).data.results,
   });
 
+  // Common props for both form components
+  const formProps = {
+    roomTypes: roomTypes ?? [],
+    allAmenities: allAmenities ?? [],
+    onSuccess: () => navigate("/rooms/available-rooms"),
+  };
+
+  // --- Tab Configuration ---
+  type TabId = "single" | "bulk";
+  interface Tab {
+    id: TabId;
+    label: string;
+    icon: JSX.Element;
+    component: JSX.Element;
+  }
+
+  const tabs: Tab[] = [
+    {
+      id: "single",
+      label: "Create Single Room",
+      icon: <FaPlus />,
+      component: <SingleRoomForm {...formProps} />,
+    },
+    {
+      id: "bulk",
+      label: "Create Multiple Rooms",
+      icon: <FaLayerGroup />,
+      component: <BulkRoomForm {...formProps} />,
+    },
+  ];
+
   if (isLoadingRoomTypes || isLoadingAmenities) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -148,37 +175,38 @@ export default function NewRoom() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 bg-white min-h-screen">
-      <Tabs defaultValue="single" className="max-w-7xl mx-auto">
-        <TabsList className="grid w-full grid-cols-2 gap-x-4">
-          <TabsTrigger
-            className="bg-[#FFF] shadow border-[1px] border-[#DADCE0]"
-            value="single"
-          >
-            Create Single Room
-          </TabsTrigger>
-          <TabsTrigger
-            className="bg-[#FFF] shadow border-[1px] border-[#DADCE0]"
-            value="bulk"
-          >
-            Create Multiple Rooms
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="single">
-          <SingleRoomForm
-            roomTypes={roomTypes ?? []}
-            allAmenities={allAmenities ?? []}
-            onSuccess={() => navigate("/rooms/available-rooms")}
-          />
-        </TabsContent>
-        <TabsContent value="bulk">
-          <BulkRoomForm
-            roomTypes={roomTypes ?? []}
-            allAmenities={allAmenities ?? []}
-            onSuccess={() => navigate("/rooms/available-rooms")}
-          />
-        </TabsContent>
-      </Tabs>
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Room Management
+          </h1>
+          <p className="mt-1 text-gray-600">
+            Add new single or multiple rooms to your hotel.
+          </p>
+        </header>
+
+        <Tabs defaultValue="single" className="w-full">
+          <TabsList className="h-auto p-1.5 bg-gray-100 rounded-lg w-full grid grid-cols-2">
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="data-[state=active]:bg-background data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-muted-foreground flex items-center gap-2 py-2"
+              >
+                {tab.icon}
+                <span className="font-medium">{tab.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {tabs.map((tab) => (
+            <TabsContent className="mt-6" key={tab.id} value={tab.id}>
+              {tab.component}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
     </div>
   );
 }
@@ -226,11 +254,11 @@ function SingleRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mt-4"
+      className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start"
     >
       <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle className="text-3xl">Create a New Room TESTs</CardTitle>
+          <CardTitle className="text-2xl">Room Details</CardTitle>
           <CardDescription>
             Fill out the details below to add a new room to the system.
           </CardDescription>
@@ -312,7 +340,7 @@ function SingleRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
         </CardContent>
         <CardFooter className="flex justify-end pt-8">
           <Button
-            className="bg-blue-500 hover:bg-blue-600 transition-all"
+            className="bg-blue-600 hover:bg-blue-700 transition-all text-white"
             type="submit"
             disabled={!isValid || mutation.isPending}
           >
@@ -334,7 +362,7 @@ function SingleRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
   );
 }
 
-// --- Bulk Room Form Component (UPDATED) ---
+// --- Bulk Room Form Component (Unchanged) ---
 function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
   const queryClient = useQueryClient();
   const {
@@ -356,7 +384,6 @@ function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
   const mutation = useMutation({
     mutationFn: bulkCreateRooms,
     onSuccess: (data) => {
-      // The success toast now correctly uses the `count` from the API response
       toast.success(`${data.count || "Rooms"} created successfully!`);
       queryClient.invalidateQueries({ queryKey: ["available-rooms"] });
       reset();
@@ -366,22 +393,21 @@ function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
       console.error(error.response?.data?.detail || "Failed to create rooms."),
   });
 
-  // This function now transforms the image_urls string into an array before mutation
   const onSubmit = (data: BulkCreateFormShape) => {
     const payload = {
       ...data,
       image_urls: data.image_urls
         .split("\n")
         .map((url) => url.trim())
-        .filter((url) => url), // Filter out any empty lines
+        .filter((url) => url),
     };
     mutation.mutate(payload);
   };
 
   return (
-    <Card className="mt-4">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-3xl">Create Multiple Rooms</CardTitle>
+        <CardTitle className="text-2xl">Bulk Room Creation</CardTitle>
         <CardDescription>
           Quickly generate multiple rooms with the same type, price, and
           amenities.
@@ -434,7 +460,6 @@ function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
               </div>
             )}
           />
-          {/* NEW: Textarea for Image URLs */}
           <FormTextArea
             control={control}
             name="image_urls"
@@ -445,7 +470,7 @@ function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
         </CardContent>
         <CardFooter className="flex justify-end pt-8">
           <Button
-            className="bg-blue-500 hover:bg-blue-600 transition-all"
+            className="bg-blue-600 hover:bg-blue-700 transition-all text-white"
             type="submit"
             disabled={!isValid || mutation.isPending}
           >
@@ -462,7 +487,7 @@ function BulkRoomForm({ roomTypes, allAmenities, onSuccess }: any) {
   );
 }
 
-// --- Details Preview Component (for single room form) ---
+// --- Details Preview Component (Unchanged) ---
 function DetailsPreview({ control, roomTypes, allAmenities }: any) {
   const watchedValues = useWatch({ control });
 
@@ -532,7 +557,7 @@ function DetailsPreview({ control, roomTypes, allAmenities }: any) {
   );
 }
 
-// Helper for displaying a row in the details card
+// --- Reusable Helper Components (Unchanged) ---
 const DetailRow = ({
   label,
   value,
@@ -552,7 +577,6 @@ const DetailRow = ({
   </div>
 );
 
-// --- Reusable Form Field Components ---
 function AnimatedInput({ control, name, label, type = "text", ...props }: any) {
   const id = useId();
   const {
