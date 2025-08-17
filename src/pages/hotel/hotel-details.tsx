@@ -401,6 +401,7 @@ export default function HotelDetails() {
   } = useHotel();
   const navigate = useNavigate();
   const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
+  const [isAddImageModalOpen, setIsAddImageModalOpen] = useState(false);
 
   const { data: hotelTypeDetails, isLoading: isLoadingHotelType } =
     useQuery<HotelType>({
@@ -414,10 +415,20 @@ export default function HotelDetails() {
 
   const { data: hotelImagesData, isLoading: isLoadingImages } = useQuery({
     queryKey: ["hotelImages", HOTEL_ID],
-    queryFn: () =>
-      hotelClient
-        .get(`/hotel-images/?hotel_id=${HOTEL_ID}`)
-        .then((res) => res.data.results as HotelImage[]),
+    queryFn: async () => {
+      try {
+        const res = await hotelClient.get(
+          `/hotel-images/?hotel_id=${HOTEL_ID}`
+        );
+        if (res.data && Array.isArray(res.data.results)) {
+          return res.data.results as HotelImage[];
+        }
+        return [];
+      } catch (error) {
+        console.error("Failed to fetch hotel images:", error);
+        return [];
+      }
+    },
     enabled: !!HOTEL_ID,
   });
 
@@ -574,7 +585,7 @@ export default function HotelDetails() {
   };
 
   return (
-    <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
+    <div className="container mx-auto p-8 bg-none min-h-screen">
       <header className="mb-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -684,9 +695,18 @@ export default function HotelDetails() {
 
       {/* --- Hotel Gallery --- */}
       <div className="mt-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <ImageIcon className="h-6 w-6 text-blue-600" /> Hotel Gallery
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+            <ImageIcon className="h-6 w-6 text-blue-600" /> Hotel Gallery
+          </h2>
+          <Button
+            variant="outline"
+            onClick={() => setIsAddImageModalOpen(true)}
+          >
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Add Image
+          </Button>
+        </div>
         <Card className="bg-white border-gray-200">
           <CardContent className="p-4">
             {isLoadingImages ? (
@@ -934,6 +954,12 @@ export default function HotelDetails() {
           />
         </div>
       </div>
+      <AddEditImageModal
+        isOpen={isAddImageModalOpen}
+        onOpenChange={setIsAddImageModalOpen}
+        image={null}
+        hotelId={HOTEL_ID}
+      />
     </div>
   );
 }

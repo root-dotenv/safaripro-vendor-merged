@@ -175,11 +175,12 @@ interface VendorData {
   id: string;
   logo: string;
   business_name: string;
-  // ... other vendor properties
 }
 
-const VENDOR_ID = "1c9ec39e-697d-4690-bf97-a23507efb831";
-const VENDOR_API_URL = `http://vendor.safaripro.net/api/v1/vendors/${VENDOR_ID}`;
+// * * * Don't Question me what happened here, I was snoozing 😴
+const VENDOR_BASE_API_URL = import.meta.env.VITE_VENDOR_BASE_URL;
+const VENDOR_ID = import.meta.env.VITE_VENDOR_ID;
+const VENDOR_API_URL = `${VENDOR_BASE_API_URL}vendors/${VENDOR_ID}`;
 const HOTEL_BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
 
 // --- Helper Functions to Fetch Data ---
