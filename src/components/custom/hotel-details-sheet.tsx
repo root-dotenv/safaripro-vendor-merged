@@ -53,6 +53,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useHotel } from "@/providers/hotel-provider";
 import { useState, useRef } from "react";
+import { IoLanguageOutline } from "react-icons/io5";
 
 // Color Palette
 const colors = {
@@ -331,7 +332,7 @@ const ImageSlider = ({ images }: { images: HotelImage[] }) => {
 
 const QuickLinks = () => {
   return (
-    <section className="p-4 bg-white border-t border-neutralGray/20">
+    <section className="p-4 border-[1.5px] rounded-md border-[#DADCE0] bg-[#FFF]">
       <h3 className="mb-4 text-lg font-semibold tracking-tight flex items-center gap-3 text-gray-900">
         <LinkIcon className="h-5 w-5 text-green-500" />
         Quick Links
@@ -390,21 +391,28 @@ export function HotelDetailsSheet() {
     staleTime: 1000 * 60 * 60,
   });
 
-  const { data: imagesData, isLoading: isLoadingImages } = useQuery<{
-    results: HotelImage[];
-  }>({
+  const { data: images, isLoading: isLoadingImages } = useQuery<HotelImage[]>({
     queryKey: ["hotelImages", hotel?.id],
     queryFn: async () => {
-      const { data } = await hotelClient.get(
-        `/hotel-images/?hotel_id=${hotel?.id}`
-      );
-      return data;
+      if (!hotel?.id) {
+        return [];
+      }
+      try {
+        const response = await hotelClient.get(
+          `/hotel-images/?hotel_id=${hotel.id}`
+        );
+        if (response.data && Array.isArray(response.data.results)) {
+          return response.data.results;
+        }
+        return [];
+      } catch (error) {
+        console.error("Failed to fetch hotel images in sheet:", error);
+        return [];
+      }
     },
     enabled: !!hotel?.id,
     staleTime: 1000 * 60 * 60,
   });
-
-  const images = imagesData?.results || [];
 
   const { data: hotelTypeData, isLoading: isLoadingHotelType } = useQuery({
     queryKey: ["hotel-type", hotel?.hotel_type],
@@ -444,7 +452,7 @@ export function HotelDetailsSheet() {
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md md:max-w-lg p-0 bg-neutral-100">
         <div className="h-full flex flex-col">
-          <SheetHeader className="p-6 bg-white border-b border-neutralGray/20 sticky top-0 z-10 shadow-sm">
+          <SheetHeader className="p-4 bg-white border-b border-neutralGray/20 sticky top-0 z-10 shadow-sm">
             {isLoadingVendor ? (
               <SkeletonLoader className="h-16 w-16 mx-auto rounded-full" />
             ) : (
@@ -456,7 +464,7 @@ export function HotelDetailsSheet() {
                 />
               )
             )}
-            <SheetTitle className="text-2xl font-bold tracking-tight text-gray-900">
+            <SheetTitle className="text-[1.75rem] font-bold tracking-tight text-gray-900">
               {hotel.name}
             </SheetTitle>
             <div className="mt-2 flex items-center gap-3">
@@ -496,9 +504,9 @@ export function HotelDetailsSheet() {
             {isLoadingImages ? (
               <SkeletonLoader className="w-full h-64 rounded-lg" />
             ) : (
-              <ImageSlider images={images} />
+              <ImageSlider images={images || []} />
             )}
-            <Card className="border-neutralGray/20 shadow-sm">
+            <Card className="shadow-sm border-[1.5px] rounded-md border-[#DADCE0] bg-[#FFF]">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-gray-900">
                   Hotel Overview
@@ -555,7 +563,7 @@ export function HotelDetailsSheet() {
               </CardContent>
             </Card>
 
-            <Card className="border-neutralGray/20 shadow-sm">
+            <Card className="border-neutralGray/20 shadow-sm border-[1.5px] rounded-md border-[#DADCE0] bg-[#FFF]">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-gray-900">
                   Policies & Information
@@ -594,7 +602,7 @@ export function HotelDetailsSheet() {
                 {hotel.room_type?.map((room) => (
                   <Card
                     key={room.id}
-                    className="p-4 flex justify-between items-center border-neutralGray/20 bg-white hover:bg-lightGreen/30 transition-colors shadow-sm"
+                    className="p-4 flex justify-between items-center border-[1.5px] rounded-md border-[#DADCE0] bg-[#FFF] hover:bg-lightGreen/30 transition-colors shadow-sm"
                   >
                     <div>
                       <p className="font-semibold text-md text-gray-900">
@@ -648,7 +656,7 @@ export function HotelDetailsSheet() {
             />
             <FeatureList
               title="Translations"
-              icon={Globe}
+              icon={IoLanguageOutline}
               ids={hotel.translations}
               featureType="translations"
             />

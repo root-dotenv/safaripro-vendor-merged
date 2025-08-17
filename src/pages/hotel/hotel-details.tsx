@@ -281,7 +281,7 @@ const ImageSlider = ({
     <div className="relative">
       <div
         ref={sliderRef}
-        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-4"
+        className="max-w-[1200px] flex overflow-x-scroll gap-4 pb-4"
       >
         {images.map((image) => (
           <div
