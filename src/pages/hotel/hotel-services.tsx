@@ -1,6 +1,5 @@
-// --- src/components/hotel-features/hotel-services.tsx ---
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useHotel } from "../../providers/hotel-provider";
 import {
   useQueries,
@@ -9,48 +8,43 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import hotelClient from "../../api/hotel-client";
-import type { Service } from "../../types/hotel-types";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { EmptyState } from "./empty-state";
-import { ChevronDown, ChevronRight, FileText, Hash, Plus } from "lucide-react";
-import { FaRegCheckCircle } from "react-icons/fa";
-import { toast } from "sonner";
+import { Plus, MoreHorizontal, Trash2, Loader } from "lucide-react";
+import { IoIosCheckboxOutline } from "react-icons/io";
 import { SelectionDialog } from "./selection-dialog";
-
-// Helper to get a specific icon based on the service name string
-const getServiceIcon = (serviceName: string, sizeClass = "w-5 h-5") => {
-  const name = serviceName.toLowerCase();
-  if (name.includes("transport") || name.includes("shuttle"))
-    return <FaRegCheckCircle className={`${sizeClass} text-slate-600`} />;
-  if (name.includes("concierge") || name.includes("desk"))
-    return <FaRegCheckCircle className={`${sizeClass} text-slate-600`} />;
-  if (name.includes("parking") || name.includes("valet"))
-    return <FaRegCheckCircle className={`${sizeClass} text-slate-600`} />;
-  return <FaRegCheckCircle className={`${sizeClass} text-slate-600`} />;
-};
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ErrorPage from "@/components/custom/error-page";
+import { Badge } from "@/components/ui/badge";
+import type { Service } from "./features";
 
 export default function HotelServices() {
   const queryClient = useQueryClient();
-  const { hotel, isLoading: isHotelLoading } = useHotel();
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-
-  // NEW: State for the selection dialog
+  const {
+    hotel,
+    isLoading: isHotelLoading,
+    isError: isHotelError,
+    error: hotelError,
+    refetch: refetchHotel,
+  } = useHotel();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
   const hotelId = import.meta.env.VITE_HOTEL_ID;
 
-  // Fetch details for all services associated with the hotel
   const serviceQueries = useQueries({
     queries: (hotel?.services || []).map((id) => ({
       queryKey: ["serviceDetail", id],
@@ -60,16 +54,17 @@ export default function HotelServices() {
     })),
   });
 
-  const services = serviceQueries.filter((q) => q.isSuccess).map((q) => q.data);
+  const services = serviceQueries
+    .filter((q) => q.isSuccess)
+    .map((q) => q.data as Service);
+  const serviceQueriesError = serviceQueries.find((q) => q.isError);
 
-  // NEW: Fetch all available services
   const { data: allServices } = useQuery<Service[]>({
     queryKey: ["allServices"],
     queryFn: async () => (await hotelClient.get("services/")).data.results,
     enabled: isModalOpen,
   });
 
-  // NEW: Mutation to update the hotel's services
   const updateHotelMutation = useMutation({
     mutationFn: (newServiceIds: string[]) =>
       hotelClient.patch(`hotels/${hotelId}/`, { services: newServiceIds }),
@@ -78,26 +73,10 @@ export default function HotelServices() {
       queryClient.invalidateQueries({ queryKey: ["hotel", hotelId] });
       setIsModalOpen(false);
     },
-    onError: (error) => {
-      toast.error(`Failed to update services: ${error.message}`);
-    },
+    onError: (error) =>
+      toast.error(`Failed to update services: ${error.message}`),
   });
 
-  useEffect(() => {
-    if (services.length > 0) {
-      setExpandedRows(new Set(services.slice(0, 2).map((s) => s.id)));
-    }
-  }, [JSON.stringify(services)]);
-
-  const toggleRow = (id: string) => {
-    const newExpandedRows = new Set(expandedRows);
-    newExpandedRows.has(id)
-      ? newExpandedRows.delete(id)
-      : newExpandedRows.add(id);
-    setExpandedRows(newExpandedRows);
-  };
-
-  // NEW: Handlers for the dialog
   const handleOpenModal = () => {
     setSelectedIds(new Set(hotel?.services || []));
     setIsModalOpen(true);
@@ -110,134 +89,121 @@ export default function HotelServices() {
   };
 
   const handleSave = () => {
+    if (Array.from(selectedIds).length === 0) {
+      toast.error("A hotel must have at least one service.");
+      return;
+    }
     updateHotelMutation.mutate(Array.from(selectedIds));
   };
 
-  if (isHotelLoading)
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700 dark:bg-gray-900 dark:text-gray-300">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p></p>
-      </div>
-    );
-
-  if (!hotel)
-    return <p className="text-center p-6">Could not load hotel information.</p>;
+  const handleRemove = (serviceId: string) => {
+    const currentIds = new Set(hotel?.services || []);
+    if (currentIds.size <= 1) {
+      toast.error("A hotel must have at least one service.");
+      return;
+    }
+    currentIds.delete(serviceId);
+    updateHotelMutation.mutate(Array.from(currentIds));
+  };
 
   const areServicesLoading = serviceQueries.some((q) => q.isLoading);
-  if (areServicesLoading)
+
+  if (isHotelLoading || areServicesLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700 dark:bg-gray-900 dark:text-gray-300">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p></p>
+      <div className="w-full flex items-center justify-center py-10">
+        <Loader className="animate-spin" />
       </div>
+    );
+  }
+
+  if (isHotelError)
+    return <ErrorPage error={hotelError as Error} onRetry={refetchHotel} />;
+  if (serviceQueriesError)
+    return (
+      <ErrorPage
+        error={serviceQueriesError.error as Error}
+        onRetry={() =>
+          queryClient.invalidateQueries({ queryKey: ["serviceDetail"] })
+        }
+      />
     );
 
   return (
     <>
       <Card className="border-none shadow-none">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Hotel Services</CardTitle>
+          <div>
+            <CardTitle>Hotel Services</CardTitle>
+            <CardDescription>
+              Manage additional services offered at your hotel.
+            </CardDescription>
+          </div>
           <Button variant="outline" onClick={handleOpenModal}>
             <Plus className="mr-2 h-4 w-4" />
-            Available Services
+            Add / Remove
           </Button>
         </CardHeader>
         <CardContent>
           {services.length > 0 ? (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50 hover:bg-muted">
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {services.map((service) => (
-                    <React.Fragment key={service.id}>
-                      <TableRow
-                        className="cursor-pointer"
-                        onClick={() => toggleRow(service.id)}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {services.map((service) => (
+                <Card
+                  key={service.id}
+                  className="relative group flex flex-col justify-between"
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{service.name}</CardTitle>
+                      <Badge
+                        variant={service.is_active ? "default" : "destructive"}
+                        className={
+                          service.is_active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }
                       >
-                        <TableCell>
-                          {expandedRows.has(service.id) ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </TableCell>
-                        <TableCell className="font-medium flex items-center gap-3">
-                          <span className="bg-slate-100 p-2 rounded">
-                            {getServiceIcon(service.name)}
-                          </span>
-                          {service.name}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {service.service_type_name}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={`${
-                              service.is_active
-                                ? "bg-green-400 text-white"
-                                : "bg-red-400"
-                            } text-xs `}
-                            variant={
-                              service.is_active ? "secondary" : "destructive"
-                            }
+                        {service.is_active ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                    <CardDescription>{service.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-sm space-y-2">
+                      <p>
+                        <span className="font-semibold">Type:</span>{" "}
+                        {service.service_type_name || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-semibold">Scope:</span>{" "}
+                        {service.service_scope_name || "N/A"}
+                      </p>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <div className="absolute top-4 right-4">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            {service.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                      {expandedRows.has(service.id) && (
-                        <TableRow className="bg-muted/20 hover:bg-muted/20">
-                          <TableCell colSpan={4} className="p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <h4 className="font-semibold text-sm">
-                                  Full Description
-                                </h4>
-                                <div className="flex items-start">
-                                  <FileText className="h-4 w-4 mr-2 mt-1 text-muted-foreground flex-shrink-0" />
-                                  <p className="text-sm text-muted-foreground">
-                                    {service.description}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <h4 className="font-semibold text-sm">
-                                  Details
-                                </h4>
-                                <div className="flex items-center">
-                                  <Hash className="h-4 w-4 mr-2 text-muted-foreground" />
-                                  <span className="text-sm font-medium mr-1.5">
-                                    Scope:
-                                  </span>
-                                  <span className="text-sm font-semibold text-blue-600">
-                                    {service.service_scope_name}
-                                  </span>
-                                </div>
-                                {service.amendment && (
-                                  <div className="flex items-start">
-                                    <FileText className="h-4 w-4 mr-2 mt-1 text-muted-foreground flex-shrink-0" />
-                                    <p className="mt-1 text-xs text-gray-500 bg-slate-100 p-2 rounded-md">
-                                      <strong>Note:</strong> {service.amendment}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </TableBody>
-              </Table>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleRemove(service.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Remove
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <IoIosCheckboxOutline className="w-6 h-6 text-gray-300" />
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           ) : (
             <EmptyState

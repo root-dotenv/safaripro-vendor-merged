@@ -1,6 +1,5 @@
-// --- src/components/hotel-features/hotel-meals.tsx ---
 "use client";
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useHotel } from "../../providers/hotel-provider";
 import {
   useQueries,
@@ -9,42 +8,43 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import hotelClient from "../../api/hotel-client";
-import { GiMeal } from "react-icons/gi";
-import { FaStar } from "react-icons/fa";
-import type { MealType } from "../../types/hotel-types";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { EmptyState } from "./empty-state";
-import { ChevronDown, ChevronRight, FileText, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { Plus, MoreHorizontal, Trash2, Star, Loader } from "lucide-react";
+import { IoIosCheckboxOutline } from "react-icons/io";
 import { SelectionDialog } from "./selection-dialog";
-
-// Helper to get a specific icon for meal types
-const getMealIcon = (mealName: string, sizeClass = "w-5 h-5") => {
-  return <GiMeal className={`${sizeClass} text-slate-600`} />;
-};
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ErrorPage from "@/components/custom/error-page";
+import { Badge } from "@/components/ui/badge";
+import type { MealType } from "./features";
 
 export default function HotelMealTypes() {
   const queryClient = useQueryClient();
-  const { hotel, isLoading: isHotelLoading } = useHotel();
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-
-  // NEW: State for the selection dialog
+  const {
+    hotel,
+    isLoading: isHotelLoading,
+    isError: isHotelError,
+    error: hotelError,
+    refetch: refetchHotel,
+  } = useHotel();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
   const hotelId = import.meta.env.VITE_HOTEL_ID;
 
-  // Fetch details for all meal types associated with the hotel
   const mealTypeQueries = useQueries({
     queries: (hotel?.meal_types || []).map((id) => ({
       queryKey: ["mealTypeDetail", id],
@@ -56,16 +56,15 @@ export default function HotelMealTypes() {
 
   const mealTypes = mealTypeQueries
     .filter((q) => q.isSuccess)
-    .map((q) => q.data);
+    .map((q) => q.data as MealType);
+  const mealTypeQueriesError = mealTypeQueries.find((q) => q.isError);
 
-  // NEW: Fetch all available meal types
   const { data: allMealTypes } = useQuery<MealType[]>({
     queryKey: ["allMealTypes"],
     queryFn: async () => (await hotelClient.get("meal-types/")).data.results,
     enabled: isModalOpen,
   });
 
-  // NEW: Mutation to update the hotel's meal types
   const updateHotelMutation = useMutation({
     mutationFn: (newMealTypeIds: string[]) =>
       hotelClient.patch(`hotels/${hotelId}/`, { meal_types: newMealTypeIds }),
@@ -74,26 +73,10 @@ export default function HotelMealTypes() {
       queryClient.invalidateQueries({ queryKey: ["hotel", hotelId] });
       setIsModalOpen(false);
     },
-    onError: (error) => {
-      toast.error(`Failed to update meal plans: ${error.message}`);
-    },
+    onError: (error) =>
+      toast.error(`Failed to update meal plans: ${error.message}`),
   });
 
-  useEffect(() => {
-    if (mealTypes.length > 0) {
-      setExpandedRows(new Set(mealTypes.slice(0, 2).map((m) => m.id)));
-    }
-  }, [JSON.stringify(mealTypes)]);
-
-  const toggleRow = (id: string) => {
-    const newExpandedRows = new Set(expandedRows);
-    newExpandedRows.has(id)
-      ? newExpandedRows.delete(id)
-      : newExpandedRows.add(id);
-    setExpandedRows(newExpandedRows);
-  };
-
-  // NEW: Handlers for the dialog
   const handleOpenModal = () => {
     setSelectedIds(new Set(hotel?.meal_types || []));
     setIsModalOpen(true);
@@ -106,126 +89,118 @@ export default function HotelMealTypes() {
   };
 
   const handleSave = () => {
+    if (Array.from(selectedIds).length === 0) {
+      toast.error("A hotel must have at least one meal type.");
+      return;
+    }
     updateHotelMutation.mutate(Array.from(selectedIds));
   };
 
-  if (isHotelLoading)
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700 dark:bg-gray-900 dark:text-gray-300">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p></p>
-      </div>
-    );
-
-  if (!hotel)
-    return <p className="text-center p-6">Could not load hotel information.</p>;
+  const handleRemove = (mealId: string) => {
+    const currentIds = new Set(hotel?.meal_types || []);
+    if (currentIds.size <= 1) {
+      toast.error("A hotel must have at least one meal type.");
+      return;
+    }
+    currentIds.delete(mealId);
+    updateHotelMutation.mutate(Array.from(currentIds));
+  };
 
   const areMealTypesLoading = mealTypeQueries.some((q) => q.isLoading);
-  if (areMealTypesLoading)
+
+  if (isHotelLoading || areMealTypesLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700 dark:bg-gray-900 dark:text-gray-300">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p></p>
+      <div className="w-full flex items-center justify-center py-10">
+        <Loader className="animate-spin" />
       </div>
+    );
+  }
+
+  if (isHotelError)
+    return <ErrorPage error={hotelError as Error} onRetry={refetchHotel} />;
+  if (mealTypeQueriesError)
+    return (
+      <ErrorPage
+        error={mealTypeQueriesError.error as Error}
+        onRetry={() =>
+          queryClient.invalidateQueries({ queryKey: ["mealTypeDetail"] })
+        }
+      />
     );
 
   return (
     <>
       <Card className="border-none shadow-none">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Hotel Meal Plans</CardTitle>
+          <div>
+            <CardTitle>Hotel Meal Plans</CardTitle>
+            <CardDescription>
+              Manage the meal plans offered at your hotel.
+            </CardDescription>
+          </div>
           <Button variant="outline" onClick={handleOpenModal}>
             <Plus className="mr-2 h-4 w-4" />
-            Available Meal Plans
+            Add / Remove
           </Button>
         </CardHeader>
         <CardContent>
           {mealTypes.length > 0 ? (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50 hover:bg-muted">
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>Meal Plan</TableHead>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mealTypes.map((mealType) => (
-                    <React.Fragment key={mealType.id}>
-                      <TableRow
-                        className="cursor-pointer"
-                        onClick={() => toggleRow(mealType.id)}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {mealTypes.map((mealType) => (
+                <Card
+                  key={mealType.id}
+                  className="relative group flex flex-col justify-between"
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{mealType.name}</CardTitle>
+                      <Badge
+                        variant={mealType.is_active ? "default" : "destructive"}
+                        className={
+                          mealType.is_active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }
                       >
-                        <TableCell>
-                          {expandedRows.has(mealType.id) ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </TableCell>
-                        <TableCell className="font-medium flex items-center gap-3">
-                          <span className="bg-slate-100 p-2 rounded">
-                            {getMealIcon(mealType.name)}
-                          </span>
-                          {mealType.name}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {mealType.code}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={`${
-                              mealType.is_active
-                                ? "bg-green-400 text-white"
-                                : "bg-red-400"
-                            } text-xs `}
-                            variant={
-                              mealType.is_active ? "secondary" : "destructive"
-                            }
+                        {mealType.is_active ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                    <CardDescription>{mealType.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Star className="mr-2 h-4 w-4 text-yellow-500" />
+                      <span className="font-semibold">Score:</span>
+                      <span className="ml-1 font-bold text-primary">
+                        {mealType.score}
+                      </span>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <div className="absolute top-4 right-4">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            {mealType.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                      {expandedRows.has(mealType.id) && (
-                        <TableRow className="bg-muted/20 hover:bg-muted/20">
-                          <TableCell colSpan={4} className="p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <h4 className="font-semibold text-sm">
-                                  Full Description
-                                </h4>
-                                <div className="flex items-start">
-                                  <FileText className="h-4 w-4 mr-2 mt-1 text-muted-foreground flex-shrink-0" />
-                                  <p className="text-sm text-muted-foreground">
-                                    {mealType.description}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <h4 className="font-semibold text-sm">
-                                  Details
-                                </h4>
-                                <div className="flex items-center">
-                                  <FaStar className="h-4 w-4 mr-2 text-yellow-500" />
-                                  <span className="text-sm font-medium w-28">
-                                    Score:
-                                  </span>
-                                  <span className="text-sm font-bold text-primary">
-                                    {mealType.score}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </TableBody>
-              </Table>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleRemove(mealType.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Remove
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <IoIosCheckboxOutline className="w-6 h-6 text-gray-300" />
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           ) : (
             <EmptyState

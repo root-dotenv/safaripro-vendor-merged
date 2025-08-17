@@ -271,13 +271,13 @@ export default function EventSpaces() {
         </h2>
         <Button
           onClick={() => handleOpenForm()}
-          style={{ backgroundColor: "#155DFC" }}
+          className="bg-[#FFFFFD] border-[1.25px] border-[#E7E5E4] text-[#19191A] shadow hover:bg-none hover:shadow-none hover:border-none"
         >
-          <Plus className="mr-2 h-4 w-4" /> Add Event Space
+          <Plus className="mr-1 h-4 w-4" /> Add Event Space
         </Button>
       </div>
 
-      <Card>
+      <Card className="bg-none shadow-none border-none">
         <CardHeader>
           <CardTitle>Manage Event Spaces</CardTitle>
           <CardDescription>

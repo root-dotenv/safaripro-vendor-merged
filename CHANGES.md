@@ -1,10 +1,12 @@
-- Excel button - className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
+- Excel button - className="gap-1 bg-[#0EB981] text-[#FFF] border-none hover:bg-[#04966A] hover:text-[#FFF] cursor-pointer shadow"
+
+Normal Buttons - className="bg-[#FFFFFD] border-[1.25px] border-[#E7E5E4] text-[#19191A] shadow hover:bg-none hover:shadow-none hover:border-none"
 
 - Table Loader <div className="w-full flex items-center justify-center">
   <Loader />
   </div>
 
-- Error Pages "if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />"
+- Error Page "if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />"
 
 - AlertDialogContent (DELETE) - className="bg-[#FFF] border-[1.5px] rounded-md border-[#DADCE0]"
 

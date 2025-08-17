@@ -617,13 +617,13 @@ export default function AllBookings() {
           <h2 className="text-3xl font-bold tracking-tight">All Bookings</h2>
           <div className="flex items-center space-x-2">
             <Button
-              className="gap-1 rounded-md bg-green-600 text-[#FFF] border-none hover:bg-green-700 hover:text-[#FFF] cursor-pointer"
+              className="gap-1 bg-[#0EB981] text-[#FFF] border-none hover:bg-[#04966A] hover:text-[#FFF] cursor-pointer shadow"
               variant="outline"
               onClick={handleExport}
               disabled={isExporting}
             >
               {isExporting ? (
-                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                <Loader className="mr-1 h-4 w-4 animate-spin" />
               ) : (
                 <TbFileTypeCsv className="mr-2 h-4 w-4" />
               )}
@@ -631,9 +631,9 @@ export default function AllBookings() {
             </Button>
             <Button
               onClick={() => navigate("/bookings/new-booking")}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#FFFFFD] border-[1.25px] border-[#E7E5E4] text-[#19191A] shadow hover:bg-none hover:shadow-none hover:border-none"
             >
-              <Plus className="mr-2 h-4 w-4" /> New Booking
+              <Plus className="mr-1 h-4 w-4" /> New Booking
             </Button>
           </div>
         </div>
