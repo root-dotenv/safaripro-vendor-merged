@@ -1,10 +1,9 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import { Loader2, BedDouble, Ruler, DollarSign, Info } from "lucide-react";
-import { LuSquareChevronDown, LuSquareChevronRight } from "react-icons/lu";
+import { IoChevronForward, IoChevronDown } from "react-icons/io5";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,6 +30,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { PaginatedRoomTypes } from "./types";
+import hotelClient from "@/api/hotel-client";
+// MODIFICATION: Import the shared hotelClient
 
 // --- TYPE DEFINITIONS ---
 interface FilterState {
@@ -40,10 +41,8 @@ interface FilterState {
   availabilityFilter: "all" | "available" | "full";
 }
 
-// --- API CLIENT ---
-const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_HOTEL_BASE_URL,
-});
+// MODIFICATION: Removed local apiClient instance.
+// const apiClient = axios.create({ ... });
 
 /*
  * Displays all room types from the SafariPro system in a filterable and
@@ -58,11 +57,13 @@ export default function SafariProRoomTypes() {
     capacitySort: "none",
     availabilityFilter: "all",
   });
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const { data: paginatedData, isLoading: isListLoading } =
     useQuery<PaginatedRoomTypes>({
       queryKey: ["allRoomTypesList"],
-      queryFn: async () => (await apiClient.get("room-types/")).data,
+      // MODIFICATION: Switched to using the shared hotelClient
+      queryFn: async () => (await hotelClient.get("room-types/")).data,
     });
 
   const allRoomTypes = paginatedData?.results;
@@ -115,6 +116,14 @@ export default function SafariProRoomTypes() {
     return filtered;
   }, [allRoomTypes, searchQuery, filters]);
 
+  useEffect(() => {
+    if (isInitialLoad && filteredRooms && filteredRooms.length > 0) {
+      const firstRoomId = filteredRooms[0].id;
+      setExpandedRows(new Set([firstRoomId]));
+      setIsInitialLoad(false);
+    }
+  }, [filteredRooms, isInitialLoad]);
+
   const toggleRow = (id: string) => {
     const newRows = new Set(expandedRows);
     if (newRows.has(id)) {
@@ -126,8 +135,8 @@ export default function SafariProRoomTypes() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <Card>
+    <div className="space-y-6 p-0">
+      <Card className="p-0 pb-6 border-none shadow-none bg-none">
         <CardHeader>
           <CardTitle>Filter & Search All Room Types</CardTitle>
           <CardDescription>
@@ -236,7 +245,7 @@ export default function SafariProRoomTypes() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="p-0 bg-none border-none shadow-none">
         <CardHeader>
           <CardTitle>Available Room Types</CardTitle>
           <CardDescription>
@@ -272,9 +281,9 @@ export default function SafariProRoomTypes() {
                       >
                         <TableCell>
                           {expandedRows.has(room.id) ? (
-                            <LuSquareChevronDown size={18} color="#525252" />
+                            <IoChevronDown size={18} color="#525252" />
                           ) : (
-                            <LuSquareChevronRight size={18} color="#525252" />
+                            <IoChevronForward size={18} color="#525252" />
                           )}
                         </TableCell>
                         <TableCell className="font-medium">

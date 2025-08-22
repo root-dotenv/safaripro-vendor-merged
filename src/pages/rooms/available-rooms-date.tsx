@@ -265,7 +265,7 @@ export default function AvailableRoomsByDate() {
                 <TooltipTrigger asChild>
                   <Button
                     size="sm"
-                    className="bg-blue-600 text-white hover:bg-blue-700 h-8 px-3"
+                    className="bg-[#0081FB] text-white hover:bg-blue-700 h-8 px-3"
                     onClick={() => handleBookNow(row.original)}
                   >
                     Book Now
@@ -301,16 +301,16 @@ export default function AvailableRoomsByDate() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">
+      <Card className="p-0 border-none shadow-none">
+        <CardHeader className="p-0">
+          <CardTitle className="text-2xl p-0">
             Find Available Rooms by Date
           </CardTitle>
-          <CardDescription>
-            Select your check-in and check-out dates to find rooms.
+          <CardDescription className="p-0">
+            Enter Start and End Date to find available rooms on your date range.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 border-b-gray-100/70 border-b-[2px] pb-4">
           <Popover>
             <PopoverTrigger asChild>
               <Button

@@ -322,7 +322,7 @@ export default function EditRoomDialog({ room }: EditRoomDialogProps) {
                           <FormControl>
                             <Checkbox
                               id={amenity.id} // Add ID for the label's htmlFor to work
-                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
                               checked={field.value?.includes(amenity.id)}
                               onCheckedChange={(checked) => {
                                 return checked

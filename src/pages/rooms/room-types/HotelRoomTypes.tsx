@@ -1,6 +1,4 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { FaBed, FaBuilding, FaChartBar } from "react-icons/fa";
 import {
   Card,
@@ -11,27 +9,24 @@ import {
 } from "@/components/ui/card";
 import { Loader } from "lucide-react";
 import ErrorPage from "@/components/custom/error-page";
-import type { Hotel } from "./types";
+import { useHotel } from "@/providers/hotel-provider";
+// MODIFICATION: Import the useHotel hook
 
-// --- API CLIENT ---
-const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_HOTEL_BASE_URL,
-});
+// MODIFICATION: Removed local apiClient, axios import, and Hotel type import
+// The type is now inferred from the useHotel hook.
 
 /**
  * HotelRoomTypes Component
  *
- * Fetches and displays a summary of room types for the currently
- * configured hotel ID. This component serves as the content for the first tab.
+ * Displays a summary of room types for the currently
+ * configured hotel. Data is sourced from the central HotelProvider.
  */
 export default function HotelRoomTypes() {
-  const hotelId = import.meta.env.VITE_HOTEL_ID;
+  // MODIFICATION: Get data from the useHotel context hook
+  // We rename 'hotel' to 'data' for seamless integration with the existing JSX.
+  const { hotel: data, isLoading, isError, refetch, error } = useHotel();
 
-  const { data, isLoading, isError, refetch, error } = useQuery<Hotel>({
-    queryKey: ["hotelDashboard", hotelId],
-    queryFn: async () => (await apiClient.get(`hotels/${hotelId}`)).data,
-    enabled: !!hotelId,
-  });
+  // MODIFICATION: The local useQuery hook has been removed.
 
   if (isLoading)
     return (
@@ -44,7 +39,7 @@ export default function HotelRoomTypes() {
     return <ErrorPage error={error as Error} onRetry={refetch} />;
   }
 
-  // Handle case where data might not be loaded
+  // Handle case where data might not be loaded from the context
   if (!data) {
     return (
       <div className="p-6 text-center text-muted-foreground">
@@ -54,7 +49,7 @@ export default function HotelRoomTypes() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-0">
       <header>
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
           {data.name}
@@ -64,7 +59,7 @@ export default function HotelRoomTypes() {
         </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3 px-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Rooms</CardTitle>
@@ -104,12 +99,12 @@ export default function HotelRoomTypes() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="p-0 bg-none border-none shadow-none">
         <CardHeader>
           <CardTitle>Room Types Summary</CardTitle>
           <CardDescription>
             A summary of all room types in your hotel. For a detailed,
-            searchable list, see the "All Room Types" tab.
+            searchable list, see the "SafariPro Room Types" tab.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -136,16 +131,16 @@ export default function HotelRoomTypes() {
                       </div>
                     </td>
                     <td className="p-4 text-center align-middle font-semibold text-green-600">
-                      {rt.availability?.Available ?? 0}
+                      {rt.availability?.available_rooms ?? 0}
                     </td>
                     <td className="p-4 text-center align-middle font-semibold text-amber-600">
-                      {rt.availability?.Booked ?? 0}
+                      {rt.availability?.booked_rooms ?? 0}
                     </td>
                     <td className="p-4 text-center align-middle font-semibold text-red-600">
-                      {rt.availability?.Maintenance ?? 0}
+                      {rt.availability?.maintenance_rooms ?? 0}
                     </td>
                     <td className="p-4 text-right align-middle font-bold text-primary">
-                      ${parseFloat(rt.base_price).toFixed(2)}
+                      ${(rt.pricing?.avg_price ?? 0).toFixed(2)}
                     </td>
                   </tr>
                 ))}

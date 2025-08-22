@@ -28,13 +28,13 @@ export default function RoomTypesTabController() {
     {
       id: "hotel-room-types",
       label: `${hotel?.name || "Hotel"} Room Types`,
-      icon: <Building />, // Add hotel icon
+      icon: <Building />,
       component: <HotelRoomTypes />,
     },
     {
       id: "safaripro-room-types",
       label: "SafariPro Room Types",
-      icon: <Globe />, // Add SafariPro icon
+      icon: <Globe />,
       component: <SafariProRoomTypes />,
     },
   ];
@@ -43,14 +43,14 @@ export default function RoomTypesTabController() {
     <div className="p-4 sm:p-6 lg:p-6 min-h-screen">
       <Tabs defaultValue="hotel-room-types" className="w-full">
         {/* Updated TabsList to match the HotelFeatures style */}
-        <TabsList className="h-auto p-1.5 bg-gray-100 rounded-lg w-full grid grid-cols-1 md:grid-cols-2">
+        <TabsList className="h-auto px-1.5 py-1.75 bg-gray-100 max-w-2xl rounded-lg w-full grid grid-cols-1 md:grid-cols-2">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className="data-[state=active]:bg-background data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-muted-foreground flex items-center gap-2"
+              className="data-[state=active]:bg-[#0081FB] data-[state=active]:text-[#FFF] data-[state=active]:shadow-sm text-[#0081FB] bg-[#FFF] shadow flex items-center gap-2 hover:text-[#0081FB] mx-1"
             >
-              {tab.icon}
+              {/* {tab.icon} */}
               {tab.label}
             </TabsTrigger>
           ))}

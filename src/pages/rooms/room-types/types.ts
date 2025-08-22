@@ -12,9 +12,22 @@ export interface Amenity {
 }
 
 export interface RoomTypeAvailability {
-  Available?: number;
-  Booked?: number;
-  Maintenance?: number;
+  status_counts: {
+    Maintenance?: number;
+    Available?: number;
+    Booked?: number;
+  };
+  total_rooms: number;
+  available_rooms: number;
+  booked_rooms: number;
+  maintenance_rooms: number;
+  occupancy_percentage: number;
+}
+
+export interface RoomTypePricing {
+  min_price: number;
+  max_price: number;
+  avg_price: number;
 }
 
 export interface HotelRoomType {
@@ -29,6 +42,7 @@ export interface HotelRoomType {
   images: any[];
   amenities: Amenity[];
   availability: RoomTypeAvailability;
+  pricing: RoomTypePricing; // MODIFICATION: Added the missing pricing property
 }
 
 export interface Hotel {

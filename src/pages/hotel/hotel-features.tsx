@@ -64,12 +64,12 @@ export default function HotelFeatures() {
     <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
       <Tabs defaultValue="amenities" className="w-full">
         {/* Updated grid to accommodate 5 tabs */}
-        <TabsList className="h-auto p-1.5 bg-[#0081FB] rounded-lg w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+        <TabsList className="h-auto px-1.5 py-1.75 bg-gray-100 shadow shadow-gray-200 rounded-lg w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className="data-[state=active]:bg-background data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-white flex items-center gap-2 hover:text-[#FFF]"
+              className="data-[state=active]:bg-[#0081FB] data-[state=active]:text-[#FFF] data-[state=active]:shadow-sm text-[#0081FB] bg-[#FFF] shadow flex items-center gap-2 hover:text-[#0081FB] mx-0.75"
             >
               {tab.icon}
               {tab.label}
