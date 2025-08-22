@@ -1,3 +1,4 @@
+// --- src/pages/hotel/hotel-translations.tsx ---
 "use client";
 import { useState } from "react";
 import { useHotel } from "../../providers/hotel-provider";
@@ -19,7 +20,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { EmptyState } from "./empty-state";
-import { Plus, MoreHorizontal, Trash2, Loader } from "lucide-react";
+import { Plus, MoreHorizontal, Trash2, Loader, Languages } from "lucide-react";
 import { SelectionDialog } from "./selection-dialog";
 import {
   DropdownMenu,
@@ -29,9 +30,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ErrorPage from "@/components/custom/error-page";
 import { Badge } from "@/components/ui/badge";
-import type { Service } from "./features";
+import type { Translation, Country, EnrichedTranslation } from "./features";
 
-export default function HotelServices() {
+export default function HotelTranslations() {
   const queryClient = useQueryClient();
   const {
     hotel,
@@ -44,40 +45,75 @@ export default function HotelServices() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const hotelId = import.meta.env.VITE_HOTEL_ID;
 
-  const serviceQueries = useQueries({
-    queries: (hotel?.services || []).map((id) => ({
-      queryKey: ["serviceDetail", id],
-      queryFn: async () =>
-        (await hotelClient.get(`services/${id}/`)).data as Service,
+  const translationQueries = useQueries({
+    queries: (hotel?.translations || []).map((id) => ({
+      queryKey: ["enrichedTranslationDetail", id],
+      queryFn: async (): Promise<EnrichedTranslation> => {
+        const [translationRes, countryRes] = await Promise.all([
+          hotelClient.get(`translations/${id}/`),
+          hotelClient
+            .get(`translations/${id}/`)
+            .then((res) =>
+              hotelClient.get(`countries/${(res.data as Translation).country}/`)
+            ),
+        ]);
+        const translationData = translationRes.data as Translation;
+        const countryData = countryRes.data as Country;
+        return { ...translationData, country_name: countryData.name };
+      },
       enabled: !!hotel,
     })),
   });
 
-  const services = serviceQueries
+  const translations = translationQueries
     .filter((q) => q.isSuccess)
-    .map((q) => q.data as Service);
-  const serviceQueriesError = serviceQueries.find((q) => q.isError);
+    .map((q) => q.data as EnrichedTranslation);
+  const translationQueriesError = translationQueries.find((q) => q.isError);
 
-  const { data: allServices } = useQuery<Service[]>({
-    queryKey: ["allServices"],
-    queryFn: async () => (await hotelClient.get("services/")).data.results,
+  const { data: allTranslations } = useQuery<EnrichedTranslation[]>({
+    queryKey: ["allEnrichedTranslations"],
+    queryFn: async () => {
+      const transRes = await hotelClient.get("translations/");
+      const transData = transRes.data.results as Translation[];
+      const countryPromises = transData.map((t) =>
+        hotelClient.get(`countries/${t.country}/`)
+      );
+      const countryResponses = await Promise.all(countryPromises);
+      const countries = countryResponses.map((res) => res.data as Country);
+      const countryMap = new Map(countries.map((c) => [c.id, c.name]));
+      return transData.map((t) => ({
+        ...t,
+        country_name: countryMap.get(t.country) || "Unknown",
+      }));
+    },
     enabled: isModalOpen,
   });
 
+  const dialogItems =
+    allTranslations?.map((translation) => ({
+      id: translation.id,
+      name: `${translation.language} (${translation.country_name})`,
+    })) || [];
+
   const updateHotelMutation = useMutation({
-    mutationFn: (newServiceIds: string[]) =>
-      hotelClient.patch(`hotels/${hotelId}/`, { services: newServiceIds }),
+    mutationFn: (newTranslationIds: string[]) =>
+      hotelClient.patch(`hotels/${hotelId}/`, {
+        translations: newTranslationIds,
+      }),
     onSuccess: () => {
-      toast.success("Hotel services updated successfully!");
+      toast.success("Hotel translations updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["hotel", hotelId] });
+      queryClient.invalidateQueries({
+        queryKey: ["enrichedTranslationDetail"],
+      });
       setIsModalOpen(false);
     },
     onError: (error) =>
-      toast.error(`Failed to update services: ${error.message}`),
+      toast.error(`Failed to update translations: ${error.message}`),
   });
 
   const handleOpenModal = () => {
-    setSelectedIds(new Set(hotel?.services || []));
+    setSelectedIds(new Set(hotel?.translations || []));
     setIsModalOpen(true);
   };
 
@@ -88,29 +124,30 @@ export default function HotelServices() {
   };
 
   const handleSave = () => {
+    // MODIFICATION: Added check for saving zero items
     if (Array.from(selectedIds).length === 0) {
-      toast.warning("Your hotel must have at least one service.");
+      toast.warning("Your hotel must have at least one translation.");
       return;
     }
     updateHotelMutation.mutate(Array.from(selectedIds));
   };
 
   // MODIFICATION: Improved error handling in handleRemove
-  const handleRemove = (serviceId: string) => {
-    const currentIds = new Set(hotel?.services || []);
+  const handleRemove = (translationId: string) => {
+    const currentIds = new Set(hotel?.translations || []);
     // Client-side check to prevent removing the last item
     if (currentIds.size <= 1) {
       // Use a warning toast for business rule violations
-      toast.warning("Your hotel must have at least one service.");
+      toast.warning("Your hotel must have at least one translation.");
       return; // Prevent the API call
     }
-    currentIds.delete(serviceId);
+    currentIds.delete(translationId);
     updateHotelMutation.mutate(Array.from(currentIds));
   };
 
-  const areServicesLoading = serviceQueries.some((q) => q.isLoading);
+  const areTranslationsLoading = translationQueries.some((q) => q.isLoading);
 
-  if (isHotelLoading || areServicesLoading) {
+  if (isHotelLoading || areTranslationsLoading) {
     return (
       <div className="w-full flex items-center justify-center py-10">
         <Loader className="animate-spin" />
@@ -120,12 +157,14 @@ export default function HotelServices() {
 
   if (isHotelError)
     return <ErrorPage error={hotelError as Error} onRetry={refetchHotel} />;
-  if (serviceQueriesError)
+  if (translationQueriesError)
     return (
       <ErrorPage
-        error={serviceQueriesError.error as Error}
+        error={translationQueriesError.error as Error}
         onRetry={() =>
-          queryClient.invalidateQueries({ queryKey: ["serviceDetail"] })
+          queryClient.invalidateQueries({
+            queryKey: ["enrichedTranslationDetail"],
+          })
         }
       />
     );
@@ -135,9 +174,9 @@ export default function HotelServices() {
       <Card className="border-none shadow-none">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Hotel Services</CardTitle>
+            <CardTitle>Hotel Translations</CardTitle>
             <CardDescription>
-              Manage additional services offered at your hotel.
+              Manage the languages your hotel information is translated into.
             </CardDescription>
           </div>
           <Button
@@ -150,39 +189,36 @@ export default function HotelServices() {
           </Button>
         </CardHeader>
         <CardContent>
-          {services.length > 0 ? (
+          {translations.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {services.map((service) => (
+              {translations.map((translation) => (
                 <Card
-                  key={service.id}
+                  key={translation.id}
                   className="flex flex-col justify-between"
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{service.name}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {translation.language} ({translation.country_name})
+                      </CardTitle>
                       <Badge
-                        variant={service.is_active ? "default" : "destructive"}
+                        variant={
+                          translation.is_active ? "default" : "destructive"
+                        }
                         className={
-                          service.is_active
+                          translation.is_active
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-700"
                         }
                       >
-                        {service.is_active ? "Active" : "Inactive"}
+                        {translation.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
-                    <CardDescription>{service.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm space-y-2">
-                      <p>
-                        <span className="font-semibold">Type:</span>{" "}
-                        {service.service_type_name || "N/A"}
-                      </p>
-                      <p>
-                        <span className="font-semibold">Scope:</span>{" "}
-                        {service.service_scope_name || "N/A"}
-                      </p>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Languages className="mr-2 h-4 w-4" />
+                      <span>Language Option</span>
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-end">
@@ -194,7 +230,7 @@ export default function HotelServices() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => handleRemove(service.id)}
+                          onClick={() => handleRemove(translation.id)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" /> Remove
@@ -207,8 +243,8 @@ export default function HotelServices() {
             </div>
           ) : (
             <EmptyState
-              title="No Services Found"
-              description="This hotel has not listed any special services yet."
+              title="No Translations Found"
+              description="This hotel has not listed any translations yet."
             />
           )}
         </CardContent>
@@ -217,8 +253,8 @@ export default function HotelServices() {
       <SelectionDialog
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
-        title="Select Available Services"
-        items={allServices || []}
+        title="Select Available Translations"
+        items={dialogItems}
         selectedIds={selectedIds}
         onSelectionChange={handleSelectionChange}
         onSave={handleSave}

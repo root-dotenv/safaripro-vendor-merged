@@ -54,3 +54,26 @@ export interface MealType {
   created_at: string;
   updated_at: string;
 }
+
+// --- Translation ---
+export interface Translation {
+  id: string;
+  language: string;
+  country: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// --- Country (NEW) ---
+export interface Country {
+  id: string;
+  name: string;
+  code: string | null;
+  continent_name: string;
+  is_active: boolean;
+}
+
+// --- EnrichedTranslation (NEW) ---
+// This combines the Translation data with the fetched country name.
+export type EnrichedTranslation = Translation & { country_name: string };

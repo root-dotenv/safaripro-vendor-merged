@@ -58,7 +58,7 @@ export function SelectionDialog({
               id="select-all"
               checked={areAllSelected}
               onCheckedChange={handleSelectAll}
-              className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
             />
             <Label htmlFor="select-all" className="font-bold">
               Select All
@@ -69,7 +69,7 @@ export function SelectionDialog({
               {items.map((item) => (
                 <div key={item.id} className="flex items-center space-x-2">
                   <Checkbox
-                    className="border-[#171717] border-[1.5px] data-[state=checked]:bg-[#171717] data-[state=checked]:text-[#CCC]"
+                    className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
                     id={item.id}
                     checked={selectedIds.has(item.id)}
                     onCheckedChange={(isChecked) =>
@@ -93,7 +93,7 @@ export function SelectionDialog({
           <Button
             onClick={onSave}
             disabled={isSaving}
-            className="bg-blue-500 hover:to-blue-600 transition-all"
+            className="bg-[#0081FB] hover:bg-blue-600 transition-all"
           >
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Update

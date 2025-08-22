@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/card";
 import { EmptyState } from "./empty-state";
 import { Plus, MoreHorizontal, Trash2, Star, Loader } from "lucide-react";
-import { IoIosCheckboxOutline } from "react-icons/io";
 import { SelectionDialog } from "./selection-dialog";
 import {
   DropdownMenu,
@@ -90,17 +89,20 @@ export default function HotelMealTypes() {
 
   const handleSave = () => {
     if (Array.from(selectedIds).length === 0) {
-      toast.error("A hotel must have at least one meal type.");
+      toast.warning("Your hotel must have at least one meal type.");
       return;
     }
     updateHotelMutation.mutate(Array.from(selectedIds));
   };
 
+  // MODIFICATION: Improved error handling in handleRemove
   const handleRemove = (mealId: string) => {
     const currentIds = new Set(hotel?.meal_types || []);
+    // Client-side check to prevent removing the last item
     if (currentIds.size <= 1) {
-      toast.error("A hotel must have at least one meal type.");
-      return;
+      // Use a warning toast for business rule violations
+      toast.warning("Your hotel must have at least one meal type.");
+      return; // Prevent the API call
     }
     currentIds.delete(mealId);
     updateHotelMutation.mutate(Array.from(currentIds));
@@ -138,7 +140,11 @@ export default function HotelMealTypes() {
               Manage the meal plans offered at your hotel.
             </CardDescription>
           </div>
-          <Button variant="outline" onClick={handleOpenModal}>
+          <Button
+            variant="outline"
+            className="bg-[#FFF] font-semibold text-[#0081FB] border-[#DADCE0] border-[1.25px] shadow"
+            onClick={handleOpenModal}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add / Remove
           </Button>
@@ -149,7 +155,7 @@ export default function HotelMealTypes() {
               {mealTypes.map((mealType) => (
                 <Card
                   key={mealType.id}
-                  className="relative group flex flex-col justify-between"
+                  className="flex flex-col justify-between"
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -176,28 +182,22 @@ export default function HotelMealTypes() {
                       </span>
                     </div>
                   </CardContent>
-                  <CardFooter>
-                    <div className="absolute top-4 right-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleRemove(mealType.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    <IoIosCheckboxOutline className="w-6 h-6 text-gray-300" />
+                  <CardFooter className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleRemove(mealType.id)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" /> Remove
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </CardFooter>
                 </Card>
               ))}

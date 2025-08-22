@@ -32,8 +32,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import hotelClient from "../../api/hotel-client";
 
 // --- Icon Imports ---
-import { IoCreateOutline } from "react-icons/io5";
-import { FaPlus, FaLayerGroup } from "react-icons/fa";
+import { IoAddOutline, IoCreateOutline } from "react-icons/io5";
+import { FaLayerGroup } from "react-icons/fa";
 import { Loader2 } from "lucide-react";
 
 // --- TYPE DEFINITIONS ---
@@ -155,7 +155,7 @@ export default function NewRoomPage() {
     {
       id: "single",
       label: "Create Single Room",
-      icon: <FaPlus />,
+      icon: <IoAddOutline size={18} />,
       component: <SingleRoomForm {...formProps} />,
     },
     {

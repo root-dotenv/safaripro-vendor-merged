@@ -13,3 +13,7 @@ Normal Buttons - className="bg-[#FFFFFD] border-[1.25px] border-[#E7E5E4] text-[
 - Editing Icon - <TbEdit className="h-4 w-4" />
 
 - className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+
+Meta Blue - #0081FB
+
+- - - Checkbox Blue - className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
