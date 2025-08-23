@@ -21,7 +21,6 @@ import {
   CircleXIcon,
   Columns3Icon,
   EllipsisIcon,
-  Eye,
   Trash2,
   ChevronFirstIcon,
   ChevronLastIcon,
@@ -95,12 +94,12 @@ import { IoRefreshOutline } from "react-icons/io5";
 import axios from "axios";
 import ErrorPage from "@/components/custom/error-page";
 
-// --- API Client ---
+// - - - API Client
 const hotelClient = axios.create({
   baseURL: "https://hotel.safaripro.net/api/v1",
 });
 
-// --- Type Definitions ---
+// - - - Type Definitions
 interface AllocationDetail {
   id: string;
   created_by: string | null;
@@ -149,7 +148,7 @@ interface PaginatedResponse<T> {
   results: T[];
 }
 
-// --- Debounce Hook ---
+// - - - Debounce Hook
 const useDebounce = <T,>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   useEffect(() => {
@@ -161,7 +160,7 @@ const useDebounce = <T,>(value: T, delay: number): T => {
   return debouncedValue;
 };
 
-// --- Status Color Helper ---
+// - - - Status Color Helper
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Draft":
@@ -179,7 +178,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-// --- Form Component ---
+// - - - Form Component
 const AllocationDetailForm = ({
   isOpen,
   onClose,
@@ -306,7 +305,6 @@ const AllocationDetailForm = ({
               required
             />
           </div>
-
           <div>
             <Label htmlFor="allocation">Allocation</Label>
             <Select
@@ -328,7 +326,6 @@ const AllocationDetailForm = ({
               </SelectContent>
             </Select>
           </div>
-
           <div>
             <Label htmlFor="room_type">Room Type</Label>
             <Select
@@ -350,7 +347,6 @@ const AllocationDetailForm = ({
               </SelectContent>
             </Select>
           </div>
-
           <div>
             <Label htmlFor="room">Room</Label>
             <Select
@@ -366,13 +362,12 @@ const AllocationDetailForm = ({
               <SelectContent>
                 {rooms.map((room) => (
                   <SelectItem key={room.id} value={room.id}>
-                    {room.code} - {room.description}
+                    {room.code}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
           <div>
             <Label htmlFor="status">Status</Label>
             <Select
@@ -397,10 +392,9 @@ const AllocationDetailForm = ({
               </SelectContent>
             </Select>
           </div>
-
           <div className="flex items-center space-x-2">
             <Checkbox
-              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
               id="is_price_per_night"
               checked={formData.is_price_per_night}
               onCheckedChange={(checked) =>
@@ -447,12 +441,10 @@ const AllocationDetailForm = ({
   );
 };
 
-// --- Main Component ---
+// - - - Main Component
 export default function Allocations() {
   const queryClient = useQueryClient();
   const hotel_id = import.meta.env.VITE_HOTEL_ID;
-
-  // --- State ---
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -602,7 +594,7 @@ export default function Allocations() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
           />
         ),
         cell: ({ row }) => (
@@ -610,7 +602,7 @@ export default function Allocations() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
           />
         ),
         size: 40,
@@ -657,7 +649,7 @@ export default function Allocations() {
         header: "Active",
         cell: ({ row }) => (
           <Badge
-            className="bg-green-600"
+            className="bg-green-100 text-green-800 border-green-200"
             variant={row.getValue("is_active") ? "default" : "secondary"}
           >
             {row.getValue("is_active") ? "Yes" : "No"}
@@ -742,7 +734,7 @@ export default function Allocations() {
         </h2>
         <Button
           onClick={handleCreate}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 cursor-pointer rounded-md"
+          className="gap-2 bg-[#0081FB] hover:bg-blue-700 cursor-pointer rounded-md"
         >
           <Plus className="h-4 w-4" />
           Create Allocation Detail

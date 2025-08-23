@@ -90,7 +90,7 @@ export function InvoiceTicket({
       document.body.innerHTML = printContents;
       window.print();
       document.body.innerHTML = originalContents;
-      window.location.reload(); // Reload to restore event listeners etc.
+      window.location.reload();
     }
   };
 

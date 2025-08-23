@@ -390,7 +390,7 @@ export default function AllBookings() {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label="Select all"
-            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
           />
         ),
         cell: ({ row }) => (
@@ -398,7 +398,7 @@ export default function AllBookings() {
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+            className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
           />
         ),
         size: 28,
@@ -631,7 +631,7 @@ export default function AllBookings() {
             </Button>
             <Button
               onClick={() => navigate("/bookings/new-booking")}
-              className="bg-[#FFFFFD] border-[1.25px] border-[#E7E5E4] text-[#19191A] shadow hover:bg-none hover:shadow-none hover:border-none"
+              className="bg-[#0081FB] text-[#FFF] hover:bg-blue-600 cursor-pointer"
             >
               <Plus className="mr-1 h-4 w-4" /> New Booking
             </Button>
@@ -757,7 +757,7 @@ export default function AllBookings() {
                               onCheckedChange={(checked: boolean) =>
                                 handleStatusChange(checked, value)
                               }
-                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
                             />
                             <Label
                               htmlFor={`${id}-status-${i}`}
@@ -797,7 +797,7 @@ export default function AllBookings() {
                           <div key={value} className="flex items-center gap-2">
                             <Checkbox
                               id={`${id}-booking-type-${i}`}
-                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#DADCE0] data-[state=checked]:text-[#9a9a9a]"
+                              className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
                               checked={selectedBookingTypes.includes(value)}
                               onCheckedChange={(checked: boolean) =>
                                 handleBookingTypeChange(checked, value)
@@ -858,7 +858,7 @@ export default function AllBookings() {
                           aria-hidden="true"
                         />
                         Delete
-                        <span className="bg-red-600 text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
+                        <span className="bg-[#0081FB] text-white -me-1 inline-flex h-5 max-h-full items-center rounded border-none px-1 font-[inherit] text-[0.625rem] font-medium">
                           {table.getSelectedRowModel().rows.length}
                         </span>
                       </Button>

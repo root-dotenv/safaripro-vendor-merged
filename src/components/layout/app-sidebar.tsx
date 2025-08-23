@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-// --- Hooks & Providers ---
+// - - - Hooks & Providers
 import { useHotel } from "@/providers/hotel-provider";
 
-// --- UI Components ---
+// - - - UI Components ---
 import {
   Sidebar,
   SidebarContent,
@@ -21,14 +21,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Separator } from "../ui/separator";
-
-// --- Navigation Sub-components ---
 import { NavMain } from "./nav-main";
 import { NavProjects } from "./nav-projects";
 import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
-
-// --- Icons ---
 import {
   PieChart,
   Hotel,

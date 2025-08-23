@@ -149,10 +149,10 @@ export default function HotelFacilities() {
           </div>
           <Button
             variant="outline"
-            className="bg-[#FFF] font-semibold text-[#0081FB] border-[#DADCE0] border-[1.25px] shadow"
+            className="bg-[#FFF] font-semibold text-[#0081FB] border-[#DADCE0] border-[1.25px] shadow cursor-pointer hover:bg-[#0081FB] hover:text-white hover:border-[0081FB] transition-all"
             onClick={handleOpenModal}
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-1.5 h-4 w-4" />
             Add / Remove
           </Button>
         </CardHeader>

@@ -69,7 +69,7 @@ export default function HotelFeatures() {
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className="data-[state=active]:bg-[#0081FB] data-[state=active]:text-[#FFF] data-[state=active]:shadow-sm text-[#0081FB] bg-[#FFF] shadow flex items-center gap-2 hover:text-[#0081FB] mx-0.75"
+              className="data-[state=active]:bg-[#0081FB] data-[state=active]:text-[#FFF] data-[state=active]:shadow-sm text-[#0081FB] bg-[#FFF] shadow flex items-center gap-2 hover:text-[#0081FB] mx-0.75 cursor-pointer"
             >
               {tab.icon}
               {tab.label}

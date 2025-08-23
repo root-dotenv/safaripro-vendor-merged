@@ -398,7 +398,7 @@ export default function HotelDepartments() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="px-0 shadow-none bg-none border-none">
         <CardHeader>
           <CardTitle>Department Overview</CardTitle>
           <CardDescription>
@@ -406,7 +406,7 @@ export default function HotelDepartments() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
+          <div className="rounded-md border-[1px] shadow border-[#DADCE0]">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 hover:bg-gray-100">
@@ -993,7 +993,11 @@ function DepartmentFormDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              className="bg-[#0081FB] hover:bg-blue-600 cursor-pointer"
+              type="submit"
+              disabled={isLoading}
+            >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {department ? "Save Changes" : "Create Department"}
             </Button>
