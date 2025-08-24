@@ -1,3 +1,4 @@
+// - - - src/pages/bookings/cash-payment/guest-details.tsx
 import React, { useState, useEffect } from "react";
 import {
   User,

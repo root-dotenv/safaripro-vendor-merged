@@ -1,6 +1,4 @@
-// types.ts
-
-import type { number } from "zod";
+// - - - src/pages/bookings/mobile-payment/types.ts
 
 /**
  * Represents the structure of a single available room
@@ -41,7 +39,6 @@ interface BillingMetaData {
     description: string;
     amount: string;
   }[];
-  // Add other billing_meta_data fields if needed
 }
 
 interface StatusHistory {
@@ -51,7 +48,6 @@ interface StatusHistory {
     converted_required: number;
     from_currency: string;
     to_currency: string;
-    // Add other details fields if needed
   };
 }
 

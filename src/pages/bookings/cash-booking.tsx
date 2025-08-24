@@ -1,3 +1,4 @@
+// - - - src/pages/bookings/cash-booking.tsx
 "use client";
 import { useState } from "react";
 import type {
@@ -7,7 +8,6 @@ import type {
 } from "./cash-payment/types";
 import { GuestDetailsForm } from "./cash-payment/guest-details";
 import { CheckinGuest } from "./cash-payment/checkin-guest";
-import { SearchRoomAvailability } from "./cash-payment/search-room";
 import { CashPaymentForm } from "./cash-payment/payment";
 import {
   Card,
@@ -16,6 +16,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { SearchRoomAvailability } from "./mobile-payment/search-room";
 
 export default function CashBooking() {
   // State for application flow control

@@ -1,3 +1,5 @@
+// - - - src/pages/bookings/cash-payment/payment.tsx
+
 import React, { useState } from "react";
 import { AlertCircle, CheckCircle, Loader2, Wallet } from "lucide-react";
 import type { BookingConfirmation } from "./types";

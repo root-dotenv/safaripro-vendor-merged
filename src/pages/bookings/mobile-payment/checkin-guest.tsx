@@ -1,3 +1,4 @@
+// - - - src/pages/bookings/mobile-payment/checkin-guest.tsx
 import React, { useState, useEffect } from "react";
 import {
   Loader2,

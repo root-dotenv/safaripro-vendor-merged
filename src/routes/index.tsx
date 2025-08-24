@@ -10,7 +10,6 @@ import { AuthProvider } from "@/context/auth-context";
 // Layouts and Pages
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import HotelFeatures from "@/pages/hotel/hotel-features";
-// import CustomizeHotel from "@/pages/hotel/customize-hotel";
 import AllBookings from "@/pages/bookings/all-bookings";
 import SafariproBookings from "@/pages/bookings/safaripro-bookings";
 import BookingDetailsPage from "@/pages/bookings/booking-details";
@@ -18,7 +17,6 @@ import NewRoom from "@/pages/rooms/new-room";
 import AvailableRooms from "@/pages/rooms/available-rooms";
 import BookedRooms from "@/pages/rooms/booked-rooms";
 import MaintenanceRooms from "@/pages/rooms/maintenance-rooms";
-// import RoomTypes from "@/pages/rooms/room-types";
 import AvailableRoomsByDate from "@/pages/rooms/available-rooms-date";
 import RoomDetailsPage from "@/pages/rooms/rooms-details";
 import CheckedInGuests from "@/pages/reservation/checked-in";

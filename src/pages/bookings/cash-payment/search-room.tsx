@@ -1,3 +1,4 @@
+// - - - src/pages/bookings/cash-payment/search-room.tsx
 import React from "react";
 import {
   Calendar as CalendarIcon,

@@ -1,4 +1,4 @@
-// types.ts
+// - - - src/pages/bookings/cash-payment/types.ts
 
 /**
  * Represents the structure of a single available room

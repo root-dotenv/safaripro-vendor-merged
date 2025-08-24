@@ -1,3 +1,5 @@
+// - - - src/pages/bookings/mobile-payment/payment.tsx
+
 import React, { useState } from "react";
 import {
   CreditCard,

@@ -1,3 +1,4 @@
+// - - - src/pages/bookings/mobile-booking.tsx
 "use client";
 import { useState } from "react";
 import { SearchRoomAvailability } from "./mobile-payment/search-room";
@@ -17,7 +18,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-export default function NewBooking() {
+export default function MobileBooking() {
   // State for application flow control
   type Step = "search" | "details" | "billing" | "payment" | "confirmation";
   const [step, setStep] = useState<Step>("search");

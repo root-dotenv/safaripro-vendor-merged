@@ -64,7 +64,7 @@ export function HotelProvider({ children }: { children: ReactNode }) {
     isLoading,
     error,
     isError,
-    refetch: refetch as () => void, // Cast to ensure type correctness
+    refetch: refetch as () => void,
   };
 
   return (
