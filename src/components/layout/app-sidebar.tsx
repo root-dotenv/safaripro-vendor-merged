@@ -225,8 +225,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   return (
-    <Sidebar className={"sidebar"} variant="inset" {...props}>
-      <SidebarHeader>
+    // F0F6FF
+    <Sidebar className={"welcome bg-[#F0F6FF]"} variant="inset" {...props}>
+      <SidebarHeader className="bg-[#F0F6FF]">
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -287,7 +288,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </TooltipProvider>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="bg-[#F0F6FF]">
         <NavMain items={navData.navMain} />
         <NavProjects
           projects={navData.projects}
@@ -296,7 +297,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="bg-[#F0F6FF]">
         <NavUser user={navData.user} />
       </SidebarFooter>
     </Sidebar>

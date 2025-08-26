@@ -53,11 +53,12 @@ export function NavMain({
 
             return (
               <Collapsible key={item.title} asChild defaultOpen={isDefaultOpen}>
+                {/* className="bg-lime-500 text-pink-500" */}
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
                       variant="ghost"
-                      className="group w-full justify-between"
+                      className="group my-[0.5px] w-full justify-between text-[#3861FB] bg-[#E6EFFF] hover:bg-[#E6EFFF] transition-all hover:cursor-pointer hover:text-[#0D1421]"
                       tooltip={item.title}
                     >
                       <div className="flex items-center gap-2">
@@ -68,7 +69,7 @@ export function NavMain({
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
-                  <CollapsibleContent>
+                  <CollapsibleContent className="">
                     <SidebarMenuSub>
                       {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>

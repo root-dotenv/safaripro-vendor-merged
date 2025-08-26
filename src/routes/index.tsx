@@ -63,7 +63,7 @@ const RootLayout = () => {
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
-    errorElement: <NotFoundPage />, // A single error boundary for the whole app
+    errorElement: <NotFoundPage />,
     children: [
       // --- Public Routes ---
       {
@@ -80,7 +80,6 @@ export const router = createBrowserRouter([
       },
 
       // --- Protected Routes ---
-      // All routes inside this object will be protected by ProtectedRoute.
       {
         element: <ProtectedRoute />, // This layout route checks for auth and renders an <Outlet />.
         children: [
