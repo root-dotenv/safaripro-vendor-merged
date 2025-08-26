@@ -1,3 +1,4 @@
+// - - - src/pages/miscellaneous/InputGroup.tsx
 import type { FC, ReactNode } from "react";
 import { Label } from "@/components/ui/label";
 

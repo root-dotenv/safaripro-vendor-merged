@@ -858,7 +858,7 @@ export default function AllBookings() {
                           aria-hidden="true"
                         />
                         Delete
-                        <span className="bg-[#0081FB] text-white -me-1 inline-flex h-5 max-h-full items-center rounded border-none px-1 font-[inherit] text-[0.625rem] font-medium">
+                        <span className="bg-[#f54943] text-white -me-1 inline-flex h-5 max-h-full items-center rounded border-none px-1 font-[inherit] text-[0.625rem] font-medium">
                           {table.getSelectedRowModel().rows.length}
                         </span>
                       </Button>
@@ -973,31 +973,6 @@ export default function AllBookings() {
             </div>
 
             <div className="flex items-center justify-between gap-8 mt-4 w-full">
-              <div className="flex items-center gap-3 w-full">
-                {/* <Label htmlFor={`${id}-pagination`} className="max-sm:sr-only">
-                  Rows per page
-                </Label>
-                <Select
-                  value={table.getState().pagination.pageSize.toString()}
-                  onValueChange={(value) => {
-                    table.setPageSize(Number(value));
-                  }}
-                >
-                  <SelectTrigger
-                    id={`${id}-pagination`}
-                    className="w-fit whitespace-nowrap"
-                  >
-                    <SelectValue placeholder="Select number of results" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[10, 25, 50, 100].map((pageSize) => (
-                      <SelectItem key={pageSize} value={pageSize.toString()}>
-                        {pageSize}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select> */}
-              </div>
               <div className="text-muted-foreground flex grow justify-center text-sm whitespace-nowrap">
                 <p aria-live="polite">
                   Page{" "}

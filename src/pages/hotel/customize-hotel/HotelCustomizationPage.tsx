@@ -18,6 +18,7 @@ import HotelCustomizationHeader from "./HotelCustomizationHeader";
 import BasicInfoSection from "./BasicInfoSection";
 import PropertyDetailsSection from "./PropertyDetailsSection";
 import FeaturesSection from "./FeaturesSection";
+import OtherPropertiesSection from "./OtherPropertiesSection";
 import CurrentDetailsSection from "./CurrentDetailsSection";
 
 const BASE_URL = import.meta.env.VITE_HOTEL_BASE_URL;
@@ -29,27 +30,25 @@ const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
 // --- Helper function for fetching data ---
 const fetchResource = async <T,>(url: string): Promise<{ results: T[] }> => {
   const response = await apiClient.get<{ results: T[] } | T[]>(url);
-
   if (Array.isArray(response.data)) {
     return { results: response.data };
   }
-
   return response.data as { results: T[] };
 };
 
 export default function HotelCustomizationPage() {
   const [editData, setEditData] = useState<Partial<Hotel>>({});
-  // Re-add 'current' to the state
   const [openSections, setOpenSections] = useState({
-    basic: true,
+    basic: false,
     property: false,
     features: false,
-    current: false,
+    other: true,
+    current: true,
   });
 
   const queryClient = useQueryClient();
 
-  // --- Data Fetching with React Query (unchanged) ---
+  // --- Data Fetching with React Query ---
   const {
     data: hotelData,
     isLoading: isLoadingHotel,
@@ -110,7 +109,7 @@ export default function HotelCustomizationPage() {
     isLoadingRegions ||
     isLoadingHotelTypes;
 
-  // --- Mutation for Updating Hotel (unchanged) ---
+  // --- Mutation for Updating Hotel ---
   const updateHotelMutation = useMutation({
     mutationFn: async (changes: Partial<Hotel>) =>
       (await apiClient.patch(`hotels/${HOTEL_ID}/`, changes)).data,
@@ -155,9 +154,9 @@ export default function HotelCustomizationPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700 dark:bg-gray-900 dark:text-gray-300">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-none text-gray-700">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p></p>
+        <p>Loading hotel data...</p>
       </div>
     );
   }
@@ -204,6 +203,12 @@ export default function HotelCustomizationPage() {
           facilities={facilitiesData?.results || []}
           translations={translationsData?.results || []}
           regions={regionsData?.results || []}
+        />
+        <OtherPropertiesSection
+          isOpen={openSections.other}
+          onToggle={() => toggleSection("other")}
+          editData={editData}
+          handleFieldChange={handleFieldChange}
         />
         <CurrentDetailsSection
           isOpen={openSections.current}

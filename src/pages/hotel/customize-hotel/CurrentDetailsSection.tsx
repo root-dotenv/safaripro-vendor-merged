@@ -132,7 +132,9 @@ const CurrentDetailsSection: React.FC<CurrentDetailsProps> = ({
 
       {/* Footer with last updated time */}
       <div className="mt-6 text-center">
-        <p className="text-xs text-gray-500">Last Synced: {lastUpdated}</p>
+        <p className="text-[0.9375rem] text-gray-500">
+          Last Synced: {lastUpdated}
+        </p>
       </div>
     </AccordionItem>
   );

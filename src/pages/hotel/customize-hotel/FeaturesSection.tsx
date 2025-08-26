@@ -13,6 +13,7 @@ import type {
 } from "./hotel";
 import { AccordionItem, MultiSelectInput } from "./shared";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FiAlertTriangle } from "react-icons/fi";
 
 interface FeaturesProps {
   isOpen: boolean;
@@ -47,9 +48,14 @@ const FeaturesSection: React.FC<FeaturesProps> = ({
     isOpen={isOpen}
     onToggle={onToggle}
   >
-    <Alert className="my-6" variant={"default"}>
-      <AlertTitle>Note!</AlertTitle>
-      <AlertDescription>
+    <Alert
+      className="my-6 bg-yellow-100 text-yellow-800 border-yellow-200"
+      variant={"default"}
+    >
+      <AlertTitle className="text-[1rem] flex items-center gap-x-1.5">
+        <FiAlertTriangle /> Note
+      </AlertTitle>
+      <AlertDescription className="text-yellow-800 text-[0.9375rem]">
         Please ensure that you add at least one theme, meal type, amenity,
         service, facility, region, and translation to your hotel. This is
         essential for the proper functioning of the hotel listing.

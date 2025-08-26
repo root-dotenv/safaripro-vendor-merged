@@ -22,7 +22,6 @@ import {
   Globe,
   Soup,
   MapPin,
-  Building2,
   Hotel,
   ChevronLeft,
   ChevronRight,
@@ -54,15 +53,6 @@ import { Button } from "@/components/ui/button";
 import { useHotel } from "@/providers/hotel-provider";
 import { useState, useRef } from "react";
 import { IoLanguageOutline } from "react-icons/io5";
-
-// Color Palette
-const colors = {
-  lightGreen: "#DCFCE6",
-  blue: "#155DFC",
-  lightOrange: "#FFF085",
-  neutralGray: "#6B7280",
-  neutralLight: "#F7F7F7",
-};
 
 // Type Definitions
 type FeatureType =
@@ -152,7 +142,7 @@ const SocialIconLink = ({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="p-2 rounded-full text-neutralGray bg-neutralLight hover:bg-blue-500 hover:text-white transition-colors duration-200"
+      className="p-2 rounded-full text-[#FFF] bg-neutralLight bg-[#0081FB] hover:text-white transition-colors duration-200"
     >
       <Icon className="h-5 w-5" />
     </a>
@@ -341,7 +331,7 @@ const QuickLinks = () => {
         <Link to="/hotel/hotel-features">
           <Button
             variant="outline"
-            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+            className="w-full bg-[#0081FB] hover:text-[#FFF] text-[#FFF] border-none hover:bg-blue-600 transition-all cursor-pointer"
           >
             Hotel Features
           </Button>
@@ -349,7 +339,7 @@ const QuickLinks = () => {
         <Link to="/bookings/all-bookings">
           <Button
             variant="outline"
-            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+            className="w-full bg-[#0081FB] hover:text-[#FFF] text-[#FFF] border-none hover:bg-blue-600 transition-all cursor-pointer"
           >
             All Bookings
           </Button>
@@ -357,7 +347,7 @@ const QuickLinks = () => {
         <Link to="/rooms/available-rooms">
           <Button
             variant="outline"
-            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+            className="w-full bg-[#0081FB] hover:text-[#FFF] text-[#FFF] border-none hover:bg-blue-600 transition-all cursor-pointer"
           >
             Available Rooms
           </Button>
@@ -365,7 +355,7 @@ const QuickLinks = () => {
         <Link to="/reservations/checkin">
           <Button
             variant="outline"
-            className="w-full text-blue-500 border-blue-500 hover:bg-blue-50"
+            className="w-full bg-[#0081FB] hover:text-[#FFF] text-[#FFF] border-none hover:bg-blue-600 transition-all cursor-pointer"
           >
             Checked-In Guests
           </Button>
@@ -375,12 +365,13 @@ const QuickLinks = () => {
   );
 };
 
-// Main Component
+// - - - Main Component
 export function HotelDetailsSheet() {
   const { hotel } = useHotel();
 
+  const VENDOR_BASE_API_URL = import.meta.env.VITE_VENDOR_BASE_URL;
   const VENDOR_ID = import.meta.env.VITE_VENDOR_ID;
-  const VENDOR_BASE_URL = "http://vendor.safaripro.net/api/v1/vendors/";
+  const VENDOR_BASE_URL = `${VENDOR_BASE_API_URL}vendors/`;
 
   const { data: vendor, isLoading: isLoadingVendor } = useQuery<Vendor>({
     queryKey: ["vendor", VENDOR_ID],
@@ -418,7 +409,7 @@ export function HotelDetailsSheet() {
     queryKey: ["hotel-type", hotel?.hotel_type],
     queryFn: async () => {
       const { data } = await hotelClient.get(
-        `/hotel-types/${hotel.hotel_type}`
+        `/hotel-types/${hotel?.hotel_type}`
       );
       return data as { name: string };
     },
@@ -472,9 +463,8 @@ export function HotelDetailsSheet() {
               {hotelTypeData && (
                 <Badge
                   variant="secondary"
-                  className="py-1 px-3 text-sm bg-lightGreen text-blue-500"
+                  className="py-0 px-0 rounded-none text-[1.125rem] bg-lightGreen text-blue-500"
                 >
-                  <Building2 className="h-4 w-4 mr-2" />
                   {hotelTypeData.name}
                 </Badge>
               )}
@@ -602,9 +592,9 @@ export function HotelDetailsSheet() {
                 {hotel.room_type?.map((room) => (
                   <Card
                     key={room.id}
-                    className="p-4 flex justify-between items-center border-[1.5px] rounded-md border-[#DADCE0] bg-[#FFF] hover:bg-lightGreen/30 transition-colors shadow-sm"
+                    className="p-4 justify-between border-[1.5px] rounded-md border-[#DADCE0] bg-[#FFF] hover:bg-lightGreen/30 transition-colors shadow-sm flex flex-col items-center"
                   >
-                    <div>
+                    <div className="flex flex-col items-center">
                       <p className="font-semibold text-md text-gray-900">
                         {room.name}
                       </p>

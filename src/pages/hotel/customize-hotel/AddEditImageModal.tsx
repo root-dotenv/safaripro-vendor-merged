@@ -186,10 +186,15 @@ export function AddEditImageModal({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="transition-all cursor-pointer hover:bg-gray-100"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button
+              className="bg-[#0081FB] transition-all cursor-pointer hover:bg-blue-600"
+              type="submit"
+              disabled={isPending}
+            >
               {isPending
                 ? "Saving..."
                 : isEditMode

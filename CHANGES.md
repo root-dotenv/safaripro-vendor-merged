@@ -17,3 +17,9 @@ Normal Buttons - className="bg-[#FFFFFD] border-[1.25px] border-[#E7E5E4] text-[
 Meta Blue - #0081FB
 
 - - - Checkbox Blue - className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
+
+- - - bg-yellow-100 text-yellow-800 border-yellow-200
+
+BOOKINGS.COM COLORS
+background gray - #F9F9FA
+forms white - #FFFFFF

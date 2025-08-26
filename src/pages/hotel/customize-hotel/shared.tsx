@@ -128,7 +128,7 @@ export const FormField: React.FC<FormFieldProps> = ({
 
 export const Badge: React.FC<BadgeProps> = ({ children, onRemove }) => {
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2 mb-2">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border-blue-200 border mr-2 mb-2">
       {children}
       {onRemove && (
         <button

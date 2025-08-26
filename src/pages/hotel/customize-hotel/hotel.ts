@@ -111,13 +111,13 @@ export interface Hotel {
   check_out_to: string | null;
   average_rating: string;
   review_count: number;
-  country: string; // This will hold the country ID
-  hotel_type: string; // Will now be editable
-  regions: string[]; // Will now be editable
-  themes: string[]; // Array of theme IDs
-  meal_types: string[]; // Array of meal type IDs
-  amenities: string[]; // Array of amenity IDs
-  services: string[]; // Array of service IDs
-  facilities: string[]; // Array of facility IDs
-  translations: string[]; // Will now be editable
+  country: string;
+  hotel_type: string;
+  regions: string[];
+  themes: string[];
+  meal_types: string[];
+  amenities: string[];
+  services: string[];
+  facilities: string[];
+  translations: string[];
 }

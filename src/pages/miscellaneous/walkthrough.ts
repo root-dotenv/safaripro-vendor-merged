@@ -1,3 +1,4 @@
+// - - - src/pages/miscellaneous/walkthrough.ts
 export interface Vendor {
   id: string;
   business_name: string;
