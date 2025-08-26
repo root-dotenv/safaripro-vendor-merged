@@ -10,7 +10,7 @@ export default function NotFound() {
           {/* Error Code */}
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 blur-3xl transform -rotate-6 scale-110"></div>
-            <h1 className="relative text-[120px] md:text-[160px] font-black text-transparent bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 bg-clip-text leading-none tracking-tight">
+            <h1 className="relative text-[120px] md:text-[160px] font-black text-transparent bg-gradient-to-r from-[#0081FB] via-blue-700 to-[#0081FB] bg-clip-text leading-none tracking-tight">
               404
             </h1>
           </div>
@@ -32,17 +32,10 @@ export default function NotFound() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
               <Link
                 to="/"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-md shadow hover:shadow-blue-500/25 transition-all duration-300 group flex items-center gap-2 cursor-pointer"
+                className="bg-[#0081FB] hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-[6px] shadow hover:shadow-blue-500/25 transition-all duration-300 group flex items-center gap-2 cursor-pointer"
               >
                 Return to Dashboard
               </Link>
-
-              <button
-                onClick={() => window.history.back()}
-                className="border border-[#DADCE0] hover:border-[#DADCE0] text-slate-700 hover:text-slate-900 font-semibold px-8 py-3 rounded-lg transition-all duration-300 group flex items-center gap-2 bg-[#FFF] hover:bg-slate-50 cursor-pointer shadow"
-              >
-                Go Back
-              </button>
             </div>
           </div>
 
@@ -74,7 +67,7 @@ export default function NotFound() {
                     </a>
 
                     <a
-                      href="tel:+255689759215"
+                      href="tel:+255754447387"
                       className="flex items-center justify-center gap-3 p-4 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-lg transition-all duration-300 text-slate-700 hover:text-blue-700 font-medium group"
                     >
                       <FiPhone className="w-5 h-5 group-hover:scale-110 transition-transform" />

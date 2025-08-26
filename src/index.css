@@ -13,6 +13,10 @@ body {
 .sidebar {
   font-family: "Nunito", sans-serif;
 }
+.welcome {
+  font-family: "Inter", sans-serif;
+}
+
 ::-webkit-scrollbar {
   display: none;
 }

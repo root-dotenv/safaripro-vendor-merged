@@ -726,9 +726,7 @@ export default function HotelDetails() {
               <h2 className="flex items-center gap-x-2 text-xl font-semibold text-[#334155] border-b border-[#E8E8E8] pb-3 mb-4">
                 Hotel Description
               </h2>
-              <p className="text-[#334155] text-[0.9375rem] leading-relaxed">
-                <ExpandableText text={hotel.description} wordLimit={70} />
-              </p>
+              <ExpandableText text={hotel.description} wordLimit={70} />
             </div>
             <div className="bg-white border-[1.25px] border-[#DADCE0] rounded-md shadow p-6">
               <h2 className="flex items-center gap-x-2 text-xl font-semibold text-[#334155] border-b border-[#E8E8E8] pb-3 mb-4">

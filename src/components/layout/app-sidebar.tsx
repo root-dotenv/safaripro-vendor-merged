@@ -127,8 +127,16 @@ const navData = {
     },
   ],
   navSecondary: [
-    { title: "Support", url: "/support", icon: BiSupport },
-    { title: "Feedback", url: "/feedback", icon: MdOutlineFeedback },
+    {
+      title: "Support",
+      url: "https://web.safaripro.net/privacy-policy/support",
+      icon: BiSupport,
+    },
+    {
+      title: "Feedback",
+      url: "https://web.safaripro.net/privacy-policy/support",
+      icon: MdOutlineFeedback,
+    },
   ],
   projects: [
     { name: "Analytics", url: "/analytics", icon: PieChart },
