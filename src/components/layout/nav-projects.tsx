@@ -43,8 +43,14 @@ export function NavProjects({
       <SidebarGroupLabel>Reports Overview</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
+          <SidebarMenuItem
+            className="text-[#14B2CF] text-[0.875rem] transition-all"
+            key={item.name}
+          >
+            <SidebarMenuButton
+              className="hover:bg-[#E6EFFF] my-[1px] text-[#476EFB] bg-[#E6EFFF] transition-all hover:text-[#476EFB]"
+              asChild
+            >
               <Link to={item.url}>
                 <item.icon />
                 <span>{item.name}</span>
@@ -56,7 +62,7 @@ export function NavProjects({
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuAction showOnHover>
                     <MoreHorizontal />
-                    <span className="sr-only">More</span>
+                    <span className="sr-only ">More</span>
                   </SidebarMenuAction>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -81,7 +87,7 @@ export function NavProjects({
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton>
+              <SidebarMenuButton className="text-[#476EFB] cursor-pointer hover:bg-[#E6EFFF] transition-all hover:text-[#0D1421] text-[13px]">
                 <MoreHorizontal />
                 <span>More</span>
               </SidebarMenuButton>

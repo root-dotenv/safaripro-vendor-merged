@@ -383,8 +383,7 @@ export default function AllocateRooms() {
           </p>
         </div>
         <Button
-          size="lg"
-          className="rounded-md bg-blue-600 hover:bg-blue-700 cursor-pointer"
+          className="rounded-[6px] bg-[#0081FB] hover:bg-blue-600 cursor-pointer"
           onClick={() => setCreateFormOpen(true)}
         >
           <Plus className="mr-1 h-5 w-5" />
@@ -445,7 +444,7 @@ export default function AllocateRooms() {
       </div>
 
       {/* Filters and Allocations Grid */}
-      <Card>
+      <Card className="shadow-none bg-none border-none px-0">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -787,7 +786,7 @@ function AllocationForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes">Allocation Notes (Optional)</Label>
             <Controller
               name="notes"
               control={control}
@@ -804,7 +803,7 @@ function AllocationForm({
             Cancel
           </Button>
           <Button
-            className="bg-blue-600 hover:bg-blue-700 transition-all"
+            className="bg-[#0081FB] hover:bg-blue-600 transition-all"
             type="submit"
             form={formId}
             disabled={mutation.isPending || (existingAllocation && !isDirty)}
