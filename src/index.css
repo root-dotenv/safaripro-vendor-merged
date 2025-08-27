@@ -13,12 +13,48 @@ body {
 .sidebar {
   font-family: "Nunito", sans-serif;
 }
+.inter {
+  font-family: "Inter", sans-serif;
+}
 .welcome {
   font-family: "Inter", sans-serif;
 }
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+/* Add these styles for the react-phone-number-input component */
+.PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  height: 2.5rem; /* Match shadcn's default input height */
+  padding-left: 0.75rem; /* Match shadcn's padding */
+  font-size: 0.875rem; /* Match shadcn's font size */
+}
+
+.PhoneInputInput:focus {
+  --tw-ring-color: #e5e7eb; /* Match our custom focus color */
+}
+
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb; /* shadcn's default border color */
+  border-radius: 0.375rem; /* shadcn's default border radius */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.PhoneInput--focus {
+  border-color: #e5e7eb !important;
+  box-shadow: 0 0 0 1px #e5e7eb !important;
+}
+
+.PhoneInputCountry {
+  margin-left: 0.75rem; /* Add some space for the country selector */
 }
 
 ::selection {

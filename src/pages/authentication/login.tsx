@@ -118,7 +118,7 @@ export default function Login() {
                   <div className="flex items-center gap-2">
                     <Checkbox
                       id={`${id}-remember`}
-                      className="border-[#d6d5d5] border-[1.5px] data-[state=checked]:bg-[#d6d5d5] data-[state=checked]:text-transparent"
+                      className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
                     />
                     <Label
                       htmlFor={`${id}-remember`}

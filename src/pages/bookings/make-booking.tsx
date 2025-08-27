@@ -1,4 +1,3 @@
-// // - - - src/pages/bookings/make-booking.tsx
 // "use client";
 // import { useState } from "react";
 // import { Wallet, Smartphone } from "lucide-react";
@@ -11,151 +10,296 @@
 //   CardTitle,
 //   CardDescription,
 // } from "@/components/ui/card";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
 
 // // Define the type for the selection
 // type PaymentSelection = "cash" | "mobile" | null;
+
+// // Array of partner logos for easy mapping and duplication
+// const partners = [
+//   { src: "/images/MPESA.png", alt: "M-Pesa" },
+//   { src: "/images/airtel_tanzania.png", alt: "Airtel Money" },
+//   { src: "/images/AZAM_PESA.png", alt: "Azam Pesa" },
+//   { src: "/images/MIXX.png", alt: "YAS" },
+//   { src: "/images/NMB_BANK.png", alt: "NMB" },
+// ];
 
 // export default function MakeBooking() {
 //   const [selection, setSelection] = useState<PaymentSelection>(null);
 
 //   // If a selection has been made, render the corresponding component
 //   if (selection === "cash") {
-//     return <CashBooking onBack={() => setSelection(null)} />;
+//     // The onBack prop is not available on CashBooking, so it's removed.
+//     return <CashBooking />;
 //   }
 
 //   if (selection === "mobile") {
-//     return <MobileBooking onBack={() => setSelection(null)} />;
+//     // The onBack prop is not available on MobileBooking, so it's removed.
+//     return <MobileBooking />;
 //   }
 
 //   // If no selection has been made, show the choice cards
 //   return (
-//     <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-6">
-//       <div className="text-center">
-//         <h1 className="text-3xl font-bold text-gray-800 mb-2">
-//           Create a New Booking
-//         </h1>
-//         <p className="text-gray-600 text-lg">
-//           How would you like to pay for your booking?
-//         </p>
+//     <>
+//       <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-6">
+//         <div className="text-center">
+//           <h1 className="text-3xl font-bold text-gray-800 mb-2">
+//             Create a New Booking
+//           </h1>
+//           <p className="text-gray-600 text-lg">
+//             How would you like to pay for your booking?
+//           </p>
+//         </div>
+
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//           {/* Card for Cash Payment */}
+//           <Card
+//             onClick={() => setSelection("cash")}
+//             className="border-[#DADCE0] bg-[#FFF] border-[1.5px] rounded-md shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+//           >
+//             <CardHeader className="flex items-center justify-center">
+//               <div className="relative w-fit rounded-full text-[#274777] font-medium text-[1rem] bg-gradient-to-t from-[#FFFFFF] to-[#ECF5FF] border border-[#DDDFEB] px-3 py-3 shadow-[0px_2px_4px_0px_#D4DEE966]">
+//                 <Wallet className="h-6 w-6 text-[#0081FB]" />
+//               </div>
+//             </CardHeader>
+//             <CardContent className="text-center">
+//               <CardTitle className="text-xl font-semibold text-gray-800 mb-3">
+//                 Pay with Cash
+//               </CardTitle>
+//               <CardDescription className="text-gray-600 text-[1rem]">
+//                 Complete the booking now and pay with cash upon arrival at the
+//                 front desk. Ideal for walk-in guests or staff-assisted bookings.
+//               </CardDescription>
+//             </CardContent>
+//           </Card>
+
+//           {/* Card for Mobile Payment with Tooltip */}
+//           <TooltipProvider>
+//             <Tooltip>
+//               <TooltipTrigger asChild>
+//                 <Card
+//                   // The onClick is removed to prevent navigation
+//                   className="border-[#DADCE0] bg-gray-50 border-[1.5px] rounded-md shadow-sm cursor-not-allowed opacity-70"
+//                 >
+//                   <CardHeader className="flex items-center justify-center">
+//                     <div className="relative w-fit rounded-full text-[#274777] font-medium text-[1rem] bg-gradient-to-t from-[#FFFFFF] to-[#ECF5FF] border border-[#DDDFEB] px-3 py-3 shadow-[0px_2px_4px_0px_#D4DEE966]">
+//                       <Smartphone className="h-6 w-6 text-orange-500" />
+//                     </div>
+//                   </CardHeader>
+//                   <CardContent className="text-center">
+//                     <CardTitle className="text-xl font-semibold text-gray-800 mb-3">
+//                       Pay with Mobile
+//                     </CardTitle>
+//                     <CardDescription className="text-gray-600 text-[1rem]">
+//                       Pay securely now using your mobile money provider (e.g.
+//                       M-Pesa, Tigo Pesa). Ideal for online or remote bookings.
+//                     </CardDescription>
+//                   </CardContent>
+//                 </Card>
+//               </TooltipTrigger>
+//               <TooltipContent className="bg-gray-50 border-[1.125px] border-[#DADCE0] shadow">
+//                 <p className="text-[0.9375rem] font-medium text-[#0081FB]">
+//                   Payments via mobile payment is currently under integration,
+//                   please proceed to pay with Cash.
+//                 </p>
+//               </TooltipContent>
+//             </Tooltip>
+//           </TooltipProvider>
+//         </div>
 //       </div>
 
-//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//         {/* Card for Cash Payment */}
-//         <Card
-//           onClick={() => setSelection("cash")}
-//           className="border-gray-200 shadow-sm hover:shadow-md hover:border-blue-600 transition-all duration-300 cursor-pointer"
-//         >
-//           <CardHeader className="flex items-center justify-center">
-//             <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-//               <Wallet className="h-6 w-6 text-blue-600" />
-//             </div>
-//           </CardHeader>
-//           <CardContent className="text-center">
-//             <CardTitle className="text-xl font-semibold text-gray-800 mb-3">
-//               Pay with Cash
-//             </CardTitle>
-//             <CardDescription className="text-gray-600 text-[1rem]">
-//               Complete the booking now and pay with cash upon arrival at the
-//               front desk. Ideal for walk-in guests or staff-assisted bookings.
-//             </CardDescription>
-//           </CardContent>
-//         </Card>
-
-//         {/* Card for Mobile Payment */}
-//         <Card
-//           onClick={() => setSelection("mobile")}
-//           className="border-gray-200 shadow-sm hover:shadow-md hover:border-green-600 transition-all duration-300 cursor-pointer"
-//         >
-//           <CardHeader className="flex items-center justify-center">
-//             <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-//               <Smartphone className="h-6 w-6 text-green-600" />
-//             </div>
-//           </CardHeader>
-//           <CardContent className="text-center">
-//             <CardTitle className="text-xl font-semibold text-gray-800 mb-3">
-//               Pay with Mobile
-//             </CardTitle>
-//             <CardDescription className="text-gray-600 text-[1rem]">
-//               Pay securely now using your mobile money provider (e.g., M-Pesa,
-//               Tigo Pesa). Ideal for online or remote bookings.
-//             </CardDescription>
-//           </CardContent>
-//         </Card>
+//       {/* - - - - - Mobile Payments Partners (Scrolling Marquee) - - - - - */}
+//       <div className="w-full max-w-6xl mx-auto px-6 py-8 overflow-hidden">
+//         <div className="text-center mb-6">
+//           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+//             Our Trusted Mobile Payment Partners
+//           </h3>
+//         </div>
+//         <div className="w-full h-24">
+//           <div className="w-full h-full flex items-center gap-x-6 animate-scroll">
+//             {/* Render partners twice for a seamless loop */}
+//             {[...partners, ...partners].map((partner, index) => (
+//               <div
+//                 key={index}
+//                 className="w-108 bg-[#FFF] border border-[#DADCE0] h-full flex items-center justify-center gap-x-[1rem]"
+//               >
+//                 <img
+//                   src={partner.src}
+//                   alt={partner.alt}
+//                   className="max-h-12 object-contain transition-all duration-300"
+//                 />
+//               </div>
+//             ))}
+//           </div>
+//         </div>
 //       </div>
-//     </div>
+//     </>
 //   );
 // }
 
-// src/pages/bookings/make-booking.tsx
 "use client";
-import type { JSX } from "react";
+import { useState } from "react";
 import { Wallet, Smartphone } from "lucide-react";
-
-// Component Imports
 import CashBooking from "./cash-booking";
 import MobileBooking from "./mobile-booking";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-// Shadcn/ui Imports for Tabs
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Define the type for the selection
+type PaymentSelection = "cash" | "mobile" | null;
 
-export default function MakeBooking(): JSX.Element {
-  // Define the tabs in an array for clean mapping and scalability
-  const tabs = [
-    {
-      id: "cash",
-      label: "Pay with Cash",
-      icon: <Wallet className="h-5 w-5" />,
-      // NOTE: The `onBack` prop is no longer needed with a tabbed interface
-      component: <CashBooking />,
-    },
-    {
-      id: "mobile",
-      label: "Pay with Mobile",
-      icon: <Smartphone className="h-5 w-5" />,
-      // NOTE: The `onBack` prop is no longer needed with a tabbed interface
-      component: <MobileBooking />,
-    },
-  ];
+// Array of partner logos with descriptions for tooltips
+const partners = [
+  {
+    src: "/images/MPESA.png",
+    alt: "M-Pesa",
+    desc: "Safaricom M-Pesa, mobile money service.",
+  },
+  {
+    src: "/images/airtel_tanzania.png",
+    alt: "Airtel Money",
+    desc: "Airtel Money payments.",
+  },
+  {
+    src: "/images/AZAM_PESA.png",
+    alt: "Azam Pesa",
+    desc: "Convenient payments with Azam Pesa.",
+  },
+  {
+    src: "/images/MIXX.png",
+    alt: "YAS",
+    desc: "YAS Payment Solutions.",
+  },
+  {
+    src: "/images/NMB_BANK.png",
+    alt: "NMB",
+    desc: "Pay directly with NMB Bank.",
+  },
+];
+
+export default function MakeBooking() {
+  const [selection, setSelection] = useState<PaymentSelection>(null);
+
+  if (selection === "cash") {
+    return <CashBooking />;
+  }
+
+  if (selection === "mobile") {
+    return <MobileBooking />;
+  }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-8 text-center sm:text-left">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+    <>
+      <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Create a New Booking
           </h1>
-          <p className="mt-1 text-gray-600">
-            Select a payment method to proceed with the booking.
+          <p className="text-gray-600 text-lg">
+            How would you like to pay for your booking?
           </p>
-        </header>
+        </div>
 
-        <Tabs defaultValue="cash" className="w-full">
-          {/* Reusing the exact styles from NewRoomPage for consistency */}
-          <TabsList className="h-auto px-1.5 py-1.75 bg-gray-100 rounded-lg grid grid-cols-2 max-w-md mx-auto sm:mx-0">
-            {tabs.map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="data-[state=active]:bg-[#0081FB] data-[state=active]:text-[#FFF] data-[state=active]:shadow-sm text-[#0081FB] bg-[#FFF] shadow flex items-center gap-2 hover:text-[#0081FB] mx-1"
-              >
-                {tab.icon}
-                <span className="font-medium">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card for Cash Payment */}
+          <Card
+            onClick={() => setSelection("cash")}
+            className="border-[#DADCE0] bg-[#FFF] border-[1.5px] rounded-md shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+          >
+            <CardHeader className="flex items-center justify-center">
+              <div className="relative w-fit rounded-full text-[#274777] font-medium text-[1rem] bg-gradient-to-t from-[#FFFFFF] to-[#ECF5FF] border border-[#DDDFEB] px-3 py-3 shadow-[0px_2px_4px_0px_#D4DEE966]">
+                <Wallet className="h-6 w-6 text-[#0081FB]" />
+              </div>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardTitle className="text-xl font-semibold text-gray-800 mb-3">
+                Pay with Cash
+              </CardTitle>
+              <CardDescription className="text-gray-600 text-[1rem]">
+                Complete the booking now and pay with cash upon arrival at the
+                front desk. Ideal for walk-in guests or staff-assisted bookings.
+              </CardDescription>
+            </CardContent>
+          </Card>
 
-          {/* Render the content for each tab */}
-          {tabs.map((tab) => (
-            <TabsContent
-              key={tab.id}
-              value={tab.id}
-              className="mt-6 rounded-lg"
-            >
-              {tab.component}
-            </TabsContent>
-          ))}
-        </Tabs>
+          {/* Card for Mobile Payment with Tooltip */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Card className="border-[#DADCE0] bg-gray-50 border-[1.5px] rounded-md shadow-sm cursor-not-allowed opacity-70">
+                  <CardHeader className="flex items-center justify-center">
+                    <div className="relative w-fit rounded-full text-[#274777] font-medium text-[1rem] bg-gradient-to-t from-[#FFFFFF] to-[#ECF5FF] border border-[#DDDFEB] px-3 py-3 shadow-[0px_2px_4px_0px_#D4DEE966]">
+                      <Smartphone className="h-6 w-6 text-orange-500" />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <CardTitle className="text-xl font-semibold text-gray-800 mb-3">
+                      Pay with Mobile
+                    </CardTitle>
+                    <CardDescription className="text-gray-600 text-[1rem]">
+                      Pay securely now using your mobile money provider (e.g.
+                      M-Pesa, Tigo Pesa). Ideal for online or remote bookings.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </TooltipTrigger>
+              <TooltipContent className="border-[1.125px] border-[#DADCE0] bg-gray-800 text-white shadow">
+                <p className="text-[0.9375rem] font-medium">
+                  Payments via mobile payment is currently under integration,
+                  please proceed to pay with Cash.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
-    </div>
+
+      {/* - - - - - Mobile Payments Partners (Scrolling Marquee with Tooltips) - - - - - */}
+      <div className="w-full max-w-6xl mx-auto px-6 py-8 overflow-hidden">
+        <div className="text-center mb-6">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+            Our Trusted Mobile Payment Partners
+          </h3>
+        </div>
+        <TooltipProvider>
+          <div className="w-full h-24">
+            <div className="w-full h-full flex items-center gap-x-6 animate-scroll">
+              {partners.map((partner, index) => (
+                <Tooltip key={index}>
+                  <TooltipTrigger asChild>
+                    <div className="w-108 bg-[#FFF] border-[1.5px] shadow rounded-md border-[#DADCE0] h-full flex items-center justify-center gap-x-[1rem] cursor-pointer">
+                      <img
+                        src={partner.src}
+                        alt={partner.alt}
+                        className="max-h-12 object-contai grayscale-0 transition-all duration-300"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-gray-800 text-white border-none rounded-md shadow-lg">
+                    <p>{partner.desc}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          </div>
+        </TooltipProvider>
+      </div>
+    </>
   );
 }

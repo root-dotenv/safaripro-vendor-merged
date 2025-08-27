@@ -139,7 +139,7 @@ export const SearchRoomAvailability: React.FC<SearchRoomAvailabilityProps> = ({
         <CardHeader>
           <CardTitle className="text-xl font-semibold text-gray-800 flex items-center">
             <CalendarIcon className="mr-3 h-6 w-6 text-blue-600" />
-            Find Your Perfect Stay
+            Find Your Perfect Stay Test
           </CardTitle>
           <CardDescription>
             Select your dates to see what's available.
