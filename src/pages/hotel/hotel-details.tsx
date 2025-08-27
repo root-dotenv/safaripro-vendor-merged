@@ -637,6 +637,20 @@ export default function HotelDetails() {
               </p>
             </div>
           </div>
+          {/*  - - - - Repositioned Hotel Gallery Section */}
+          <div className="bg-none shadow-none border-none max-w-[100%] py-6 px-0">
+            <h2 className="flex items-center gap-x-2 text-xl font-semibold text-[#334155] border-b border-[#E8E8E8] pb-3 mb-4">
+              <ImageIcon size={18} className="text-[#0081FB]" /> Hotel Gallery
+            </h2>
+            {isLoadingImages ? (
+              <div className="h-64 flex justify-center items-center">
+                <Loader className="animate-spin text-[#0081FB]" />
+              </div>
+            ) : (
+              <ImageSlider images={hotelImagesData || []} hotelId={hotel.id} />
+            )}
+          </div>
+          {/* - - - -  */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white border-[1.25px] border-[#DADCE0] rounded-md shadow p-4">
               <h3 className="text-lg font-semibold mb-4">
@@ -705,18 +719,6 @@ export default function HotelDetails() {
                 </ResponsiveContainer>
               </div>
             </div>
-          </div>
-          <div className="bg-none shadow-none border-none max-w-[100%] py-6 px-0">
-            <h2 className="flex items-center gap-x-2 text-xl font-semibold text-[#334155] border-b border-[#E8E8E8] pb-3 mb-4">
-              <ImageIcon size={18} className="text-[#0081FB]" /> Hotel Gallery
-            </h2>
-            {isLoadingImages ? (
-              <div className="h-64 flex justify-center items-center">
-                <Loader className="animate-spin text-[#0081FB]" />
-              </div>
-            ) : (
-              <ImageSlider images={hotelImagesData || []} hotelId={hotel.id} />
-            )}
           </div>
         </div>
 
