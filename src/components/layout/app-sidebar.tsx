@@ -1,13 +1,16 @@
+// src/components/layout/app-sidebar.tsx
 "use client";
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useAuthStore } from "@/store/auth.store";
+import authClient from "@/api/auth-client";
 
-// - - - Hooks & Providers
+// --- Hooks & Providers ---
 import { useHotel } from "@/providers/hotel-provider";
 
-// - - - UI Components ---
+// --- UI Components ---
 import {
   Sidebar,
   SidebarContent,
@@ -44,11 +47,6 @@ import { GiCash } from "react-icons/gi";
 
 // --- Static Navigation Data ---
 const navData = {
-  user: {
-    name: "Root Dotenv",
-    email: "dotenv@ostub.com",
-    avatar: "/avatars/admin.jpg",
-  },
   navMain: [
     {
       title: "Hotel Management",
@@ -174,14 +172,17 @@ interface HotelImageData {
   original: string;
   tag: string;
 }
-
 interface VendorData {
   id: string;
   logo: string;
   business_name: string;
 }
+interface CurrentUserData {
+  id: string;
+  full_name: string;
+  email: string;
+}
 
-// * * * Don't Question me what happened here, I was snoozing 😴
 const VENDOR_BASE_API_URL = import.meta.env.VITE_VENDOR_BASE_URL;
 const VENDOR_ID = import.meta.env.VITE_VENDOR_ID;
 const VENDOR_API_URL = `${VENDOR_BASE_API_URL}vendors/${VENDOR_ID}`;
@@ -192,21 +193,23 @@ const fetchVendor = async (): Promise<VendorData> => {
   const { data } = await axios.get(VENDOR_API_URL);
   return data;
 };
-
 const fetchHotelImage = async (imageId: string): Promise<HotelImageData> => {
   const { data } = await axios.get(`${HOTEL_BASE_URL}hotel-images/${imageId}`);
+  return data;
+};
+const fetchCurrentUser = async (): Promise<CurrentUserData> => {
+  const { data } = await authClient.get("/v1/auth/me");
+  console.log("✅ Current user profile fetched successfully:", data);
   return data;
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { hotel } = useHotel();
+  // Get isAuthenticated flag, which is correctly initialized from localStorage
+  const { isAuthenticated } = useAuthStore();
 
   // --- Data Fetching with React Query ---
-  const {
-    data: vendor,
-    isLoading: isVendorLoading,
-    isError: isVendorError,
-  } = useQuery<VendorData>({
+  const { data: vendor, isLoading: isVendorLoading } = useQuery<VendorData>({
     queryKey: ["vendorDetails", VENDOR_ID],
     queryFn: fetchVendor,
   });
@@ -220,9 +223,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       enabled: !!firstImageId,
     });
 
-  if (isVendorError) {
-    console.log(`An Error`);
-  }
+  const { data: currentUser, isLoading: isUserLoading } =
+    useQuery<CurrentUserData>({
+      queryKey: ["currentUserProfile"],
+      queryFn: fetchCurrentUser,
+      // UPDATED: Enable the query when the user is authenticated
+      enabled: isAuthenticated,
+    });
+
+  // Map the API response to the format expected by NavUser
+  const userProfileForNav = currentUser
+    ? { name: currentUser.full_name, email: currentUser.email }
+    : undefined;
 
   return (
     <Sidebar className={"welcome"} variant="inset" {...props}>
@@ -265,7 +277,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       alt={hotel.name}
                     />
                   ) : null}
-
                   <div className="space-y-1">
                     <p className="text-[0.9375rem] text-[#111828] font-bold uppercase">
                       {hotel.name}
@@ -297,7 +308,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={navData.user} />
+        <NavUser userProfile={userProfileForNav} isLoading={isUserLoading} />
       </SidebarFooter>
     </Sidebar>
   );

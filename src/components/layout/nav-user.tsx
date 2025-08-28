@@ -1,5 +1,5 @@
+// src/components/layout/nav-user.tsx
 "use client";
-
 import {
   BadgeCheck,
   Bell,
@@ -8,7 +8,10 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuthStore } from "@/store/auth.store"; // Import the auth store
 
+// --- UI Components ---
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -25,18 +28,31 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
 
+// --- Type Definition for live user data ---
+interface UserProfile {
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+// --- Component Definition ---
 export function NavUser({
-  user,
+  userProfile,
+  isLoading,
 }: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
+  userProfile?: UserProfile;
+  isLoading: boolean;
 }) {
   const { isMobile } = useSidebar();
+  const { logout } = useAuthStore(); // Get the logout function from the store
+
+  const fallbackInitial = userProfile?.name
+    ? userProfile.name.charAt(0).toUpperCase()
+    : "U";
+
+  const displayName = isLoading ? "Loading..." : userProfile?.name || "User";
+  const displayEmail = isLoading ? "..." : userProfile?.email || "";
 
   return (
     <SidebarMenu>
@@ -48,14 +64,16 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground bg-[#FFF] shadow border border-[#DADCE0] cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-full bg-[#476EFB] text-[#FFF]">
-                  RD
+                {userProfile?.avatar && (
+                  <AvatarImage src={userProfile.avatar} alt={displayName} />
+                )}
+                <AvatarFallback className="rounded-lg bg-[#476EFB] text-[#FFF]">
+                  {fallbackInitial}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{displayName}</span>
+                <span className="truncate text-xs">{displayEmail}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -69,12 +87,16 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">RD</AvatarFallback>
+                  {userProfile?.avatar && (
+                    <AvatarImage src={userProfile.avatar} alt={displayName} />
+                  )}
+                  <AvatarFallback className="rounded-lg bg-[#476EFB] text-[#FFF]">
+                    {fallbackInitial}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{displayName}</span>
+                  <span className="truncate text-xs">{displayEmail}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -82,7 +104,7 @@ export function NavUser({
             <DropdownMenuGroup>
               <Link to={"/"}>
                 <DropdownMenuItem>
-                  <Sparkles />
+                  <Sparkles className="mr-2 h-4 w-4" />
                   SafariPro Services
                 </DropdownMenuItem>
               </Link>
@@ -91,22 +113,23 @@ export function NavUser({
             <DropdownMenuGroup>
               <Link to={"/"}>
                 <DropdownMenuItem>
-                  <BadgeCheck />
+                  <BadgeCheck className="mr-2 h-4 w-4" />
                   My Account
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuItem>
-                <CreditCard />
+                <CreditCard className="mr-2 h-4 w-4" />
                 Billings & Payments
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Bell />
+                <Bell className="mr-2 h-4 w-4" />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
+            {/* The onClick handler calls the logout function from the store */}
+            <DropdownMenuItem onClick={logout} className="cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

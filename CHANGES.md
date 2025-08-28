@@ -23,3 +23,5 @@ Meta Blue - #0081FB
 BOOKINGS.COM COLORS
 background gray - #F9F9FA
 forms white - #FFFFFF
+
+resizable gray - #FAF9F5
