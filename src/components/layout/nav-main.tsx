@@ -53,14 +53,14 @@ export function NavMain({
 
             return (
               <Collapsible key={item.title} asChild defaultOpen={isDefaultOpen}>
-                <SidebarMenuItem>
+                <SidebarMenuItem className="text-[#476EFB]">
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
                       variant="ghost"
                       className="group w-full justify-between"
                       tooltip={item.title}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 text-[#476EFB]">
                         <item.icon className="size-4" />
                         <span>{item.title}</span>
                       </div>

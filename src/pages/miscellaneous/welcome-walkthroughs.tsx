@@ -1,4 +1,4 @@
-// - - - src/pages/miscellaneous/welcome-walkthrough.tsx (IMPROVED)
+// src/pages/miscellaneous/welcome-walkthrough.tsx
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { type AxiosError } from "axios";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/auth.store";
 
 // --- UI Components & Icons ---
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ const steps = [
 export default function WelcomeWalkthroughs() {
   const TOTAL_STEPS = steps.length;
   const navigate = useNavigate();
+  const { completeWalkthrough } = useAuthStore();
 
   // --- State Management ---
   const [currentStep, setCurrentStep] = useState(() =>
@@ -93,6 +95,9 @@ export default function WelcomeWalkthroughs() {
     } else {
       sessionStorage.removeItem(WALKTHROUGH_STORAGE_KEY);
       sessionStorage.removeItem(HIGHEST_STEP_KEY);
+
+      // Call the action to update the user's state
+      completeWalkthrough();
 
       toast.success("Setup complete! Redirecting to your dashboard...");
       navigate("/");
