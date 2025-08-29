@@ -1,3 +1,5 @@
+// - - - src/pages/onboarding/hotel-details/sub_step4_amenities.tsx
+
 import React from "react";
 import { SubStepNavigation } from "../company-info/sub_step_navigation";
 import type { FeatureOption, HotelDetailsSubStepProps } from "../vendor";

@@ -1,3 +1,5 @@
+// - - - src/pages/onboarding/form-field.tsx
+
 import React from "react";
 import { Label } from "@/components/ui/label";
 
@@ -21,7 +23,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       <div className="flex items-center justify-between">
         <Label
           htmlFor={name}
-          className="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-300"
+          className="flex  text-[0.9375rem] items-center gap-2 font-semibold text-slate-700 dark:text-slate-300"
         >
           {icon}
           <span>
@@ -29,7 +31,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           </span>
         </Label>
       </div>
-      <div className="relative">{children}</div>
+      <div className="relative inter font-medium">{children}</div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+// - - - src/pages/onboarding/company-info/sub_step1_details.tsx
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Briefcase, Mail, Phone, Globe } from "lucide-react";
+import { Mail, Phone, Globe } from "lucide-react";
 import { TbFileDescription } from "react-icons/tb";
 import { FormField } from "../form-field";
 import { SubStepNavigation } from "./sub_step_navigation";
@@ -52,34 +53,30 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
         <FormField
           name="business_name"
           label="Official Business Name"
-          icon={<Briefcase size={16} />}
+          icon={""}
           required
         >
           <Input
             name="business_name"
             value={formData.business_name}
             onChange={handleChange}
-            placeholder="e.g. Acme Corporation Ltd."
+            placeholder="e.g. ABC Internatinal LLC."
             required
           />
         </FormField>
-        <FormField
-          name="trading_name"
-          label="Trading Name"
-          icon={<Briefcase size={16} />}
-        >
+        <FormField name="trading_name" label="Trading Name" icon={""}>
           <Input
             name="trading_name"
             value={formData.trading_name}
             onChange={handleChange}
-            placeholder="e.g. Acme Hotels"
+            placeholder="e.g. ABC Hotels"
           />
         </FormField>
         <div className="md:col-span-2">
           <FormField
             name="service_type"
             label="Primary Service Type"
-            icon={<Briefcase size={16} />}
+            icon={""}
             required
           >
             <Select
@@ -127,7 +124,7 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
         </div>
         <FormField
           name="email"
-          label="Business Email"
+          label="Business Email (Company Email Address)"
           icon={<Mail size={16} />}
           required
         >
@@ -142,7 +139,7 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
         </FormField>
         <FormField
           name="phone_number"
-          label="Business Phone"
+          label="Business Phone (Company Phone Number)"
           icon={<Phone size={16} />}
           required
         >
@@ -150,7 +147,7 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
             name="phone_number"
             value={formData.phone_number}
             onChange={handleChange}
-            placeholder="+255 123 456 789"
+            placeholder="+255..."
             required
           />
         </FormField>

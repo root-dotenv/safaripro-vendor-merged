@@ -1,3 +1,5 @@
+// - - - src/pages/onboarding/hotel-details/sub_step2_location.tsx
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,15 +27,29 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
   handleBack,
   countries,
 }) => {
+  // --- MODIFIED: Added validation for latitude and longitude ---
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
     const isNumber = type === "number";
-    setFormData((prev) => ({
-      ...prev,
-      [name]: isNumber ? parseFloat(value) || 0 : value,
-    }));
+
+    if (name === "latitude") {
+      let lat = parseFloat(value);
+      if (lat > 90) lat = 90;
+      if (lat < -90) lat = -90;
+      setFormData((prev) => ({ ...prev, [name]: isNaN(lat) ? 0 : lat }));
+    } else if (name === "longitude") {
+      let lon = parseFloat(value);
+      if (lon > 180) lon = 180;
+      if (lon < -180) lon = -180;
+      setFormData((prev) => ({ ...prev, [name]: isNaN(lon) ? 0 : lon }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: isNumber ? parseFloat(value) || 0 : value,
+      }));
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -43,7 +59,11 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
   const isComplete =
     formData.address.trim() !== "" &&
     formData.country.trim() !== "" &&
-    formData.zip_code.trim() !== "";
+    formData.zip_code.trim() !== "" &&
+    formData.latitude >= -90 &&
+    formData.latitude <= 90 &&
+    formData.longitude >= -180 &&
+    formData.longitude <= 180;
 
   return (
     <div className="space-y-8">
@@ -64,7 +84,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
             name="address"
             value={formData.address}
             onChange={handleChange}
-            placeholder="e.g., Plot 123, Beach Road"
+            placeholder="e.g. Plot 123, Beach Road"
             required
           />
         </FormField>
@@ -102,40 +122,46 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
             name="zip_code"
             value={formData.zip_code}
             onChange={handleChange}
-            placeholder="e.g., 11101"
+            placeholder="e.g. 11101"
             required
           />
         </FormField>
         <FormField
           name="latitude"
-          label="Latitude"
+          label="Latitude (-90 to 90)"
           icon={<MapPin size={16} />}
           required
         >
+          {/* --- MODIFIED: Added min/max for browser validation --- */}
           <Input
             name="latitude"
             type="number"
             value={formData.latitude}
             onChange={handleChange}
             step="any"
-            placeholder="e.g., -6.802353"
+            placeholder="e.g. -6.802353"
             required
+            min="-90"
+            max="90"
           />
         </FormField>
         <FormField
           name="longitude"
-          label="Longitude"
+          label="Longitude (-180 to 180)"
           icon={<MapPin size={16} />}
           required
         >
+          {/* --- MODIFIED: Added min/max for browser validation --- */}
           <Input
             name="longitude"
             type="number"
             value={formData.longitude}
             onChange={handleChange}
             step="any"
-            placeholder="e.g., 39.279556"
+            placeholder="e.g. 39.279556"
             required
+            min="-180"
+            max="180"
           />
         </FormField>
         <FormField
@@ -148,6 +174,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
             type="number"
             value={formData.distance_from_center_km}
             onChange={handleChange}
+            min="0"
           />
         </FormField>
         <div className="md:col-span-2 lg:col-span-3">

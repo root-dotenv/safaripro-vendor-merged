@@ -1,3 +1,5 @@
+// - - - src/pages/onboarding/section.tsx
+
 import React from "react";
 
 interface SectionProps {

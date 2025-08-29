@@ -1,3 +1,4 @@
+// - - - src/pages/onboarding/step6_finish.tsx
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -96,8 +97,8 @@ export const Step6_Finish = () => {
     <div className="flex flex-col items-center justify-center text-center p-8 space-y-8 min-h-[400px]">
       <div className="w-full max-w-3xl mx-auto">
         <header className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 text-left">
-            Application Under Review
+          <h1 className="text-2xl inter font-bold text-gray-900 text-left">
+            Your Application is under Review
           </h1>
           <Button
             onClick={() => refetch()}
@@ -111,10 +112,11 @@ export const Step6_Finish = () => {
             Refresh
           </Button>
         </header>
-        <p className="text-lg text-gray-600 mb-8 text-left">
+        <p className="text-[1rem] inter text-gray-600 mb-8 text-left">
           Your submission is being processed by our team. You can view your
           profile to check on the status. Once fully approved, you can proceed
-          to your dashboard.
+          to your dashboard, we will also send you an email for your approval
+          status.
         </p>
 
         <div className="text-left space-y-2 mb-8">
@@ -155,8 +157,8 @@ export const Step6_Finish = () => {
         </div>
         {!isApproved && (
           <p className="text-sm text-gray-500 mt-4">
-            The "Go to Dashboard" button will be enabled once your account is
-            approved.
+            You will be able to go to your dashboard once you are approved by
+            SafariPro.
           </p>
         )}
       </div>

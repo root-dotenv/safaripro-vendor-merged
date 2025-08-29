@@ -1,3 +1,4 @@
+// - - - src/pages/onboarding/hotel-details/sub_step1_basic_info.tsx
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Hotel, Hash, MapPin, Building, Info } from "lucide-react";
+import { Hotel, MapPin, Building, Info } from "lucide-react";
 import { FormField } from "../form-field";
 import { SubStepNavigation } from "../company-info/sub_step_navigation";
 import type { FeatureOption, HotelDetailsSubStepProps } from "../vendor";
@@ -66,16 +67,11 @@ export const SubStep1_BasicInfo: React.FC<SubStep1Props> = ({
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="e.g., The Grand Palace Hotel"
+            placeholder="e.g. The Grand Palace Hotel"
             required
           />
         </FormField>
-        <FormField
-          name="code"
-          label="Hotel Code"
-          icon={<Hash size={16} />}
-          required
-        >
+        <FormField name="code" label="Hotel Code" icon={""} required>
           <Input
             name="code"
             value={formData.code}
@@ -94,7 +90,7 @@ export const SubStep1_BasicInfo: React.FC<SubStep1Props> = ({
             name="destination"
             value={formData.destination}
             onChange={handleChange}
-            placeholder="e.g., Zanzibar"
+            placeholder="e.g. Zanzibar"
             required
           />
         </FormField>
@@ -143,7 +139,7 @@ export const SubStep1_BasicInfo: React.FC<SubStep1Props> = ({
         <div className="md:col-span-2 lg:col-span-3">
           <FormField
             name="description"
-            label="Description"
+            label="Hotel Description"
             icon={<Info size={16} />}
             required
           >

@@ -1,6 +1,7 @@
+// - - - src/pages/onboarding/company-info/sub_step2_address.tsx
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { MapPin, Mail, AtSign } from "lucide-react";
+import { MapPin, AtSign } from "lucide-react";
 import { FormField } from "../form-field";
 import { SubStepNavigation } from "./sub_step_navigation";
 import type { CompanyInfoSubStepProps } from "../vendor";
@@ -36,74 +37,6 @@ export const SubStep2_Address: React.FC<CompanyInfoSubStepProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
         <FormField
-          name="address"
-          label="Address Line 1"
-          icon={<MapPin size={16} />}
-          required
-        >
-          <Input
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="e.g. Millennium Towers, Plot 23"
-            required
-          />
-        </FormField>
-        <FormField
-          name="address_line2"
-          label="Address Line 2 (Optional)"
-          icon={<MapPin size={16} />}
-        >
-          <Input
-            name="address_line2"
-            value={formData.address_line2}
-            onChange={handleChange}
-            placeholder="Apartment, suite, or floor"
-          />
-        </FormField>
-        <FormField
-          name="street"
-          label="Street"
-          icon={<MapPin size={16} />}
-          required
-        >
-          <Input
-            name="street"
-            value={formData.street}
-            onChange={handleChange}
-            placeholder="e.g. Ali Hassan Mwinyi Rd"
-            required
-          />
-        </FormField>
-        <FormField
-          name="ward"
-          label="Ward"
-          icon={<MapPin size={16} />}
-          required
-        >
-          <Input
-            name="ward"
-            value={formData.ward}
-            onChange={handleChange}
-            placeholder="e.g. Masaki"
-            required
-          />
-        </FormField>
-        <FormField
-          name="district"
-          label="District / Municipality"
-          icon={<MapPin size={16} />}
-          required
-        >
-          <Input
-            name="district"
-            value={formData.district}
-            onChange={handleChange}
-            placeholder="e.g. Kinondoni"
-            required
-          />
-        </FormField>
-        <FormField
           name="city"
           label="City"
           icon={<MapPin size={16} />}
@@ -132,10 +65,48 @@ export const SubStep2_Address: React.FC<CompanyInfoSubStepProps> = ({
           />
         </FormField>
         <FormField
-          name="postal_code"
-          label="Postal Code"
-          icon={<Mail size={16} />}
+          name="district"
+          label="District / Municipality"
+          icon={<MapPin size={16} />}
+          required
         >
+          <Input
+            name="district"
+            value={formData.district}
+            onChange={handleChange}
+            placeholder="e.g. Kinondoni"
+            required
+          />
+        </FormField>
+        <FormField
+          name="ward"
+          label="Ward"
+          icon={<MapPin size={16} />}
+          required
+        >
+          <Input
+            name="ward"
+            value={formData.ward}
+            onChange={handleChange}
+            placeholder="e.g. Masaki"
+            required
+          />
+        </FormField>
+        <FormField
+          name="street"
+          label="Street"
+          icon={<MapPin size={16} />}
+          required
+        >
+          <Input
+            name="street"
+            value={formData.street}
+            onChange={handleChange}
+            placeholder="e.g. Ali Hassan Mwinyi Rd"
+            required
+          />
+        </FormField>
+        <FormField name="postal_code" label="Postal Code (Optional)" icon={""}>
           <Input
             name="postal_code"
             value={formData.postal_code}
@@ -143,6 +114,30 @@ export const SubStep2_Address: React.FC<CompanyInfoSubStepProps> = ({
             placeholder="e.g. 11101"
           />
         </FormField>
+
+        {/* --- MODIFIED: Address lines are now in a row and Address 2 is marked optional --- */}
+        <FormField name="address" label="Address Line 1" icon={""} required>
+          <Input
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Building, Plot No."
+            required
+          />
+        </FormField>
+        <FormField
+          name="address_line2"
+          label="Address Line 2 (Optional)"
+          icon={""}
+        >
+          <Input
+            name="address_line2"
+            value={formData.address_line2}
+            onChange={handleChange}
+            placeholder="Apartment, suite, etc."
+          />
+        </FormField>
+
         <div className="md:col-span-2">
           <FormField
             name="google_place_id"

@@ -1,3 +1,4 @@
+// // - - - src/pages/onboarding/onboarding-wizard.tsx
 // import { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { toast } from "sonner";
@@ -17,7 +18,6 @@
 // import { Step5_HotelDetails } from "./step5_hotel-details";
 // import { Step6_Finish } from "./step6_finish";
 
-// // --- MODIFIED: Steps array updated to 5 steps ---
 // const steps = [
 //   { id: 1, title: "Company Info" },
 //   { id: 2, title: "Documents" },
@@ -31,6 +31,7 @@
 //   const {
 //     currentStep,
 //     vendorId,
+//     hotelId,
 //     setVendorId,
 //     setHotelId,
 //     goToNextStep,
@@ -45,18 +46,21 @@
 //       goToNextStep();
 //       setIsStepComplete(false); // Reset for the next step
 //     } else {
-//       // Final step action
-//       completeOnboarding();
-//       resetOnboarding();
-//       toast.success("Setup complete! Welcome to your dashboard.");
-//       navigate("/");
+//       if (hotelId) {
+//         completeOnboarding(hotelId);
+//         resetOnboarding();
+//         toast.success("Setup complete! Welcome to your dashboard.");
+//         navigate("/");
+//       } else {
+//         toast.error("Could not finalize setup. Hotel ID is missing.");
+//       }
 //     }
 //   };
 
 //   const handleBack = () => {
 //     if (currentStep > 1) {
 //       goToPreviousStep();
-//       setIsStepComplete(true); // Any previous step is considered complete
+//       setIsStepComplete(true);
 //     }
 //   };
 
@@ -89,8 +93,6 @@
 //         return vendorId ? (
 //           <Step2_UploadDocument
 //             vendorId={vendorId}
-//             onComplete={goToNextStep}
-//             onBack={goToPreviousStep}
 //             setStepComplete={setIsStepComplete}
 //           />
 //         ) : null;
@@ -99,7 +101,6 @@
 //           <Step3_BankingDetails
 //             vendorId={vendorId}
 //             onComplete={goToNextStep}
-//             onBack={goToPreviousStep}
 //             setStepComplete={setIsStepComplete}
 //           />
 //         ) : null;
@@ -111,7 +112,7 @@
 //               setHotelId(newHotelId);
 //               goToNextStep();
 //             }}
-//             onBack={goToPreviousStep}
+//             onBack={handleBack} // <-- THE FIX: Use handleBack, not handlePrevSubStep
 //             setStepComplete={setIsStepComplete}
 //           />
 //         ) : null;
@@ -191,6 +192,7 @@
 //   );
 // }
 
+// - - - src/pages/onboarding/onboarding-wizard.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -233,6 +235,10 @@ export default function OnboardingWizard() {
   const { completeOnboarding } = useAuthStore();
   const [isStepComplete, setIsStepComplete] = useState(false);
 
+  // --- NEW: Logic to determine if the main footer should be shown ---
+  // The footer is only needed for single-page steps that don't have their own navigation.
+  const showFooter = currentStep === 2 || currentStep === 3;
+
   const handleNext = () => {
     if (currentStep < steps.length) {
       goToNextStep();
@@ -258,12 +264,10 @@ export default function OnboardingWizard() {
 
   const getFormIdForStep = (step: number) => {
     switch (step) {
-      case 1:
-        return "company-info-form";
+      // Step 1 is removed as it uses its own navigation
       case 3:
         return "banking-details-form";
-      case 4:
-        return "hotel-details-form";
+      // Step 4 is removed as it uses its own navigation
       default:
         return undefined;
     }
@@ -278,7 +282,7 @@ export default function OnboardingWizard() {
               setVendorId(newVendorId);
               goToNextStep();
             }}
-            setStepComplete={setIsStepComplete}
+            setStepComplete={setIsStepComplete} // Prop is kept for consistency, though unused now
           />
         );
       case 2:
@@ -304,7 +308,7 @@ export default function OnboardingWizard() {
               setHotelId(newHotelId);
               goToNextStep();
             }}
-            onBack={handleBack} // <-- THE FIX: Use handleBack, not handlePrevSubStep
+            onBack={handleBack}
             setStepComplete={setIsStepComplete}
           />
         ) : null;
@@ -316,7 +320,7 @@ export default function OnboardingWizard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F9FA] flex flex-col justify-start antialiased pb-28">
+    <div className="min-h-screen bg-[#F9F9FA] flex flex-col justify-start antialiased pb-6">
       <div className="w-full bg-gray-100 h-2 flex">
         {steps.map((step) => {
           const isActive = step.id === currentStep;
@@ -335,7 +339,7 @@ export default function OnboardingWizard() {
         })}
       </div>
 
-      <div className="w-full max-w-5xl bg-[#FFF] rounded-md border-[1px] border-[#DADCE0] mt-16 mx-auto p-4 sm:p-6 lg:p-10">
+      <div className="w-full max-w-3xl bg-[#FFF] rounded-md border-[1.25px] border-[#DADCE0] mt-8 mx-auto p-4 sm:p-6 lg:p-10">
         <main>
           <AnimatePresence mode="wait">
             <motion.div
@@ -351,16 +355,16 @@ export default function OnboardingWizard() {
         </main>
       </div>
 
-      {currentStep < steps.length && (
+      {/* --- MODIFIED: Conditionally render the footer based on the current step --- */}
+      {showFooter && (
         <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-10 border-t border-gray-200">
-          <div className="max-w-4xl mx-auto flex justify-between items-center h-20 px-8">
+          <div className="max-w-3xl mx-auto flex justify-between items-center h-20 px-8">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={handleBack}
-              disabled={currentStep === 1}
-              className="text-lg text-[#0081FB] hover:text-blue-600"
+              className="font-semibold text-lg px-8 py-4 bg-white border-[#DADCE0] shadow-sm"
             >
-              <TbChevronsLeft size={20} /> Back
+              <TbChevronsLeft className="mr-2 h-5 w-5" /> Back
             </Button>
 
             <div className="flex items-center gap-2 text-lg font-medium text-gray-600">
@@ -371,11 +375,11 @@ export default function OnboardingWizard() {
               type={getFormIdForStep(currentStep) ? "submit" : "button"}
               form={getFormIdForStep(currentStep)}
               onClick={!getFormIdForStep(currentStep) ? handleNext : undefined}
-              className="w-40 text-lg rounded-[6px] bg-[#0081FB] hover:bg-blue-600"
+              className="w-40 text-lg rounded-[6px] font-semibold bg-[#0081FB] hover:bg-blue-600"
               disabled={!isStepComplete}
             >
-              {currentStep === steps.length ? "Finish" : "Continue"}
-              <TbChevronsRight size={20} />
+              Continue
+              <TbChevronsRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </footer>

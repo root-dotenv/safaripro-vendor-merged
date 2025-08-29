@@ -1,6 +1,7 @@
+// - - - src/pages/onboarding/hotel-details/sub_step3_property.tsx
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   Calendar,
@@ -55,7 +56,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
         </p>
       </NotesSummary>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
         <FormField
           name="year_built"
           label="Year Built"
@@ -69,6 +70,8 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             onChange={handleChange}
             placeholder="e.g., 2015"
             required
+            min="1800"
+            max={new Date().getFullYear()}
           />
         </FormField>
         <FormField
@@ -83,6 +86,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             value={formData.number_rooms}
             onChange={handleChange}
             required
+            min="1"
           />
         </FormField>
         <FormField
@@ -95,6 +99,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             type="number"
             value={formData.number_floors}
             onChange={handleChange}
+            min="0"
           />
         </FormField>
         <FormField
@@ -107,6 +112,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             type="number"
             value={formData.number_restaurants}
             onChange={handleChange}
+            min="0"
           />
         </FormField>
         <FormField
@@ -119,6 +125,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             type="number"
             value={formData.number_bars}
             onChange={handleChange}
+            min="0"
           />
         </FormField>
         <FormField
@@ -131,6 +138,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             type="number"
             value={formData.number_halls}
             onChange={handleChange}
+            min="0"
           />
         </FormField>
         <FormField
@@ -143,6 +151,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             type="number"
             value={formData.number_parks}
             onChange={handleChange}
+            min="0"
           />
         </FormField>
         <FormField
@@ -173,13 +182,15 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
             required
           />
         </FormField>
-        <div className="flex items-center pt-8">
+
+        {/* --- MODIFIED: Spanning full width to stand alone --- */}
+        <div className="md:col-span-2 flex items-center pt-2">
           <div className="flex items-center space-x-2">
-            <Checkbox
+            <Switch
               id="is_eco_certified"
               checked={formData.is_eco_certified}
-              onCheckedChange={(c) =>
-                handleToggle("is_eco_certified", c as boolean)
+              onCheckedChange={(checked) =>
+                handleToggle("is_eco_certified", checked)
               }
             />
             <Label

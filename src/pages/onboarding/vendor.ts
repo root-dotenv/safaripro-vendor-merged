@@ -1,3 +1,5 @@
+// src/types/vendor.ts
+
 import React from "react";
 
 // --- CORE PAYLOADS ---

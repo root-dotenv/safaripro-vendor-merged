@@ -1,3 +1,4 @@
+// - - - src/pages/onboarding/hotel-details/styled-checkbox-card-group.tsx
 import React, { useId } from "react";
 import { Loader } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,15 +36,15 @@ export const StyledCheckboxCardGroup: React.FC<
             <div key={item.id}>
               <Label
                 htmlFor={`${id}-${item.id}`}
-                className={`border has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 relative flex flex-col gap-4 rounded-lg p-4 shadow-sm transition-all cursor-pointer ${
-                  isChecked ? "border-blue-500 bg-blue-50" : "border-slate-200"
+                className={`border has-[:checked]:border-blue-500 has-[:checked]:bg-[#DADCE0] relative flex flex-col gap-4 rounded-[6px] p-4 shadow-sm transition-all cursor-pointer ${
+                  isChecked ? "border-[#DADCE0] bg-none" : "border-slate-200"
                 }`}
               >
                 <Checkbox
                   id={`${id}-${item.id}`}
                   checked={isChecked}
                   onCheckedChange={() => onChange(item.id)}
-                  className="absolute top-3 right-3"
+                  className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
                 />
                 <span className="font-medium text-slate-800 pr-4">
                   {item.name || item.language}

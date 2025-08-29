@@ -83,6 +83,7 @@
 //   return context;
 // }
 
+// src/providers/hotel-provider.tsx
 import { createContext, useContext, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { type Hotel } from "../types/hotel-types";
