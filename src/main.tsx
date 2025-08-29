@@ -1,10 +1,11 @@
+// - - - src/main.tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "./providers/theme-provider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // <-- IMPORT THE NECESSARY PARTS
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 
 // --- NEW: Create a client instance ---

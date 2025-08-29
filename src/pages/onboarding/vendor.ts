@@ -1,7 +1,11 @@
+import React from "react";
+
+// --- CORE PAYLOADS ---
 export interface VendorPayload {
   business_name: string;
   trading_name: string;
   business_description: string;
+  service_type: string;
   phone_number: string;
   alternative_phone: string;
   email: string;
@@ -11,45 +15,20 @@ export interface VendorPayload {
   contact_person_phone: string;
   website: string;
   address: string;
+  address_line2: string;
+  street: string;
+  ward: string;
+  district: string;
   city: string;
   region: string;
   country: string;
   postal_code: string;
+  google_place_id: string;
   registration_number: string;
   tax_id: string;
   business_license: string;
   year_established: number;
   number_of_employees: number;
-  [key: string]: any;
-}
-
-export interface CreatedVendor {
-  id: string;
-  business_name: string;
-}
-
-export interface DocumentType {
-  id: string;
-  name: string;
-  description: string;
-  is_required: boolean;
-  allowed_file_types: string;
-  max_file_size_mb: number;
-}
-
-export interface OnboardingProgress {
-  progress_percentage: number;
-  steps: {
-    document_verification: {
-      missing_documents: string[];
-    };
-  };
-}
-
-export interface VendorDetails {
-  id: string;
-  business_name: string;
-  onboarding_progress: OnboardingProgress;
 }
 
 export interface BankingDetailsPayload {
@@ -60,49 +39,14 @@ export interface BankingDetailsPayload {
   swift_code: string;
   bank_branch: string;
   routing_number: string;
-  preferred_currency: "TZS" | "USD" | "KES" | "";
-}
-
-export interface VendorDocument {
-  id: string;
-  document_type_name: string;
-  number: string;
-  issue_date: string;
-}
-
-export interface VendorBankingDetails {
-  bank_name: string;
-  account_name: string;
-  account_number: string;
-  swift_code: string;
-  bank_branch: string;
   preferred_currency: string;
 }
 
-// Update the main VendorDetails to include the new fields
-export interface VendorDetails {
-  id: string;
-  business_name: string;
-  trading_name: string;
-  phone_number: string;
-  email: string;
-  website: string;
-  contact_person_name: string;
-  contact_person_title: string;
-  address: string;
-  city: string;
-  region: string;
-  documents: VendorDocument[];
-  banking_details: VendorBankingDetails | null;
-  onboarding_progress: {
-    progress_percentage: number;
-  };
-}
-
-// --- TYPE DEFINITIONS (Should be in a central types file) ---
 export interface HotelPayload {
   name: string;
   description: string;
+  vendor_id: string;
+  directions: string;
   star_rating: number;
   zip_code: string;
   address: string;
@@ -133,12 +77,63 @@ export interface HotelPayload {
   services: string[];
   facilities: string[];
   translations: string[];
-  website_url?: string;
-  facebook_url?: string;
-  instagram_url?: string;
-  twitter_url?: string;
-  youtube_url?: string;
-  [key: string]: any;
+  website_url: string;
+  facebook_url: string;
+  instagram_url: string;
+  twitter_url: string;
+  youtube_url: string;
+}
+
+// --- API RESPONSE TYPES ---
+export interface CreatedVendor {
+  id: string;
+}
+
+export interface DocumentType {
+  id: string;
+  name: string;
+  description: string;
+  is_required: boolean;
+  allowed_file_types: string;
+  max_file_size_mb: number;
+}
+
+export interface VendorDocument {
+  id: string;
+  document_type_name: string;
+  number: string;
+  issue_date: string;
+  is_verified: boolean;
+  rejection_reason: string | null;
+}
+
+export interface VendorBankingDetails {
+  id: string;
+  bank_name: string;
+  account_name: string;
+  is_verified: boolean;
+}
+
+export interface VendorDetails {
+  id: string;
+  business_name: string;
+  trading_name: string;
+  logo: string;
+  status: "PENDING_REVIEW" | "APPROVED" | "REJECTED";
+  documents: VendorDocument[];
+  banking_details: VendorBankingDetails | null;
+  onboarding_progress: {
+    progress_percentage: number;
+    steps: {
+      profile_completion: { status: string; completed: boolean };
+      document_verification: {
+        status: string;
+        completed: boolean;
+        missing_documents: string[];
+      };
+      banking_details: { status: string; completed: boolean };
+    };
+  };
 }
 
 export interface FeatureOption {
@@ -147,6 +142,7 @@ export interface FeatureOption {
   language?: string;
 }
 
+// --- COMPONENT PROP TYPES ---
 export interface CompanyInfoSubStepProps {
   formData: Omit<VendorPayload, "logo">;
   setFormData: React.Dispatch<
@@ -156,12 +152,11 @@ export interface CompanyInfoSubStepProps {
   handleBack: () => void;
 }
 
-// --- END OF TYPE DEFINITIONS ---
 export interface HotelDetailsStepProps {
   vendorId: string;
-  onComplete: () => void;
-  onBack: () => void;
   onSuccess: (hotelId: string) => void;
+  onBack: () => void;
+  setStepComplete: (isComplete: boolean) => void;
 }
 
 export interface HotelDetailsSubStepProps {

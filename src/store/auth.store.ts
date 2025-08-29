@@ -4,10 +4,9 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { jwtDecode } from "jwt-decode";
-import authClient from "@/api/auth-client"; // Make sure this client is correctly configured
+import authClient from "@/api/auth-client";
 import { type User, type LoginCredentials } from "@/types/user";
 
-// Define the shape of the user profile from the /auth/me endpoint
 interface UserProfile {
   last_login_at: string | null;
 }
@@ -18,13 +17,13 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  isFirstLogin: boolean | null;
   onboardingCompleted: boolean;
+  hotelId: string | null; // <-- NEW: To store the active hotel ID
 
   // Actions
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
-  completeOnboarding: () => void;
+  completeOnboarding: (hotelId: string) => void; // <-- MODIFIED
 }
 
 const initialState = {
@@ -33,8 +32,8 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
-  isFirstLogin: null,
   onboardingCompleted: false,
+  hotelId: null,
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -42,7 +41,6 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       ...initialState,
 
-      // --- LOGIN FUNCTION (Restored & Integrated) ---
       login: async (credentials: LoginCredentials) => {
         set({ isLoading: true, error: null });
         try {
@@ -57,7 +55,6 @@ export const useAuthStore = create<AuthState>()(
           const { access_token } = response.data;
           const user = jwtDecode<User>(access_token);
 
-          // Set authenticated state immediately
           set({
             user,
             token: access_token,
@@ -65,14 +62,10 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
 
-          // After login, fetch profile to check if it's their first time
-          // This determines if they need to go through the NEW onboarding wizard
           const profileResponse = await authClient.get<UserProfile>(
             "/v1/auth/me"
           );
 
-          // If last_login_at is null, they have never logged in before.
-          // This means their onboarding is NOT complete.
           const hasNeverLoggedIn = profileResponse.data.last_login_at === null;
           set({ onboardingCompleted: !hasNeverLoggedIn });
 
@@ -99,15 +92,13 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set(initialState);
-        // Clear both storages on logout for a clean slate
         localStorage.removeItem("auth-storage");
         sessionStorage.removeItem("onboarding-storage");
         window.location.replace("/login");
       },
 
-      completeOnboarding: () => set({ onboardingCompleted: true }),
-
-      // setUser and setToken are implicitly handled by the login action now
+      completeOnboarding: (hotelId: string) =>
+        set({ onboardingCompleted: true, hotelId: hotelId }),
     }),
     {
       name: "auth-storage",
