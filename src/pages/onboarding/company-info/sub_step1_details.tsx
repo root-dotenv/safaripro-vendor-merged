@@ -21,23 +21,50 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
   setFormData,
   handleNext,
 }) => {
+  // --- MODIFIED: Added real-time validation for phone number ---
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "phone_number") {
+      // 1. Allow only numbers and the '+' sign
+      let sanitized = value.replace(/[^0-9+]/g, "");
+
+      // 2. Ensure '+' is only the first character
+      if (sanitized.lastIndexOf("+") > 0) {
+        sanitized = sanitized.replace(/\+/g, (match, offset) =>
+          offset === 0 ? "+" : ""
+        );
+      }
+
+      // 3. Enforce max length of 13 characters
+      if (sanitized.length > 13) {
+        sanitized = sanitized.slice(0, 13);
+      }
+
+      setFormData((prev) => ({ ...prev, [name]: sanitized }));
+    } else {
+      // Handle other inputs normally
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // --- MODIFIED: Added length validation for phone number ---
+  const isPhoneValid =
+    formData.phone_number.trim().length >= 10 &&
+    formData.phone_number.trim().length <= 13;
+
   const isComplete =
     formData.business_name.trim() !== "" &&
     formData.service_type.trim() !== "" &&
     formData.business_description.trim() !== "" &&
     formData.email.trim() !== "" &&
-    formData.phone_number.trim() !== "";
+    isPhoneValid;
 
   return (
     <div className="space-y-8">
@@ -139,7 +166,7 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
         </FormField>
         <FormField
           name="phone_number"
-          label="Business Phone (Company Phone Number)"
+          label="Business Phone (10-13 characters)"
           icon={<Phone size={16} />}
           required
         >
@@ -149,6 +176,7 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
             onChange={handleChange}
             placeholder="+255..."
             required
+            maxLength={13}
           />
         </FormField>
         <div className="md:col-span-2">

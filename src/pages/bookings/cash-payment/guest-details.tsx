@@ -716,7 +716,7 @@ import axios from "axios";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
-// --- LOCATION API TYPES ---
+// - - - LOCATION API TYPES
 interface Region {
   regionCode: number;
   regionName: string;

@@ -10,6 +10,7 @@ import { SubStep1_Details } from "./company-info/sub_step1_details";
 import { SubStep2_Address } from "./company-info/sub_step2_address";
 import { SubStep3_Contact } from "./company-info/sub_step3_contact";
 import { SubStep4_Legal } from "./company-info/sub_step4_legal";
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_VENDOR_BASE_URL;
 
@@ -53,7 +54,7 @@ export const Step1_CompanyInfo: React.FC<CompanyInfoFormProps> = ({
     number_of_employees: 1,
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // <-- NEW: State for preview URL
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   const mutation = useMutation({

@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// --- MODIFIED: Replaced Checkbox with Switch ---
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import type { BankingDetailsPayload } from "./vendor";
@@ -22,6 +21,21 @@ import { NotesSummary } from "./notes-summary";
 import { FaRegPaperPlane } from "react-icons/fa6";
 
 const API_BASE_URL = import.meta.env.VITE_VENDOR_BASE_URL;
+
+const banks = [
+  "National Microfinance Bank (NMB)",
+  "CRDB Bank PLC (CRDB)",
+  "NBC Bank (NBC)",
+  "Standard Chartered Bank Tanzania (SCB)",
+  "Equity Bank Tanzania (Equity)",
+  "KCB Bank Tanzania (KCB)",
+  "Diamond Trust Bank Tanzania (DTB)",
+  "Stanbic Bank Tanzania (Stanbic)",
+  "Exim Bank Tanzania (Exim)",
+  "Azania Bank (Azania)",
+  "Citibank Tanzania (Citi)",
+  "I&M Bank Tanzania (I&M)",
+];
 
 interface BankingDetailsProps {
   vendorId: string;
@@ -45,6 +59,8 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
     routing_number: "",
     preferred_currency: "",
   });
+
+  const [bankSelection, setBankSelection] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -94,6 +110,15 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleBankSelectChange = (value: string) => {
+    setBankSelection(value);
+    if (value !== "Other") {
+      setFormData((prev) => ({ ...prev, bank_name: value }));
+    } else {
+      setFormData((prev) => ({ ...prev, bank_name: "" }));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
@@ -131,20 +156,47 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
-            name="bank_name"
+            name="bank_name_select"
             label="Bank Name"
             icon={<Landmark size={16} />}
             required
           >
-            <Input
-              id="bank_name"
-              name="bank_name"
-              value={formData.bank_name}
-              onChange={(e) => handleChange("bank_name", e.target.value)}
-              placeholder="e.g., CRDB Bank PLC"
-              required
-            />
+            <Select
+              onValueChange={handleBankSelectChange}
+              value={bankSelection}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a bank..." />
+              </SelectTrigger>
+              <SelectContent>
+                {banks.map((bank) => (
+                  <SelectItem key={bank} value={bank}>
+                    {bank}
+                  </SelectItem>
+                ))}
+                <SelectItem value="Other">Other (Please specify)</SelectItem>
+              </SelectContent>
+            </Select>
           </FormField>
+
+          {bankSelection === "Other" && (
+            <FormField
+              name="bank_name"
+              label="Other Bank Name"
+              icon={<Landmark size={16} />}
+              required
+            >
+              <Input
+                id="bank_name"
+                name="bank_name"
+                value={formData.bank_name}
+                onChange={(e) => handleChange("bank_name", e.target.value)}
+                placeholder="Enter the bank name"
+                required
+              />
+            </FormField>
+          )}
+
           <FormField
             name="bank_branch"
             label="Bank Branch"
@@ -156,7 +208,7 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
               name="bank_branch"
               value={formData.bank_branch}
               onChange={(e) => handleChange("bank_branch", e.target.value)}
-              placeholder="e.g., Holland House Branch"
+              placeholder="e.g. City Center Branch"
               required
             />
           </FormField>
@@ -186,7 +238,7 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
               name="account_number"
               value={formData.account_number}
               onChange={(e) => handleChange("account_number", e.target.value)}
-              placeholder="e.g., 0123456789012"
+              placeholder="e.g. 0123456789012"
               required
             />
           </FormField>
@@ -235,17 +287,27 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
                   <SelectValue placeholder="Select a currency..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="TZS">TZS - Tanzanian Shilling</SelectItem>
-                  <SelectItem value="USD">USD - US Dollar</SelectItem>
-                  <SelectItem value="KES">KES - Kenyan Shilling</SelectItem>
-                  <SelectItem value="EUR">EUR - Euro</SelectItem>
+                  <SelectItem className="inter" value="TZS">
+                    TZS - TANZANIAN SHILLING
+                  </SelectItem>
+                  <SelectItem className="inter" value="KES">
+                    KES - KENYAN SHILLING
+                  </SelectItem>
+                  <SelectItem className="inter" value="UGX">
+                    UGX - UGANDAN SHILLING
+                  </SelectItem>
+                  <SelectItem className="inter" value="USD">
+                    USD - US DOLLAR
+                  </SelectItem>
+                  <SelectItem className="inter" value="EUR">
+                    EUR - EURO
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </FormField>
           </div>
         </div>
 
-        {/* --- MODIFIED: Replaced Checkbox with Switch and adjusted layout --- */}
         <div className="!mt-8 pt-6 border-t border-gray-200">
           <div className="flex items-center space-x-3">
             <Switch
@@ -260,6 +322,9 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
               >
                 I confirm that these banking details are correct.
               </Label>
+              <p className="text-sm text-gray-500">
+                I understand that incorrect details may lead to payment delays.
+              </p>
             </div>
           </div>
         </div>

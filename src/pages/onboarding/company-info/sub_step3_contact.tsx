@@ -1,5 +1,4 @@
 // - - - src/pages/onboarding/company-info/sub_step3_contact.tsx
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { User, Briefcase, Mail, Phone } from "lucide-react";
@@ -7,17 +6,33 @@ import { FormField } from "../form-field";
 import { SubStepNavigation } from "./sub_step_navigation";
 import type { CompanyInfoSubStepProps } from "../vendor";
 import { NotesSummary } from "../notes-summary";
+
+// --- NEW: Imports for the enhanced phone input ---
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import "./phone-input-styles.css"; // We'll add custom styles here
+
 export const SubStep3_Contact: React.FC<CompanyInfoSubStepProps> = ({
   formData,
   setFormData,
   handleNext,
   handleBack,
 }) => {
+  // Generic handler for standard text inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // --- NEW: Dedicated handler for the PhoneInput component ---
+  const handlePhoneChange = (value: string | undefined) => {
+    setFormData((prev) => ({
+      ...prev,
+      contact_person_phone: value || "",
+    }));
+  };
+
+  // This field is optional, so no changes are needed for validation
   const isComplete =
     formData.contact_person_name.trim() !== "" &&
     formData.contact_person_title.trim() !== "" &&
@@ -77,16 +92,21 @@ export const SubStep3_Contact: React.FC<CompanyInfoSubStepProps> = ({
             required
           />
         </FormField>
+
+        {/* --- MODIFIED: Replaced standard Input with PhoneInput --- */}
         <FormField
           name="contact_person_phone"
           label="Direct Phone (Optional)"
           icon={<Phone size={16} />}
         >
-          <Input
-            name="contact_person_phone"
+          <PhoneInput
+            id="contact_person_phone"
+            international
+            defaultCountry="TZ"
             value={formData.contact_person_phone}
-            onChange={handleChange}
+            onChange={handlePhoneChange}
             placeholder="+255..."
+            className="phone-input rounded-full" // Custom class for styling
           />
         </FormField>
       </div>

@@ -1,0 +1,22 @@
+/* - - - src/pages/onboarding/company-info/phone-input-styles.css */
+
+.phone-input .PhoneInputInput {
+  flex: 1;
+  border-radius: 8px;
+  border: 1.25px solid hsl(var(--input));
+  background-color: transparent;
+  padding: 0.475rem 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  outline: none;
+  box-shadow: none;
+}
+
+.phone-input .PhoneInputInput:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 1px transparent;
+}
+
+.phone-input .PhoneInputCountry {
+  margin-right: 0.5rem;
+}

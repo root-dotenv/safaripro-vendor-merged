@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Globe, Mail } from "lucide-react";
+import { MapPin, Globe } from "lucide-react";
 import { FormField } from "../form-field";
 import { SubStepNavigation } from "../company-info/sub_step_navigation";
 import type { FeatureOption, HotelDetailsSubStepProps } from "../vendor";
@@ -76,7 +76,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
         <FormField
           name="address"
-          label="Address"
+          label="Address (Street, City)"
           icon={<MapPin size={16} />}
           required
         >
@@ -84,7 +84,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
             name="address"
             value={formData.address}
             onChange={handleChange}
-            placeholder="e.g. Plot 123, Beach Road"
+            placeholder="e.g. Mbezi Beach, Dar es Salaam"
             required
           />
         </FormField>
@@ -112,12 +112,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
             </SelectContent>
           </Select>
         </FormField>
-        <FormField
-          name="zip_code"
-          label="Zip/Postal Code"
-          icon={<Mail size={16} />}
-          required
-        >
+        <FormField name="zip_code" label="Postal Code" icon={""} required>
           <Input
             name="zip_code"
             value={formData.zip_code}
@@ -129,7 +124,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
         <FormField
           name="latitude"
           label="Latitude (-90 to 90)"
-          icon={<MapPin size={16} />}
+          icon={""}
           required
         >
           {/* --- MODIFIED: Added min/max for browser validation --- */}
@@ -148,7 +143,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
         <FormField
           name="longitude"
           label="Longitude (-180 to 180)"
-          icon={<MapPin size={16} />}
+          icon={""}
           required
         >
           {/* --- MODIFIED: Added min/max for browser validation --- */}
@@ -167,7 +162,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
         <FormField
           name="distance_from_center_km"
           label="Distance from Center (km)"
-          icon={<MapPin size={16} />}
+          icon={""}
         >
           <Input
             name="distance_from_center_km"

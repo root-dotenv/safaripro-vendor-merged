@@ -148,10 +148,18 @@ export const Step6_Finish = () => {
         )}
 
         <div className="flex justify-center gap-4 mt-12">
-          <Button asChild variant="outline" size="lg">
+          <Button
+            className="rounded-[6px] inter font-medium"
+            asChild
+            variant="outline"
+          >
             <Link to="/user-account">View Your Profile</Link>
           </Button>
-          <Button size="lg" disabled={!isApproved} onClick={handleFinish}>
+          <Button
+            className="bg-[#0081FB] hover:bg-blue-600 transition-all rounded-[6px] inter font-medium"
+            disabled={!isApproved}
+            onClick={handleFinish}
+          >
             Go to Your Dashboard
           </Button>
         </div>

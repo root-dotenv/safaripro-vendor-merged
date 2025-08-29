@@ -31,9 +31,9 @@ body {
   border: none;
   outline: none;
   background-color: transparent;
-  height: 2.5rem; /* Match shadcn's default input height */
   padding-left: 0.75rem; /* Match shadcn's padding */
-  font-size: 0.875rem; /* Match shadcn's font size */
+  font-size: 0.875rem;
+  padding-top: 12px; /* Match shadcn's font size */
 }
 
 .PhoneInputInput:focus {
