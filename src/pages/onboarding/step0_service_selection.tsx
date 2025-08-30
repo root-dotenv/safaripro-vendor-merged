@@ -1,33 +1,28 @@
 // src/pages/onboarding/step0_service_selection.tsx
-import { useState } from "react";
 import { toast } from "sonner";
 import { SelectionCard } from "./selection-card";
 import { Hotel, Map, Car, Plane, Building2, HelpCircle } from "lucide-react";
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { Button } from "@/components/ui/button";
-import { TbChevronsLeft, TbChevronsRight } from "react-icons/tb";
+import { TbChevronsLeft } from "react-icons/tb";
 
 type ServiceType = "Hotel" | "Tour" | "Cab" | "Car" | "Flight" | "Other";
 
 export const Step0_ServiceSelection = () => {
   const { goToNextStep, goToPreviousStep, setServiceType } =
     useOnboardingStore();
-  const [selected, setSelected] = useState<ServiceType | null>(null);
 
+  // --- MODIFIED: Simplified handler to immediately navigate ---
   const handleSelect = (service: ServiceType) => {
     if (service === "Hotel") {
-      setSelected(service);
+      // Set the service type and navigate immediately
+      setServiceType(service);
+      goToNextStep();
     } else {
+      // Keep the toast notification for disabled options
       toast.info(`${service} onboarding is coming soon!`, {
         description: "For now, please proceed with hotel setup.",
       });
-    }
-  };
-
-  const handleContinue = () => {
-    if (selected) {
-      setServiceType(selected);
-      goToNextStep();
     }
   };
 
@@ -91,21 +86,14 @@ export const Step0_ServiceSelection = () => {
         />
       </div>
 
-      <footer className="mt-10 pt-6 border-t flex justify-between items-center">
+      {/* --- MODIFIED: Footer now only contains the Back button --- */}
+      <footer className="mt-10 pt-6 border-t flex justify-start items-center">
         <Button
           variant="outline"
           onClick={goToPreviousStep}
           className="w-40 text-[1rem] rounded-[6px] font-semibold px-6 py-2.5 bg-white border-[#DADCE0]"
         >
           <TbChevronsLeft className="mr-1 h-5 w-5" /> Back
-        </Button>
-        <Button
-          onClick={handleContinue}
-          disabled={selected !== "Hotel"}
-          className="w-40 text-[1rem] rounded-[6px] font-semibold px-6 py-2.5 bg-[#0081FB] hover:bg-blue-600"
-        >
-          Continue
-          <TbChevronsRight className="ml-1 h-4 w-4" />
         </Button>
       </footer>
     </div>

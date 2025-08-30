@@ -31,14 +31,15 @@
 //   logout: () => void; // The function to log the user out.
 // }
 
-// - - - src/types/user.ts
+// src/types/user.ts
 /**
  * @description Represents the structure of the decoded JWT access token.
  */
 export interface User {
-  sub: string;
+  sub: string; // This is typically the username or email
   tenant_id: string;
   exp: number;
+  full_name?: string; // --- MODIFIED: Added optional full_name property ---
 }
 
 /**
