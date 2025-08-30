@@ -134,7 +134,6 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <LoginPage />,
   },
-  // The Onboarding route, handled by the wizard component
   {
     path: "/onboarding",
     element: <OnboardingWizard />,
