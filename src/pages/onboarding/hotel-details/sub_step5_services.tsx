@@ -29,13 +29,13 @@ export const SubStep5_Services: React.FC<SubStep5Props> = ({
       </NotesSummary>
       <div className="space-y-6 pt-4">
         <StyledCheckboxCardGroup
-          title="Services"
+          title="Hotel ervices"
           items={services}
           selectedItems={formData.services}
           onChange={(id) => handleCheckboxChange("services", id)}
         />
         <StyledCheckboxCardGroup
-          title="Meal Types"
+          title="Hotel Meal Types"
           items={mealTypes}
           selectedItems={formData.meal_types}
           onChange={(id) => handleCheckboxChange("meal_types", id)}

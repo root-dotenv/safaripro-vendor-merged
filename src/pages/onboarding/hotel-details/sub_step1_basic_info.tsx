@@ -140,7 +140,7 @@ export const SubStep1_BasicInfo: React.FC<SubStep1Props> = ({
           <FormField
             name="description"
             label="Hotel Description"
-            icon={<Info size={16} />}
+            icon={""}
             required
           >
             <Textarea

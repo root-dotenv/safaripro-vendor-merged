@@ -547,12 +547,11 @@ export const Step1_CompanyInfo: React.FC<CompanyInfoFormProps> = ({
   return (
     <div className="bg-white p-6 md:p-10 rounded-lg border border-gray-200">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Company Information for your {serviceType}
+        <h1 className="text-2xl font-bold inter text-gray-900">
+          Company Details for your {serviceType}
         </h1>
         <p className="mt-2 text-gray-600">
-          Step {currentSubStep} of 4: Let's start with the basics about your
-          business.
+          Tell us about your company/business
         </p>
       </header>
 

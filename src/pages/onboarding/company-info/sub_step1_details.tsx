@@ -337,7 +337,7 @@ export const SubStep1_Details: React.FC<CompanyInfoSubStepProps> = ({
         </div>
         <FormField
           name="email"
-          label="Business Email (Company Email Address)"
+          label="Business Email (Company Email)"
           icon={<Mail size={16} />}
           required
         >

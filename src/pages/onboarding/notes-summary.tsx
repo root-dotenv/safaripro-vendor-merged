@@ -14,7 +14,7 @@ export const NotesSummary: React.FC<NotesSummaryProps> = ({
   return (
     <div className="p-4 flex gap-x-4 items-start bg-[#FFF] mt-4 shadow rounded-md border border-[#DADCE0]">
       <div>
-        <FaRegLightbulb color="#FFDF22" size={20} />
+        <FaRegLightbulb color="#186AC9" size={20} />
       </div>
       <div>
         <h2 className="text-[0.9375rem] inter font-semibold text-gray-900">

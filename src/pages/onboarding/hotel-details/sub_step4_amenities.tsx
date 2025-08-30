@@ -21,21 +21,23 @@ export const SubStep4_Amenities: React.FC<SubStep4Props> = ({
 }) => {
   return (
     <div className="space-y-8">
-      <NotesSummary title="What amenities and facilities do you offer?">
-        <p>
-          Select all the features available at your property. This is one of the
-          most important sections for guests when filtering search results.
+      <NotesSummary title="What if I don’t see a facility I offer?">
+        <p className="mt-0.5">
+          The facilities listed here are the ones most searched for by guests.
+          After you complete your registration, you can add more facilities from
+          a larger list in the your safaripro dashboard, the platform you'll use
+          to manage your property.
         </p>
       </NotesSummary>
       <div className="space-y-6 pt-4">
         <StyledCheckboxCardGroup
-          title="Amenities"
+          title="Hotel & Room Amenities"
           items={amenities}
           selectedItems={formData.amenities}
           onChange={(id) => handleCheckboxChange("amenities", id)}
         />
         <StyledCheckboxCardGroup
-          title="Facilities"
+          title="Hotel & Room Facilities"
           items={facilities}
           selectedItems={formData.facilities}
           onChange={(id) => handleCheckboxChange("facilities", id)}

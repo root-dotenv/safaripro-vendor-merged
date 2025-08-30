@@ -31,7 +31,7 @@ export const SubStep7_Localization: React.FC<SubStep7Props> = ({
       </NotesSummary>
       <div className="space-y-6 pt-4">
         <StyledCheckboxCardGroup
-          title="Languages Spoken (Translations)"
+          title="Languages Spoken (Hotel Translations)"
           items={translations}
           selectedItems={formData.translations}
           onChange={(id) => handleCheckboxChange("translations", id)}
