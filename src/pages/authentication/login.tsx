@@ -274,7 +274,7 @@ export default function LoginPage() {
           defaultSize={60}
           className="bg-[#FFF] hidden lg:block relative"
         >
-          <div className="absolute inset-0">
+          {/* <div className="absolute inset-0">
             <LightRays
               raysOrigin="top-center"
               raysColor="#F6FFFF"
@@ -287,7 +287,7 @@ export default function LoginPage() {
               distortion={0.05}
               className="w-full h-full"
             />
-          </div>
+          </div> */}
           <TooltipProvider delayDuration={0}>
             <div className="flex h-full items-center justify-center p-12 relative z-10">
               <Tooltip>
