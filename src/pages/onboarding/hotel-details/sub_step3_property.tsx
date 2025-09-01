@@ -205,7 +205,7 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
 
       <div className="pt-4">
         <StyledCheckboxCardGroup
-          title="Room Types"
+          title="What kind of rooms do you have in your hotel"
           items={roomTypes}
           selectedItems={formData.room_type}
           onChange={(id) => handleCheckboxChange("room_type", id)}

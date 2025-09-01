@@ -1,4 +1,4 @@
-// - - - src/pages/onboarding/step2_upload-document.tsx
+// src/pages/onboarding/step2_upload-document.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -12,13 +12,28 @@ import {
   FileText,
   Calendar,
   Eye,
-  Clock,
+  Check,
+  ChevronsUpDown,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { FormField } from "./form-field";
 import type { DocumentType, VendorDetails, VendorDocument } from "./vendor";
 import { NotesSummary } from "./notes-summary";
@@ -28,8 +43,283 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { TbProgressCheck } from "react-icons/tb";
 
 const API_BASE_URL = import.meta.env.VITE_VENDOR_BASE_URL;
+
+// Comprehensive list of countries
+const countries = [
+  { value: "AF", label: "Afghanistan" },
+  { value: "AL", label: "Albania" },
+  { value: "DZ", label: "Algeria" },
+  { value: "AS", label: "American Samoa" },
+  { value: "AD", label: "Andorra" },
+  { value: "AO", label: "Angola" },
+  { value: "AI", label: "Anguilla" },
+  { value: "AQ", label: "Antarctica" },
+  { value: "AG", label: "Antigua and Barbuda" },
+  { value: "AR", label: "Argentina" },
+  { value: "AM", label: "Armenia" },
+  { value: "AW", label: "Aruba" },
+  { value: "AU", label: "Australia" },
+  { value: "AT", label: "Austria" },
+  { value: "AZ", label: "Azerbaijan" },
+  { value: "BS", label: "Bahamas" },
+  { value: "BH", label: "Bahrain" },
+  { value: "BD", label: "Bangladesh" },
+  { value: "BB", label: "Barbados" },
+  { value: "BY", label: "Belarus" },
+  { value: "BE", label: "Belgium" },
+  { value: "BZ", label: "Belize" },
+  { value: "BJ", label: "Benin" },
+  { value: "BM", label: "Bermuda" },
+  { value: "BT", label: "Bhutan" },
+  { value: "BO", label: "Bolivia" },
+  { value: "BA", label: "Bosnia and Herzegovina" },
+  { value: "BW", label: "Botswana" },
+  { value: "BR", label: "Brazil" },
+  { value: "BN", label: "Brunei" },
+  { value: "BG", label: "Bulgaria" },
+  { value: "BF", label: "Burkina Faso" },
+  { value: "BI", label: "Burundi" },
+  { value: "CV", label: "Cape Verde" },
+  { value: "KH", label: "Cambodia" },
+  { value: "CM", label: "Cameroon" },
+  { value: "CA", label: "Canada" },
+  { value: "KY", label: "Cayman Islands" },
+  { value: "CF", label: "Central African Republic" },
+  { value: "TD", label: "Chad" },
+  { value: "CL", label: "Chile" },
+  { value: "CN", label: "China" },
+  { value: "CO", label: "Colombia" },
+  { value: "KM", label: "Comoros" },
+  { value: "CG", label: "Congo" },
+  { value: "CD", label: "Congo (Democratic Republic)" },
+  { value: "CR", label: "Costa Rica" },
+  { value: "CI", label: "Côte d'Ivoire" },
+  { value: "HR", label: "Croatia" },
+  { value: "CU", label: "Cuba" },
+  { value: "CY", label: "Cyprus" },
+  { value: "CZ", label: "Czech Republic" },
+  { value: "DK", label: "Denmark" },
+  { value: "DJ", label: "Djibouti" },
+  { value: "DM", label: "Dominica" },
+  { value: "DO", label: "Dominican Republic" },
+  { value: "EC", label: "Ecuador" },
+  { value: "EG", label: "Egypt" },
+  { value: "SV", label: "El Salvador" },
+  { value: "GQ", label: "Equatorial Guinea" },
+  { value: "ER", label: "Eritrea" },
+  { value: "EE", label: "Estonia" },
+  { value: "SZ", label: "Eswatini" },
+  { value: "ET", label: "Ethiopia" },
+  { value: "FJ", label: "Fiji" },
+  { value: "FI", label: "Finland" },
+  { value: "FR", label: "France" },
+  { value: "GA", label: "Gabon" },
+  { value: "GM", label: "Gambia" },
+  { value: "GE", label: "Georgia" },
+  { value: "DE", label: "Germany" },
+  { value: "GH", label: "Ghana" },
+  { value: "GR", label: "Greece" },
+  { value: "GD", label: "Grenada" },
+  { value: "GT", label: "Guatemala" },
+  { value: "GN", label: "Guinea" },
+  { value: "GW", label: "Guinea-Bissau" },
+  { value: "GY", label: "Guyana" },
+  { value: "HT", label: "Haiti" },
+  { value: "HN", label: "Honduras" },
+  { value: "HU", label: "Hungary" },
+  { value: "IS", label: "Iceland" },
+  { value: "IN", label: "India" },
+  { value: "ID", label: "Indonesia" },
+  { value: "IR", label: "Iran" },
+  { value: "IQ", label: "Iraq" },
+  { value: "IE", label: "Ireland" },
+  { value: "IL", label: "Israel" },
+  { value: "IT", label: "Italy" },
+  { value: "JM", label: "Jamaica" },
+  { value: "JP", label: "Japan" },
+  { value: "JO", label: "Jordan" },
+  { value: "KZ", label: "Kazakhstan" },
+  { value: "KE", label: "Kenya" },
+  { value: "KI", label: "Kiribati" },
+  { value: "KP", label: "North Korea" },
+  { value: "KR", label: "South Korea" },
+  { value: "KW", label: "Kuwait" },
+  { value: "KG", label: "Kyrgyzstan" },
+  { value: "LA", label: "Laos" },
+  { value: "LV", label: "Latvia" },
+  { value: "LB", label: "Lebanon" },
+  { value: "LS", label: "Lesotho" },
+  { value: "LR", label: "Liberia" },
+  { value: "LY", label: "Libya" },
+  { value: "LI", label: "Liechtenstein" },
+  { value: "LT", label: "Lithuania" },
+  { value: "LU", label: "Luxembourg" },
+  { value: "MG", label: "Madagascar" },
+  { value: "MW", label: "Malawi" },
+  { value: "MY", label: "Malaysia" },
+  { value: "MV", label: "Maldives" },
+  { value: "ML", label: "Mali" },
+  { value: "MT", label: "Malta" },
+  { value: "MH", label: "Marshall Islands" },
+  { value: "MR", label: "Mauritania" },
+  { value: "MU", label: "Mauritius" },
+  { value: "MX", label: "Mexico" },
+  { value: "FM", label: "Micronesia" },
+  { value: "MD", label: "Moldova" },
+  { value: "MC", label: "Monaco" },
+  { value: "MN", label: "Mongolia" },
+  { value: "ME", label: "Montenegro" },
+  { value: "MA", label: "Morocco" },
+  { value: "MZ", label: "Mozambique" },
+  { value: "MM", label: "Myanmar" },
+  { value: "NA", label: "Namibia" },
+  { value: "NR", label: "Nauru" },
+  { value: "NP", label: "Nepal" },
+  { value: "NL", label: "Netherlands" },
+  { value: "NZ", label: "New Zealand" },
+  { value: "NI", label: "Nicaragua" },
+  { value: "NE", label: "Niger" },
+  { value: "NG", label: "Nigeria" },
+  { value: "NO", label: "Norway" },
+  { value: "OM", label: "Oman" },
+  { value: "PK", label: "Pakistan" },
+  { value: "PW", label: "Palau" },
+  { value: "PS", label: "Palestine" },
+  { value: "PA", label: "Panama" },
+  { value: "PG", label: "Papua New Guinea" },
+  { value: "PY", label: "Paraguay" },
+  { value: "PE", label: "Peru" },
+  { value: "PH", label: "Philippines" },
+  { value: "PL", label: "Poland" },
+  { value: "PT", label: "Portugal" },
+  { value: "QA", label: "Qatar" },
+  { value: "RO", label: "Romania" },
+  { value: "RU", label: "Russia" },
+  { value: "RW", label: "Rwanda" },
+  { value: "WS", label: "Samoa" },
+  { value: "SM", label: "San Marino" },
+  { value: "ST", label: "São Tomé and Príncipe" },
+  { value: "SA", label: "Saudi Arabia" },
+  { value: "SN", label: "Senegal" },
+  { value: "RS", label: "Serbia" },
+  { value: "SC", label: "Seychelles" },
+  { value: "SL", label: "Sierra Leone" },
+  { value: "SG", label: "Singapore" },
+  { value: "SK", label: "Slovakia" },
+  { value: "SI", label: "Slovenia" },
+  { value: "SB", label: "Solomon Islands" },
+  { value: "SO", label: "Somalia" },
+  { value: "ZA", label: "South Africa" },
+  { value: "SS", label: "South Sudan" },
+  { value: "ES", label: "Spain" },
+  { value: "LK", label: "Sri Lanka" },
+  { value: "SD", label: "Sudan" },
+  { value: "SR", label: "Suriname" },
+  { value: "SE", label: "Sweden" },
+  { value: "CH", label: "Switzerland" },
+  { value: "SY", label: "Syria" },
+  { value: "TW", label: "Taiwan" },
+  { value: "TJ", label: "Tajikistan" },
+  { value: "TZ", label: "Tanzania" },
+  { value: "TH", label: "Thailand" },
+  { value: "TL", label: "Timor-Leste" },
+  { value: "TG", label: "Togo" },
+  { value: "TO", label: "Tonga" },
+  { value: "TT", label: "Trinidad and Tobago" },
+  { value: "TN", label: "Tunisia" },
+  { value: "TR", label: "Turkey" },
+  { value: "TM", label: "Turkmenistan" },
+  { value: "TV", label: "Tuvalu" },
+  { value: "UG", label: "Uganda" },
+  { value: "UA", label: "Ukraine" },
+  { value: "AE", label: "United Arab Emirates" },
+  { value: "GB", label: "United Kingdom" },
+  { value: "US", label: "United States" },
+  { value: "UY", label: "Uruguay" },
+  { value: "UZ", label: "Uzbekistan" },
+  { value: "VU", label: "Vanuatu" },
+  { value: "VA", label: "Vatican City" },
+  { value: "VE", label: "Venezuela" },
+  { value: "VN", label: "Vietnam" },
+  { value: "YE", label: "Yemen" },
+  { value: "ZM", label: "Zambia" },
+  { value: "ZW", label: "Zimbabwe" },
+].sort((a, b) => a.label.localeCompare(b.label));
+
+interface CountrySelectorProps {
+  value: string;
+  onValueChange: (value: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
+const CountrySelector: React.FC<CountrySelectorProps> = ({
+  value,
+  onValueChange,
+  placeholder = "Select country...",
+  disabled = false,
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const selectedCountry = countries.find((country) => country.value === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+          disabled={disabled}
+        >
+          {selectedCountry ? (
+            <span className="flex items-center gap-2">
+              <Globe size={16} className="text-gray-500" />
+              {selectedCountry.label}
+            </span>
+          ) : (
+            <span className="text-gray-500 flex items-center gap-2">
+              <Globe size={16} />
+              {placeholder}
+            </span>
+          )}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search countries..." className="h-9" />
+          <CommandEmpty>No country found.</CommandEmpty>
+          <CommandGroup className="max-h-64 overflow-auto">
+            {countries.map((country) => (
+              <CommandItem
+                key={country.value}
+                value={country.label}
+                onSelect={() => {
+                  onValueChange(country.value === value ? "" : country.value);
+                  setOpen(false);
+                }}
+                className="flex items-center gap-2"
+              >
+                {country.label}
+                <Check
+                  className={cn(
+                    "ml-auto h-4 w-4",
+                    value === country.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 interface SingleDocumentUploadFormProps {
   vendorId: string;
@@ -104,7 +394,11 @@ const SingleDocumentUploadForm: React.FC<SingleDocumentUploadFormProps> = ({
     formData.append("file_path", file);
 
     if (expiryDate) formData.append("expiry_date", expiryDate);
-    if (issuePlace) formData.append("issue_place", issuePlace);
+    if (issuePlace) {
+      // Find the country label from the selected value
+      const selectedCountry = countries.find((c) => c.value === issuePlace);
+      formData.append("issue_place", selectedCountry?.label || issuePlace);
+    }
     if (issuedBy) formData.append("issued_by", issuedBy);
     if (description) formData.append("description", description);
 
@@ -163,12 +457,10 @@ const SingleDocumentUploadForm: React.FC<SingleDocumentUploadFormProps> = ({
           label="Place of Issue (Optional)"
           icon={""}
         >
-          <Input
-            id={`issuePlace-${docType.id}`}
-            type="text"
+          <CountrySelector
             value={issuePlace}
-            onChange={(e) => setIssuePlace(e.target.value)}
-            placeholder="e.g. Tanzania"
+            onValueChange={setIssuePlace}
+            placeholder="Select country of issue..."
           />
         </FormField>
         <div className="md:col-span-2">
@@ -333,10 +625,10 @@ export const Step2_UploadDocument: React.FC<DocumentUploadStepProps> = ({
   return (
     <div>
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-[1.75rem] inter font-bold text-gray-900">
           Upload Required Documents
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-gray-600 inter">
           Click on a document name to expand the form and upload the required
           file.
         </p>
@@ -355,16 +647,17 @@ export const Step2_UploadDocument: React.FC<DocumentUploadStepProps> = ({
           <Alert
             key={doc.id}
             variant="default"
-            className="bg-green-100 py-4 border-green-200 text-green-800"
+            className="bg-green-100 py-4 border-[1.25px] rounded-[6px] shadow border-green-200 text-green-800"
           >
-            <Clock className="h-4 w-4 !text-green-600" />
+            <TbProgressCheck className="h-4 w-4 !text-green-600" />
             <AlertTitle className="font-medium inter">
               {doc.document_type_name} - Under Review
             </AlertTitle>
             <AlertDescription className="font-medium inter text-gray-800">
               Congratulations! We have received your document and it is
-              currently being verified by our team. We'll send you an email for
-              any updates.
+              currently being verified by our team. You can check for documents
+              verification status in your vendor's account, we'll also send you
+              an email for any updates.
             </AlertDescription>
           </Alert>
         ))}
@@ -375,7 +668,7 @@ export const Step2_UploadDocument: React.FC<DocumentUploadStepProps> = ({
               <AccordionItem
                 key={docType.id}
                 value={docType.id}
-                className="border-[1px] border-[#DADCE0] rounded-[6px] shadow-sm bg-white"
+                className="border-[1px] border-[#DADCE0] rounded-[6px] shadow bg-white"
               >
                 <AccordionTrigger className="p-4 md:p-6 font-semibold inter text-[1.125rem] text-gray-800 hover:no-underline">
                   {docType.name}
@@ -398,7 +691,7 @@ export const Step2_UploadDocument: React.FC<DocumentUploadStepProps> = ({
           allRequiredDocsSubmitted && (
             <div className="text-center bg-gray-50 p-10 rounded-md border-[1.5px] border-gray-200">
               <FileCheck2
-                className="h-16 w-16 text-teal-500 mx-auto mb-4"
+                className="h-12 w-12 text-teal-500 mx-auto mb-4"
                 strokeWidth={1.5}
               />
               <h3 className="text-xl font-bold text-slate-800">

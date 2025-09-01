@@ -132,7 +132,7 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
   };
 
   return (
-    <div>
+    <div className="bg-white p-6 md:p-10 rounded-lg border border-gray-200">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Banking Details</h1>
         <p className="mt-2 text-gray-600">
@@ -170,7 +170,11 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {banks.map((bank) => (
-                  <SelectItem key={bank} value={bank}>
+                  <SelectItem
+                    className="inter uppercase"
+                    key={bank}
+                    value={bank}
+                  >
                     {bank}
                   </SelectItem>
                 ))}
@@ -322,8 +326,9 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
               >
                 I confirm that these banking details are correct.
               </Label>
-              <p className="text-sm text-gray-500">
-                I understand that incorrect details may lead to payment delays.
+              <p className="text-sm font-medium text-gray-500">
+                NOTE: You can always change thesee details later in your
+                vendor's account dashboard.
               </p>
             </div>
           </div>

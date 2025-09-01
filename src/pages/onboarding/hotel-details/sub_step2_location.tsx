@@ -105,7 +105,7 @@ export const SubStep2_Location: React.FC<SubStep2Props> = ({
             </SelectTrigger>
             <SelectContent>
               {countries?.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
+                <SelectItem className="inter uppercase" key={c.id} value={c.id}>
                   {c.name}
                 </SelectItem>
               ))}

@@ -244,10 +244,10 @@ export const Step5_HotelDetails: React.FC<HotelDetailsStepProps> = ({
   };
 
   return (
-    <div>
+    <div className="bg-white p-6 md:p-10 rounded-lg border border-gray-200">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Create Your Hotel Profile
+        <h1 className="text-3xl font-bold inter text-gray-900">
+          Tell us about your Hotel
         </h1>
         <p className="mt-2 text-gray-600">
           Step {currentSubStep} of 7: Provide the details about your property.

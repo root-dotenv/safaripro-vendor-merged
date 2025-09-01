@@ -10,7 +10,7 @@ import { NotesSummary } from "../notes-summary";
 // --- NEW: Imports for the enhanced phone input ---
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import "./phone-input-styles.css"; // We'll add custom styles here
+import "./phone-input-styles.css";
 
 export const SubStep3_Contact: React.FC<CompanyInfoSubStepProps> = ({
   formData,

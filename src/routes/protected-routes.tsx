@@ -1,8 +1,8 @@
 // // - - - src/routes/protected-routes.tsx
-// import { Navigate, Outlet } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
 // import { useAuthStore } from "@/store/auth.store";
 // import DashboardLayout from "@/components/layout/dashboard-layout";
-// import { HotelProvider } from "@/providers/hotel-provider"; // <-- 1. IMPORT THE PROVIDER
+// import { HotelProvider } from "@/providers/hotel-provider";
 
 // export default function ProtectedRoutes() {
 //   const { isAuthenticated, onboardingCompleted } = useAuthStore();
@@ -18,9 +18,7 @@
 //   // --- 2. WRAP THE LAYOUT WITH THE PROVIDER ---
 //   return (
 //     <HotelProvider>
-//       <DashboardLayout>
-//         <Outlet />
-//       </DashboardLayout>
+//       <DashboardLayout />
 //     </HotelProvider>
 //   );
 // }
@@ -29,7 +27,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "@/store/auth.store";
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { HotelProvider } from "@/providers/hotel-provider"; // <-- 1. IMPORT THE PROVIDER
+import { HotelProvider } from "@/providers/hotel-provider";
 
 export default function ProtectedRoutes() {
   const { isAuthenticated, onboardingCompleted } = useAuthStore();
@@ -42,7 +40,6 @@ export default function ProtectedRoutes() {
     return <Navigate to="/onboarding" replace />;
   }
 
-  // --- 2. WRAP THE LAYOUT WITH THE PROVIDER ---
   return (
     <HotelProvider>
       <DashboardLayout />

@@ -69,7 +69,9 @@ export const SubStep4_Legal: React.FC<SubStep4Props> = ({
         <div className="flex flex-col md:flex-row items-center gap-8 p-6 border border-gray-200 rounded-lg shadow-sm">
           <div className="flex-shrink-0">
             <img
-              src={previewUrl || "https://via.placeholder.com/128"}
+              src={
+                previewUrl || "https://placehold.co/1080x1080/9AA1AF/FFFFFF/png"
+              }
               alt="Company Logo Preview"
               className="h-32 w-32 rounded-full object-cover border-4 border-gray-100 bg-gray-100"
             />

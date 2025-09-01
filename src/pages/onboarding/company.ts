@@ -5,15 +5,15 @@
  * It includes read-only fields like IDs and timestamps.
  */
 export interface Vendor {
-  id: string; // Assuming the backend will return a unique ID for the created vendor
+  id: string;
   status_display: string;
-  created_at: string; // ISO 8601 date-time string
-  updated_at: string; // ISO 8601 date-time string
+  created_at: string;
+  updated_at: string;
   is_deleted: boolean;
   deleted_at: string | null;
   business_name: string;
   trading_name: string;
-  logo: string | null; // URL to the logo image
+  logo: string | null;
   business_description: string;
   phone_number: string;
   alternative_phone: string;
@@ -35,7 +35,7 @@ export interface Vendor {
   google_place_id: string;
   registration_number: string;
   tax_id: string;
-  business_license: string; // This might be a file upload, we'll handle that
+  business_license: string;
   year_established: number;
   number_of_employees: number;
   rating: string;
@@ -53,7 +53,7 @@ export interface Vendor {
 
 /**
  * Represents the data structure needed to create a new Vendor.
- * This is what our Step 1 form will send to the backend. It omits server-generated fields.
+ * This is what our Step 1 form will send to the backend.
  * We can make some fields optional if they are not strictly required for creation.
  */
 export type CreateVendorPayload = Omit<
