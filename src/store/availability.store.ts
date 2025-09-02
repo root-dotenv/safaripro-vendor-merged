@@ -1,3 +1,5 @@
+// src/store/availability.store.ts
+
 import { create } from "zustand";
 import { type DateRange } from "react-day-picker";
 

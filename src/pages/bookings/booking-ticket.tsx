@@ -1,5 +1,4 @@
 // - - - src/pages/bookings/booking-ticket.tsx
-
 import { format } from "date-fns";
 
 interface BookingPrintTicketProps {

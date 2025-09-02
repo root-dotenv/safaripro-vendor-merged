@@ -43,8 +43,9 @@ import {
 import { Calendar, Users } from "lucide-react";
 import { Hash, MapPin, User, FileText, Upload, Loader2 } from "lucide-react";
 import { RxDashboard } from "react-icons/rx";
-import { FiEdit } from "react-icons/fi";
+import { FiEdit2 } from "react-icons/fi";
 import { useOnboardingStore } from "@/store/onboarding.store";
+import { Button } from "@/components/ui/button";
 
 // --- Type Definitions ---
 interface Document {
@@ -174,48 +175,6 @@ const Badge = ({
   </span>
 );
 
-const Button = ({
-  children,
-  onClick,
-  variant = "primary",
-  size = "md",
-  disabled = false,
-  className = "",
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  variant?: "primary" | "secondary" | "danger" | "outline";
-  size?: "sm" | "md" | "lg";
-  disabled?: boolean;
-  className?: string;
-}) => {
-  const baseClasses =
-    "inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const variantClasses = {
-    primary: "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500",
-    secondary: "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500",
-    danger: "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500",
-    outline:
-      "border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus:ring-blue-500",
-  };
-  const sizeClasses = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-sm",
-    lg: "px-6 py-3 text-base",
-  };
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`${baseClasses} ${variantClasses[variant]} ${
-        sizeClasses[size]
-      } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
-    >
-      {children}
-    </button>
-  );
-};
-
 // --- Main Component ---
 export default function UserAccount() {
   const API_BASE_URL = "http://vendor.safaripro.net/api/v1";
@@ -250,6 +209,8 @@ export default function UserAccount() {
       axios.get(`${API_BASE_URL}/vendors/${vendorId}`).then((res) => res.data),
     enabled: !!vendorId,
   });
+
+  const isApproved = vendor?.status === "APPROVED";
 
   const { data: documentsResponse, isLoading: docsLoading } = useQuery<{
     results: Document[];
@@ -653,43 +614,47 @@ export default function UserAccount() {
                   {vendor.business_name}
                 </h1>
                 <p className="text-gray-600">{vendor.trading_name}</p>
+                {/* <p className="font-medium text-[#3C4043] mt-1">
+                  {vendor.business_description}
+                </p> */}
                 <Badge className={getStatusColor(vendor.status)}>
                   {vendor.status_display}
                 </Badge>
               </div>
             </div>
             <div className="flex items-center gap-x-3">
-              <Button onClick={openProfileModal} variant="outline">
-                <FiEdit className="w-4 h-4 mr-2" />
+              <Button
+                onClick={openProfileModal}
+                variant="outline"
+                className="hover:bg-[#0081FB] hover:border-[#FFF] hover:text-[#FFF] transition-all"
+              >
+                <FiEdit2 className="w-4 h-4 mr-2" />
                 Edit Profile
               </Button>
-              <Button
-                onClick={() => (window.location.href = "http://localhost:5174")}
-                variant="outline"
-              >
-                <RxDashboard className="w-4 h-4 mr-2" />
-                Go to your Dashboard
-              </Button>
+              {isApproved && (
+                <Button
+                  onClick={() =>
+                    (window.location.href = "http://localhost:5173")
+                  }
+                  variant="outline"
+                  className="hover:bg-[#0081FB] hover:border-[#FFF] hover:text-[#FFF] transition-all"
+                >
+                  <RxDashboard className="w-4 h-4 mr-2" />
+                  Go to your Dashboard
+                </Button>
+              )}
             </div>
           </div>
 
           {/* Progress Bar */}
           <div className="mt-6">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex gap-x-4 items-center">
               <span className="text-sm font-medium text-gray-700">
                 Onboarding Progress
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-[0.9375rem] font-semibold text-green-600">
                 {vendor.onboarding_progress.progress_percentage}% Complete
               </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div
-                className="bg-green-600 h-1.5 rounded-full transition-all duration-300"
-                style={{
-                  width: `${vendor.onboarding_progress.progress_percentage}%`,
-                }}
-              ></div>
             </div>
           </div>
         </div>
@@ -699,49 +664,54 @@ export default function UserAccount() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Business Information */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-[#3C4043] flex items-center">
-                  <Building className="w-5 h-5 mr-2 text-blue-600" />
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   Business Information
                 </h2>
-                <Button onClick={openProfileModal} variant="outline" size="sm">
-                  <FiEdit className="w-4 h-4" />
+                <Button
+                  onClick={openProfileModal}
+                  variant={"outline"}
+                  className="flex items-center justify-center p-2 rounded-full border-[1px] border-[#E4E4E4] shadow hover:text-[#FFF] hover:bg-[#0081FB] hover:border-[#FFF] transition-all"
+                >
+                  <FiEdit2 />
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 text-sm">
                 <div>
-                  <p className="text-gray-500">Business Description</p>
-                  <p className="font-normal text-[#3C4043] mt-1">
-                    {vendor.business_description}
+                  <p className="text-gray-500 text-[0.9375rem] inter">
+                    Business Service Type
                   </p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Service Type</p>
                   <p className="font-medium text-gray-900 mt-1">
                     {vendor.service_type}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Year Established</p>
+                  <p className="text-gray-500 text-[0.9375rem] inter">
+                    Year Established
+                  </p>
                   <p className="font-medium text-gray-900 mt-1">
                     {vendor.year_established}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Number of Employees</p>
+                  <p className="text-gray-500 text-[0.9375rem] inter">
+                    Number of Employees
+                  </p>
                   <p className="font-medium text-gray-900 mt-1">
                     {vendor.number_of_employees}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Registration Number</p>
+                  <p className="text-gray-500 text-[0.9375rem] inter">
+                    Registration Number
+                  </p>
                   <p className="font-medium text-gray-900 mt-1">
                     {vendor.registration_number}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Tax ID</p>
+                  <p className="text-gray-500 text-[0.9375rem] inter">Tax ID</p>
                   <p className="font-medium text-gray-900 mt-1">
                     {vendor.tax_id}
                   </p>
@@ -750,17 +720,14 @@ export default function UserAccount() {
             </div>
 
             {/* Documents Section */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                Documents
+                Business Documents
               </h2>
+
               <div className="space-y-4">
                 {documents.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
+                  <div key={doc.id} className="p-0">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">
@@ -793,20 +760,23 @@ export default function UserAccount() {
                           </Badge>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          onClick={() => window.open(doc.file_path, "_blank")}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
+                      {/* - - -  */}
+                      <div className="flex items-center transition-all gap-x-1.5">
                         <Button
                           onClick={() => openDocumentModal(doc)}
-                          variant="outline"
+                          variant={"ghost"}
                           size="sm"
+                          className="flex items-center justify-center p-2 rounded-full border-[1px] shadow border-[#E4E4E4] hover:text-[#FFF] hover:bg-[#0081FB] hover:border-[#FFF] transition-all"
                         >
-                          <FiEdit className="w-4 h-4" />
+                          <FiEdit2 />
+                        </Button>
+                        <Button
+                          onClick={() => window.open(doc.file_path, "_blank")}
+                          variant={"ghost"}
+                          size="sm"
+                          className="flex items-center justify-center p-2 rounded-full border-[1px] border-[#E4E4E4] shadow hover:text-[#FFF] hover:bg-[#0081FB] hover:border-[#FFF] transition-all"
+                        >
+                          <Eye />
                         </Button>
                       </div>
                     </div>
@@ -824,18 +794,18 @@ export default function UserAccount() {
             </div>
 
             {/* Banking Details Section */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg  p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg  p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-[#3C4043] flex items-center">
-                  <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
                   Banking Details
                 </h2>
                 <Button
                   onClick={() => openBankingModal(undefined, true)}
                   variant="outline"
                   size="sm"
+                  className="flex items-center justify-center p-2 rounded-md border-[1px] border-[#E4E4E4] shadow hover:text-[#FFF] hover:bg-[#0081FB] hover:border-[#FFF] transition-all"
                 >
-                  <Plus className="w-4 h-4 mr-1" />
+                  <Plus className="w-4 h-4" />
                   Add Banking
                 </Button>
               </div>
@@ -846,7 +816,6 @@ export default function UserAccount() {
                     <p className="text-gray-500">No banking details found</p>
                     <Button
                       onClick={() => openBankingModal(undefined, true)}
-                      variant="primary"
                       size="sm"
                       className="mt-3 rounded-none"
                     >
@@ -855,17 +824,14 @@ export default function UserAccount() {
                   </div>
                 ) : (
                   bankingDetails.map((banking) => (
-                    <div
-                      key={banking.id}
-                      className="border border-gray-200 rounded-lg p-4"
-                    >
+                    <div key={banking.id} className="rounded-lg mb-4">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h3 className="font-medium text-gray-900">
                             {banking.bank_name}
                           </h3>
                           <p className="text-sm text-gray-500">
-                            Account: {banking.account_name}
+                            Account Name: {banking.account_name}
                           </p>
                           <p className="text-sm text-gray-500">
                             Branch: {banking.bank_branch}
@@ -892,13 +858,14 @@ export default function UserAccount() {
                             onClick={() => openBankingModal(banking)}
                             variant="outline"
                             size="sm"
+                            className="flex items-center justify-center p-2 rounded-full border-[1px] shadow border-[#E4E4E4] hover:text-[#FFF] hover:bg-[#0081FB] hover:border-[#FFF] transition-all"
                           >
-                            <FiEdit className="w-4 h-4" />
+                            <FiEdit2 />
                           </Button>
                           <Button
                             onClick={() => handleDeleteBanking(banking.id)}
                             variant="outline"
-                            size="sm"
+                            className="flex items-center justify-center p-2 rounded-full border-[1px] shadow border-[#E4E4E4] hover:text-[#FFF] hover:bg-[#0081FB] hover:border-[#FFF] transition-all"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -911,18 +878,18 @@ export default function UserAccount() {
             </div>
 
             {/* Social Media Section */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-[#3C4043] flex items-center">
-                  <Globe className="w-5 h-5 mr-2 text-blue-600" />
                   Social Media Accounts
                 </h2>
                 <Button
                   onClick={() => openSocialModal(undefined, true)}
                   variant="outline"
                   size="sm"
+                  className="flex items-center justify-center p-2 rounded-md border-[1px] border-[#E4E4E4] shadow hover:text-[#FFF] hover:bg-[#0081FB] hover:border-[#FFF] transition-all"
                 >
-                  <Plus className="w-4 h-4 mr-1" />
+                  <Plus className="w-4 h-4" />
                   Add Social Media
                 </Button>
               </div>
@@ -935,9 +902,8 @@ export default function UserAccount() {
                     </p>
                     <Button
                       onClick={() => openSocialModal(undefined, true)}
-                      variant="primary"
                       size="sm"
-                      className="mt-3"
+                      className="mt-3 bg-[#0081FB] hover:bg-blue-600"
                     >
                       Add Your First Social Media Account
                     </Button>
@@ -984,8 +950,9 @@ export default function UserAccount() {
                             onClick={() => openSocialModal(social)}
                             variant="outline"
                             size="sm"
+                            className="flex items-center justify-center p-2 rounded-full hover:bg-[#E4E4E4] border-[1px] border-[#E4E4E4] shadow"
                           >
-                            <FiEdit className="w-4 h-4" />
+                            <FiEdit2 />
                           </Button>
                           <Button
                             onClick={() => handleDeleteSocial(social.id)}
@@ -1006,9 +973,8 @@ export default function UserAccount() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Contact Information */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg p-6">
               <h3 className="text-lg font-semibold text-[#3C4043] mb-4 flex items-center">
-                <User className="w-5 h-5 mr-2 text-blue-600" />
                 Contact Information
               </h3>
               <div className="space-y-3 text-sm">
@@ -1043,7 +1009,7 @@ export default function UserAccount() {
             </div>
 
             {/* Location */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg p-6">
               <div>
                 <h3 className="text-lg font-semibold text-[#3C4043] mb-4">
                   Company Location
@@ -1065,7 +1031,7 @@ export default function UserAccount() {
                   </li>
                   <li>
                     <span className="text-gray-500">Country:</span>{" "}
-                    {vendor.country}
+                    <span className="uppercase">{vendor.country}</span>
                   </li>
                   <li>
                     <span className="text-gray-500">Postal Code:</span>{" "}
@@ -1084,7 +1050,7 @@ export default function UserAccount() {
             </div>
 
             {/* Contact Person */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg p-6">
               <h3 className="text-lg font-semibold text-[#3C4043] mb-4">
                 Contact Person
               </h3>
@@ -1109,7 +1075,7 @@ export default function UserAccount() {
             </div>
 
             {/* Account Status */}
-            <div className="bg-[#FFF] border-[1px] shadow-none border-[#DADCE0] rounded-lg p-6">
+            <div className="bg-[#FFF] border-[1.25px] shadow border-[#DADCE0] rounded-lg p-6">
               <h3 className="text-lg font-semibold text-[#3C4043] mb-4">
                 Account Status
               </h3>

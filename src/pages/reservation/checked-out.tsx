@@ -1,37 +1,57 @@
 // "use client";
-// import { useState, useMemo, useEffect, useCallback } from "react";
+// import {
+//   useState,
+//   useMemo,
+//   useEffect,
+//   useCallback,
+//   useId,
+//   useRef,
+// } from "react";
 // import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 // import { useNavigate } from "react-router-dom";
 // import Papa from "papaparse";
 // import {
 //   type ColumnDef,
+//   type ColumnFiltersState,
+//   type SortingState,
+//   type PaginationState,
 //   flexRender,
 //   getCoreRowModel,
 //   getSortedRowModel,
 //   useReactTable,
-//   type SortingState,
+//   getFilteredRowModel,
+//   getPaginationRowModel,
 // } from "@tanstack/react-table";
 // import { format } from "date-fns";
 // import { toast } from "sonner";
 // import {
-//   DoorOpen,
 //   Plus,
 //   Eye,
 //   Trash2,
-//   ArrowUpDown,
 //   Loader2,
 //   Search,
 //   CircleXIcon,
 //   RefreshCw,
 //   Loader,
+//   ChevronUpIcon,
+//   ChevronDownIcon,
+//   EllipsisIcon,
+//   FilterIcon,
+//   Columns3Icon,
+//   ChevronFirstIcon,
+//   ChevronLastIcon,
+//   ChevronLeftIcon,
+//   ChevronRightIcon,
+//   Users,
 // } from "lucide-react";
-// import { CiGrid42 } from "react-icons/ci";
 // import { TbFileTypeCsv } from "react-icons/tb";
 
 // import bookingClient from "@/api/booking-client";
 // import { Badge } from "@/components/ui/badge";
 // import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Checkbox } from "@/components/ui/checkbox";
 // import {
 //   Table,
 //   TableBody,
@@ -52,6 +72,9 @@
 //   DropdownMenuCheckboxItem,
 //   DropdownMenuContent,
 //   DropdownMenuLabel,
+//   DropdownMenuGroup,
+//   DropdownMenuItem,
+//   DropdownMenuSeparator,
 //   DropdownMenuTrigger,
 // } from "@/components/ui/dropdown-menu";
 // import {
@@ -65,30 +88,28 @@
 //   AlertDialogTitle,
 //   AlertDialogTrigger,
 // } from "@/components/ui/alert-dialog";
-// import ServerPagination from "@/components/comp-459";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
+// import {
+//   Pagination,
+//   PaginationContent,
+//   PaginationItem,
+// } from "@/components/ui/pagination";
 // import { cn } from "@/lib/utils";
 // import ErrorPage from "@/components/custom/error-page";
 
 // // --- Type Definitions ---
 // interface Booking {
 //   id: string;
-//   payment_status: "Paid" | "Pending" | "Failed";
 //   full_name: string;
 //   code: string;
-//   phone_number: string | number;
-//   email: string;
 //   start_date: string;
 //   end_date: string;
 //   checkout: string | null;
-//   booking_status:
-//     | "Confirmed"
-//     | "Processing"
-//     | "Checked In"
-//     | "Checked Out"
-//     | "Cancelled";
 //   booking_type: "Physical" | "Online";
-//   amount_paid: string;
-//   payment_reference: string;
 // }
 
 // interface PaginatedBookingsResponse {
@@ -96,24 +117,19 @@
 //   results: Booking[];
 // }
 
-// // --- useDebounce Hook ---
 // const useDebounce = <T,>(value: T, delay: number): T => {
 //   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 //   useEffect(() => {
-//     const handler = setTimeout(() => {
-//       setDebouncedValue(value);
-//     }, delay);
+//     const handler = setTimeout(() => setDebouncedValue(value), delay);
 //     return () => clearTimeout(handler);
 //   }, [value, delay]);
 //   return debouncedValue;
 // };
 
-// // --- Helper Functions ---
-// const getBookingTypeBadgeClasses = (type: string): string => {
-//   return type === "Physical"
+// const getBookingTypeBadgeClasses = (type: string): string =>
+//   type === "Physical"
 //     ? "bg-blue-100 text-blue-800 border-blue-200"
 //     : "bg-yellow-100 text-yellow-800 border-yellow-200";
-// };
 
 // // --- Main Component ---
 // export default function CheckedOutGuests() {
@@ -121,14 +137,21 @@
 //   const queryClient = useQueryClient();
 //   const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
 //   const BOOKINGS_PER_PAGE = 10;
+//   const id = useId();
+//   const inputRef = useRef<HTMLInputElement>(null);
 
+//   // --- State (Aligned with AllBookings component) ---
 //   const [sorting, setSorting] = useState<SortingState>([]);
+//   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 //   const [globalFilter, setGlobalFilter] = useState("");
-//   const [currentPage, setCurrentPage] = useState(1);
+//   const [pagination, setPagination] = useState<PaginationState>({
+//     pageIndex: 0,
+//     pageSize: BOOKINGS_PER_PAGE,
+//   });
 //   const debouncedGlobalFilter = useDebounce(globalFilter, 300);
 //   const [isExporting, setIsExporting] = useState(false);
 
-//   // --- Query for fetching guests ---
+//   // --- Data Query (Refactored for Server-Side Filtering) ---
 //   const {
 //     data: paginatedResponse,
 //     isLoading: isTableLoading,
@@ -138,17 +161,18 @@
 //     isRefetching,
 //   } = useQuery<PaginatedBookingsResponse>({
 //     queryKey: [
-//       "allGuestsForCheckoutFilter",
-//       HOTEL_ID,
-//       currentPage,
+//       "checkedOutGuests",
+//       pagination,
 //       debouncedGlobalFilter,
 //       sorting,
+//       columnFilters,
 //     ],
 //     queryFn: async () => {
 //       const params = new URLSearchParams({
 //         microservice_item_id: HOTEL_ID!,
-//         page: String(currentPage),
-//         page_size: String(BOOKINGS_PER_PAGE),
+//         limit: String(pagination.pageSize),
+//         offset: String(pagination.pageIndex * pagination.pageSize),
+//         booking_status: "Checked Out", // EFFICIENT: Filtering is now done on the server
 //       });
 //       if (debouncedGlobalFilter) params.append("search", debouncedGlobalFilter);
 //       if (sorting.length > 0) {
@@ -157,6 +181,13 @@
 //           `${sorting[0].desc ? "-" : ""}${sorting[0].id}`
 //         );
 //       }
+//       columnFilters.forEach((filter) => {
+//         if (Array.isArray(filter.value)) {
+//           filter.value.forEach((value) =>
+//             params.append(filter.id, value as string)
+//           );
+//         }
+//       });
 //       const response = await bookingClient.get(`/bookings`, { params });
 //       return response.data;
 //     },
@@ -164,310 +195,335 @@
 //     enabled: !!HOTEL_ID,
 //   });
 
-//   // --- Client-side filtering logic ---
-//   const checkedOutGuests = useMemo(() => {
-//     const allBookings = paginatedResponse?.results ?? [];
-//     return allBookings.filter(
-//       (booking) =>
-//         booking.booking_status === "Checked Out" || booking.checkout !== null
-//     );
-//   }, [paginatedResponse]);
-
-//   const totalCheckedOutCountOnPage = checkedOutGuests.length;
-//   const totalPages = Math.ceil(
-//     (paginatedResponse?.count ?? 0) / BOOKINGS_PER_PAGE
-//   );
-
 //   const deleteBookingMutation = useMutation({
 //     mutationFn: (bookingId: string) =>
 //       bookingClient.delete(`/bookings/${bookingId}`),
 //     onSuccess: () => {
 //       toast.success("Booking deleted successfully!");
-//       queryClient.invalidateQueries({
-//         queryKey: ["allGuestsForCheckoutFilter"],
-//       });
+//       queryClient.invalidateQueries({ queryKey: ["checkedOutGuests"] });
 //     },
-//     onError: (error: any) => {
+//     onError: (error: any) =>
 //       toast.error(
 //         `Failed to delete booking: ${
 //           error.response?.data?.detail || error.message
 //         }`
-//       );
-//     },
+//       ),
 //   });
 
-//   // --- NEW: CSV Export Logic ---
-//   const handleExportCSV = useCallback(async () => {
+//   const guests = paginatedResponse?.results ?? [];
+//   const totalCount = paginatedResponse?.count ?? 0;
+//   const totalPages = Math.ceil(totalCount / pagination.pageSize);
+
+//   const handleExport = useCallback(async () => {
 //     setIsExporting(true);
 //     toast.info("Preparing CSV export...");
 //     try {
-//       const response = await bookingClient.get(`/bookings`, {
+//       const { data } = await bookingClient.get(`/bookings`, {
 //         params: {
 //           microservice_item_id: HOTEL_ID!,
-//           page_size: paginatedResponse?.count || BOOKINGS_PER_PAGE,
+//           booking_status: "Checked Out",
+//           limit: totalCount || BOOKINGS_PER_PAGE,
 //         },
 //       });
-
-//       const allGuests: Booking[] = response.data.results.filter(
-//         (booking: Booking) =>
-//           booking.booking_status === "Checked Out" || booking.checkout !== null
-//       );
-
-//       if (!allGuests || allGuests.length === 0) {
-//         toast.warning("No checked-out guests to export.");
+//       if (!data.results || data.results.length === 0) {
+//         toast.warning("No guests to export.");
 //         return;
 //       }
-
-//       const dataForCsv = allGuests.map((booking) => ({
-//         "Booking Code": booking.code,
-//         "Guest Name": booking.full_name,
-//         "Check-in Date": format(new Date(booking.start_date), "yyyy-MM-dd"),
-//         "Check-out Date": format(new Date(booking.end_date), "yyyy-MM-dd"),
-//         "Booking Type": booking.booking_type,
-//         "Payment Status": booking.payment_status,
-//       }));
-
-//       const csv = Papa.unparse(dataForCsv);
+//       const csv = Papa.unparse(
+//         data.results.map((b) => ({
+//           "Booking Code": b.code,
+//           "Guest Name": b.full_name,
+//           "Check-in Date": format(new Date(b.start_date), "PP"),
+//           "Check-out Date": format(new Date(b.end_date), "PP"),
+//         }))
+//       );
 //       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
 //       const link = document.createElement("a");
-//       const url = URL.createObjectURL(blob);
-//       link.setAttribute("href", url);
-//       link.setAttribute(
-//         "download",
-//         `checked-out-guests-${format(new Date(), "yyyy-MM-dd")}.csv`
-//       );
-//       document.body.appendChild(link);
+//       link.href = URL.createObjectURL(blob);
+//       link.download = `checked-out-guests-${format(
+//         new Date(),
+//         "yyyy-MM-dd"
+//       )}.csv`;
 //       link.click();
-//       document.body.removeChild(link);
+//       URL.revokeObjectURL(link.href);
 //       toast.success("Export successful!");
 //     } catch (err) {
 //       toast.error("Failed to export data.");
 //     } finally {
 //       setIsExporting(false);
 //     }
-//   }, [HOTEL_ID, paginatedResponse?.count]);
+//   }, [HOTEL_ID, totalCount]);
 
-//   // --- CHANGE: Updated Columns with Left-Alignment ---
 //   const columns = useMemo<ColumnDef<Booking>[]>(
 //     () => [
 //       {
-//         accessorKey: "full_name",
-//         header: ({ column }) => (
-//           <Button
-//             variant="ghost"
-//             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-//           >
-//             Guest <ArrowUpDown className="ml-2 h-4 w-4" />
-//           </Button>
+//         id: "select",
+//         header: ({ table }) => (
+//           <Checkbox
+//             checked={
+//               table.getIsAllPageRowsSelected() ||
+//               (table.getIsSomePageRowsSelected() && "indeterminate")
+//             }
+//             onCheckedChange={(value) =>
+//               table.toggleAllPageRowsSelected(!!value)
+//             }
+//             aria-label="Select all"
+//             className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
+//           />
 //         ),
 //         cell: ({ row }) => (
-//           <div className="text-left font-medium">{row.original.full_name}</div>
+//           <Checkbox
+//             checked={row.getIsSelected()}
+//             onCheckedChange={(value) => row.toggleSelected(!!value)}
+//             aria-label="Select row"
+//             className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
+//           />
 //         ),
+//         enableSorting: false,
+//         enableHiding: false,
+//         size: 28,
+//       },
+//       {
+//         accessorKey: "full_name",
+//         header: ({ column }) => (
+//           <div
+//             className="flex h-full cursor-pointer items-center justify-between gap-2 select-none"
+//             onClick={column.getToggleSortingHandler()}
+//           >
+//             Guest{" "}
+//             {{
+//               asc: <ChevronUpIcon size={16} />,
+//               desc: <ChevronDownIcon size={16} />,
+//             }[column.getIsSorted() as string] ?? null}
+//           </div>
+//         ),
+//         cell: ({ row }) => (
+//           <div className="font-medium">{row.original.full_name}</div>
+//         ),
+//         size: 180,
 //       },
 //       {
 //         accessorKey: "start_date",
 //         header: "Check-in Date",
 //         cell: ({ row }) => (
-//           <div className="text-left">
-//             {format(new Date(row.original.start_date), "PP")}
-//           </div>
+//           <div>{format(new Date(row.original.start_date), "PP")}</div>
 //         ),
+//         size: 150,
 //       },
 //       {
 //         accessorKey: "end_date",
 //         header: "Check-out Date",
 //         cell: ({ row }) => (
-//           <div className="text-left">
-//             {format(new Date(row.original.end_date), "PP")}
-//           </div>
+//           <div>{format(new Date(row.original.end_date), "PP")}</div>
 //         ),
+//         size: 150,
 //       },
 //       {
 //         accessorKey: "booking_type",
 //         header: "Booking Type",
 //         cell: ({ row }) => (
-//           <div className="flex justify-start">
-//             <Badge
-//               className={cn(
-//                 getBookingTypeBadgeClasses(row.original.booking_type)
-//               )}
-//             >
-//               {row.original.booking_type}
-//             </Badge>
-//           </div>
+//           <Badge
+//             className={cn(
+//               getBookingTypeBadgeClasses(row.original.booking_type)
+//             )}
+//           >
+//             {row.original.booking_type}
+//           </Badge>
 //         ),
+//         size: 120,
+//         enableColumnFilter: true,
 //       },
 //       {
 //         id: "actions",
-//         header: () => <div className="text-right">Actions</div>,
 //         cell: ({ row }) => (
-//           <div className="flex items-center justify-end gap-2">
-//             <Button
-//               variant="ghost"
-//               size="icon"
-//               onClick={() => navigate(`/bookings/${row.original.id}`)}
-//               title="View Booking Details"
-//             >
-//               <Eye className="h-4 w-4" />
-//             </Button>
-//             <AlertDialog>
-//               <AlertDialogTrigger asChild>
-//                 <Button variant="ghost" size="icon" title="Delete Booking">
-//                   <Trash2 className="h-4 w-4 text-destructive" />
-//                 </Button>
-//               </AlertDialogTrigger>
-//               <AlertDialogContent>
-//                 <AlertDialogHeader>
-//                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-//                   <AlertDialogDescription>
-//                     This will permanently delete the booking for{" "}
-//                     <span className="font-semibold">
-//                       {row.original.full_name}
-//                     </span>{" "}
-//                     ({row.original.code}). This action cannot be undone.
-//                   </AlertDialogDescription>
-//                 </AlertDialogHeader>
-//                 <AlertDialogFooter>
-//                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-//                   <AlertDialogAction
-//                     onClick={() =>
-//                       deleteBookingMutation.mutate(row.original.id)
-//                     }
-//                     className="bg-destructive text-white hover:bg-destructive/90"
-//                     disabled={deleteBookingMutation.isPending}
-//                   >
-//                     {deleteBookingMutation.isPending && (
-//                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-//                     )}
-//                     Yes, delete
-//                   </AlertDialogAction>
-//                 </AlertDialogFooter>
-//               </AlertDialogContent>
-//             </AlertDialog>
-//           </div>
+//           <RowActions row={row} deleteBookingMutation={deleteBookingMutation} />
 //         ),
+//         size: 60,
+//         enableHiding: false,
 //       },
 //     ],
-//     [navigate, deleteBookingMutation]
+//     [deleteBookingMutation]
 //   );
 
 //   const table = useReactTable({
-//     data: checkedOutGuests,
+//     data: guests,
 //     columns,
+//     state: { sorting, columnFilters, pagination },
 //     getCoreRowModel: getCoreRowModel(),
 //     getSortedRowModel: getSortedRowModel(),
+//     getFilteredRowModel: getFilteredRowModel(),
+//     getPaginationRowModel: getPaginationRowModel(),
+//     onSortingChange: setSorting,
+//     onColumnFiltersChange: setColumnFilters,
+//     onPaginationChange: setPagination,
 //     manualPagination: true,
 //     manualSorting: true,
 //     manualFiltering: true,
-//     state: { sorting },
-//     onSortingChange: setSorting,
 //     pageCount: totalPages,
 //   });
+
+//   const handleDeleteRows = () => {
+//     table
+//       .getSelectedRowModel()
+//       .rows.forEach((row) => deleteBookingMutation.mutate(row.original.id));
+//     table.resetRowSelection();
+//   };
 
 //   if (isError) return <ErrorPage error={error as Error} onRetry={refetch} />;
 
 //   return (
-//     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+//     <div className="flex-1 space-y-4 p-4 md:p-8 pt-4">
 //       <div className="flex items-center justify-between space-y-2">
 //         <h2 className="text-3xl font-bold tracking-tight">
 //           Checked-Out Guests
 //         </h2>
 //         <div className="flex items-center space-x-2">
 //           <Button
+//             className="gap-1 bg-[#0EB981] text-[#FFF] border-none hover:bg-[#04966A] hover:text-[#FFF] cursor-pointer shadow"
 //             variant="outline"
-//             onClick={handleExportCSV}
+//             onClick={handleExport}
 //             disabled={isExporting}
 //           >
 //             {isExporting ? (
-//               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+//               <Loader2 className="mr-1 h-4 w-4 animate-spin" />
 //             ) : (
 //               <TbFileTypeCsv className="mr-2 h-4 w-4" />
 //             )}
 //             {isExporting ? "Exporting..." : "Export"}
 //           </Button>
 //           <Button
+//             className="bg-[#0081FB] hover:bg-blue-700 cursor-pointer"
 //             onClick={() => navigate("/bookings/new-booking")}
-//             className="bg-blue-600 hover:bg-blue-700"
 //           >
-//             <Plus className="mr-2 h-4 w-4" /> New Booking
+//             <Plus className="mr-1 h-4 w-4" /> New Booking
 //           </Button>
 //         </div>
 //       </div>
-
-//       <div className="grid gap-4 px-4 md:grid-cols-2 lg:grid-cols-3">
+//       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 px-4">
 //         <Card>
 //           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 //             <CardTitle className="text-sm font-medium">
 //               Total Checked Out
 //             </CardTitle>
-//             <DoorOpen className="h-4 w-4 text-muted-foreground" />
+//             <Users className="h-4 w-4 text-muted-foreground" />
 //           </CardHeader>
 //           <CardContent>
 //             <div className="text-2xl font-bold">
-//               {isTableLoading && !paginatedResponse ? (
+//               {isTableLoading ? (
 //                 <Loader2 className="h-6 w-6 animate-spin" />
 //               ) : (
-//                 totalCheckedOutCountOnPage
+//                 totalCount
 //               )}
 //             </div>
 //             <p className="text-xs text-muted-foreground">
-//               Guests who have completed their stay (on this page)
+//               Guests who have completed their stay
 //             </p>
 //           </CardContent>
 //         </Card>
 //       </div>
-
-//       <Card className="p-0 border-none bg-none shadow-none">
+//       <Card className="p-0 mt-6 border-none bg-none shadow-none">
 //         <CardHeader>
-//           <CardTitle>Checked-Out Guests List</CardTitle>
+//           <CardTitle>Guests List</CardTitle>
 //           <CardDescription>
-//             A list of all guests who have completed their stay.
+//             A historical list of all guests who have completed their stay.
 //           </CardDescription>
 //         </CardHeader>
 //         <CardContent>
-//           <div className="flex items-center justify-between py-4">
-//             <div className="relative">
-//               <Input
-//                 className="peer min-w-60 ps-9"
-//                 value={globalFilter}
-//                 onChange={(e) => {
-//                   setGlobalFilter(e.target.value);
-//                   setCurrentPage(1);
-//                 }}
-//                 placeholder="Search by guest, code, email..."
-//               />
-//               <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3">
-//                 <Search size={16} />
+//           <div className="flex flex-wrap items-center justify-between gap-3">
+//             <div className="flex items-center gap-3">
+//               <div className="relative">
+//                 <Input
+//                   ref={inputRef}
+//                   className="peer min-w-60 ps-9"
+//                   value={globalFilter}
+//                   onChange={(e) => setGlobalFilter(e.target.value)}
+//                   placeholder="Search by guest, code, email..."
+//                 />
+//                 <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3">
+//                   <Search size={16} />
+//                 </div>
+//                 {globalFilter && (
+//                   <button
+//                     className="text-muted-foreground/80 hover:text-foreground absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center"
+//                     onClick={() => {
+//                       setGlobalFilter("");
+//                       inputRef.current?.focus();
+//                     }}
+//                   >
+//                     <CircleXIcon size={16} />
+//                   </button>
+//                 )}
 //               </div>
-//               {globalFilter && (
-//                 <button
-//                   className="text-muted-foreground/80 hover:text-foreground absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center"
-//                   onClick={() => {
-//                     setGlobalFilter("");
-//                     setCurrentPage(1);
-//                   }}
-//                 >
-//                   <CircleXIcon size={16} />
-//                 </button>
-//               )}
-//             </div>
-//             <div className="flex items-center gap-2">
-//               <Button
-//                 variant="outline"
-//                 onClick={() => refetch()}
-//                 disabled={isRefetching || isTableLoading}
-//               >
-//                 {isRefetching ? (
-//                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-//                 ) : (
-//                   <RefreshCw className="mr-2 h-4 w-4" />
-//                 )}{" "}
-//                 Refresh
-//               </Button>
+//               <Popover>
+//                 <PopoverTrigger asChild>
+//                   <Button variant="outline">
+//                     <FilterIcon className="-ms-1 opacity-60" size={16} />
+//                     Booking Type
+//                     {(
+//                       table
+//                         .getColumn("booking_type")
+//                         ?.getFilterValue() as string[]
+//                     )?.length > 0 && (
+//                       <span className="bg-background text-muted-foreground/70 -me-1 ml-2 inline-flex h-5 items-center rounded border px-1 text-[0.625rem] font-medium">
+//                         {
+//                           (
+//                             table
+//                               .getColumn("booking_type")
+//                               ?.getFilterValue() as string[]
+//                           )?.length
+//                         }
+//                       </span>
+//                     )}
+//                   </Button>
+//                 </PopoverTrigger>
+//                 <PopoverContent className="w-auto min-w-36 p-3" align="start">
+//                   <div className="space-y-3">
+//                     <div className="text-muted-foreground text-xs font-medium">
+//                       Filter by Type
+//                     </div>
+//                     <div className="space-y-3">
+//                       {["Physical", "Online"].map((value, i) => (
+//                         <div key={value} className="flex items-center gap-2">
+//                           <Checkbox
+//                             id={`${id}-type-${i}`}
+//                             checked={(
+//                               (table
+//                                 .getColumn("booking_type")
+//                                 ?.getFilterValue() as string[]) ?? []
+//                             ).includes(value)}
+//                             onCheckedChange={(checked: boolean) => {
+//                               const old =
+//                                 (table
+//                                   .getColumn("booking_type")
+//                                   ?.getFilterValue() as string[]) ?? [];
+//                               const newFilter = checked
+//                                 ? [...old, value]
+//                                 : old.filter((v) => v !== value);
+//                               table
+//                                 .getColumn("booking_type")
+//                                 ?.setFilterValue(
+//                                   newFilter.length ? newFilter : undefined
+//                                 );
+//                             }}
+//                             className="border-[#DADCE0] border-[1.5px] data-[state=checked]:bg-[#0081FB] data-[state=checked]:text-[#FFF]"
+//                           />
+//                           <Label
+//                             htmlFor={`${id}-type-${i}`}
+//                             className="font-normal"
+//                           >
+//                             {value}
+//                           </Label>
+//                         </div>
+//                       ))}
+//                     </div>
+//                   </div>
+//                 </PopoverContent>
+//               </Popover>
 //               <DropdownMenu>
 //                 <DropdownMenuTrigger asChild>
 //                   <Button variant="outline">
-//                     <CiGrid42 className="mr-2" /> View
+//                     <Columns3Icon className="-ms-1 opacity-60" size={16} />
+//                     View
 //                   </Button>
 //                 </DropdownMenuTrigger>
 //                 <DropdownMenuContent align="end">
@@ -483,26 +539,72 @@
 //                         onCheckedChange={(v) => c.toggleVisibility(!!v)}
 //                         onSelect={(e) => e.preventDefault()}
 //                       >
-//                         {c.id}
+//                         {c.id.replace(/_/g, " ")}
 //                       </DropdownMenuCheckboxItem>
 //                     ))}
 //                 </DropdownMenuContent>
 //               </DropdownMenu>
 //             </div>
+//             <div className="flex items-center gap-3">
+//               {table.getSelectedRowModel().rows.length > 0 && (
+//                 <AlertDialog>
+//                   <AlertDialogTrigger asChild>
+//                     <Button variant="outline">
+//                       <Trash2 className="-ms-1 opacity-60" size={16} />
+//                       Delete
+//                       <span className="bg-[#f54943] text-white -me-1 inline-flex h-5 max-h-full items-center rounded border-none px-1 font-[inherit] text-[0.625rem] font-medium">
+//                         {table.getSelectedRowModel().rows.length}
+//                       </span>
+//                     </Button>
+//                   </AlertDialogTrigger>
+//                   <AlertDialogContent>
+//                     <AlertDialogHeader>
+//                       <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+//                       <AlertDialogDescription>
+//                         This will permanently delete{" "}
+//                         {table.getSelectedRowModel().rows.length} selected
+//                         booking(s). This action cannot be undone.
+//                       </AlertDialogDescription>
+//                     </AlertDialogHeader>
+//                     <AlertDialogFooter>
+//                       <AlertDialogCancel>Cancel</AlertDialogCancel>
+//                       <AlertDialogAction onClick={handleDeleteRows}>
+//                         Delete
+//                       </AlertDialogAction>
+//                     </AlertDialogFooter>
+//                   </AlertDialogContent>
+//                 </AlertDialog>
+//               )}
+//               <Button
+//                 className="cursor-pointer"
+//                 variant="outline"
+//                 onClick={() => refetch()}
+//                 disabled={isRefetching || isTableLoading}
+//               >
+//                 <RefreshCw
+//                   className={cn("mr-1 h-4 w-4", isRefetching && "animate-spin")}
+//                 />
+//                 Refresh
+//               </Button>
+//             </div>
 //           </div>
-//           <div className="rounded-md border">
+//           <div className="bg-background overflow-hidden rounded-md border mt-4">
 //             <Table>
 //               <TableHeader>
 //                 {table.getHeaderGroups().map((hg) => (
-//                   <TableRow key={hg.id}>
+//                   <TableRow key={hg.id} className="hover:bg-transparent">
 //                     {hg.headers.map((h) => (
-//                       <TableHead key={h.id} className="text-left">
-//                         {h.isPlaceholder
-//                           ? null
-//                           : flexRender(
-//                               h.column.columnDef.header,
-//                               h.getContext()
-//                             )}
+//                       <TableHead
+//                         key={h.id}
+//                         style={{
+//                           width:
+//                             h.getSize() !== 150
+//                               ? `${h.getSize()}px`
+//                               : undefined,
+//                         }}
+//                         className="h-11"
+//                       >
+//                         {flexRender(h.column.columnDef.header, h.getContext())}
 //                       </TableHead>
 //                     ))}
 //                   </TableRow>
@@ -515,9 +617,7 @@
 //                       colSpan={columns.length}
 //                       className="h-24 text-center"
 //                     >
-//                       <div className="w-full flex items-center justify-center">
-//                         <Loader />
-//                       </div>
+//                       <Loader className="animate-spin" />
 //                     </TableCell>
 //                   </TableRow>
 //                 ) : table.getRowModel().rows?.length ? (
@@ -527,7 +627,7 @@
 //                       data-state={row.getIsSelected() && "selected"}
 //                     >
 //                       {row.getVisibleCells().map((cell) => (
-//                         <TableCell key={cell.id}>
+//                         <TableCell key={cell.id} className="p-2.5 last:py-0">
 //                           {flexRender(
 //                             cell.column.columnDef.cell,
 //                             cell.getContext()
@@ -549,17 +649,122 @@
 //               </TableBody>
 //             </Table>
 //           </div>
-//           <div className="flex justify-end items-center mt-4">
-//             {totalPages > 1 && (
-//               <ServerPagination
-//                 currentPage={currentPage}
-//                 totalPages={totalPages}
-//                 onPageChange={(page) => setCurrentPage(page)}
-//               />
-//             )}
+//           <div className="flex items-center justify-between gap-8 mt-4 w-full">
+//             <div className="w-full text-muted-foreground flex grow justify-start text-sm">
+//               {" "}
+//               <p>
+//                 Page{" "}
+//                 <span className="font-medium text-foreground">
+//                   {table.getState().pagination.pageIndex + 1} of{" "}
+//                   {table.getPageCount()}
+//                 </span>
+//               </p>
+//             </div>
+//             <Pagination className="w-full justify-end">
+//               <PaginationContent>
+//                 <PaginationItem>
+//                   <Button
+//                     size="icon"
+//                     variant="outline"
+//                     onClick={() => table.firstPage()}
+//                     disabled={!table.getCanPreviousPage()}
+//                   >
+//                     <ChevronFirstIcon size={16} />
+//                   </Button>
+//                 </PaginationItem>
+//                 <PaginationItem>
+//                   <Button
+//                     size="icon"
+//                     variant="outline"
+//                     onClick={() => table.previousPage()}
+//                     disabled={!table.getCanPreviousPage()}
+//                   >
+//                     <ChevronLeftIcon size={16} />
+//                   </Button>
+//                 </PaginationItem>
+//                 <PaginationItem>
+//                   <Button
+//                     size="icon"
+//                     variant="outline"
+//                     onClick={() => table.nextPage()}
+//                     disabled={!table.getCanNextPage()}
+//                   >
+//                     <ChevronRightIcon size={16} />
+//                   </Button>
+//                 </PaginationItem>
+//                 <PaginationItem>
+//                   <Button
+//                     size="icon"
+//                     variant="outline"
+//                     onClick={() => table.lastPage()}
+//                     disabled={!table.getCanNextPage()}
+//                   >
+//                     <ChevronLastIcon size={16} />
+//                   </Button>
+//                 </PaginationItem>
+//               </PaginationContent>
+//             </Pagination>
 //           </div>
 //         </CardContent>
 //       </Card>
+//     </div>
+//   );
+// }
+
+// function RowActions({
+//   row,
+//   deleteBookingMutation,
+// }: {
+//   row: any;
+//   deleteBookingMutation: any;
+// }) {
+//   const navigate = useNavigate();
+//   const booking = row.original;
+//   return (
+//     <div className="flex justify-end">
+//       <DropdownMenu>
+//         <DropdownMenuTrigger asChild>
+//           <Button size="icon" variant="ghost" className="shadow-none">
+//             <EllipsisIcon size={16} />
+//           </Button>
+//         </DropdownMenuTrigger>
+//         <DropdownMenuContent align="end">
+//           <DropdownMenuGroup>
+//             <DropdownMenuItem
+//               onClick={() => navigate(`/bookings/${booking.id}`)}
+//             >
+//               <Eye className="mr-2 h-4 w-4" />
+//               View Details
+//             </DropdownMenuItem>
+//           </DropdownMenuGroup>
+//           <DropdownMenuSeparator />
+//           <AlertDialog>
+//             <AlertDialogTrigger asChild>
+//               <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive">
+//                 <Trash2 className="mr-2 h-4 w-4" />
+//                 <span>Delete</span>
+//               </div>
+//             </AlertDialogTrigger>
+//             <AlertDialogContent>
+//               <AlertDialogHeader>
+//                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+//                 <AlertDialogDescription>
+//                   This will permanently delete the booking for{" "}
+//                   <span className="font-semibold">{booking.full_name}</span>.
+//                 </AlertDialogDescription>
+//               </AlertDialogHeader>
+//               <AlertDialogFooter>
+//                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+//                 <AlertDialogAction
+//                   onClick={() => deleteBookingMutation.mutate(booking.id)}
+//                 >
+//                   Delete
+//                 </AlertDialogAction>
+//               </AlertDialogFooter>
+//             </AlertDialogContent>
+//           </AlertDialog>
+//         </DropdownMenuContent>
+//       </DropdownMenu>
 //     </div>
 //   );
 // }
@@ -666,6 +871,7 @@ import {
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import ErrorPage from "@/components/custom/error-page";
+import { useAuthStore } from "@/store/auth.store"; // ✨ Step 2: Import the Auth Store
 
 // --- Type Definitions ---
 interface Booking {
@@ -701,7 +907,7 @@ const getBookingTypeBadgeClasses = (type: string): string =>
 export default function CheckedOutGuests() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const HOTEL_ID = import.meta.env.VITE_HOTEL_ID;
+  const { hotelId } = useAuthStore(); // ✨ Step 3: Access the Dynamic ID
   const BOOKINGS_PER_PAGE = 10;
   const id = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -727,7 +933,9 @@ export default function CheckedOutGuests() {
     isRefetching,
   } = useQuery<PaginatedBookingsResponse>({
     queryKey: [
+      // ✨ Step 6: Update queryKey
       "checkedOutGuests",
+      hotelId,
       pagination,
       debouncedGlobalFilter,
       sorting,
@@ -735,7 +943,7 @@ export default function CheckedOutGuests() {
     ],
     queryFn: async () => {
       const params = new URLSearchParams({
-        microservice_item_id: HOTEL_ID!,
+        microservice_item_id: hotelId!, // ✨ Step 5 (Case B): Use correct key
         limit: String(pagination.pageSize),
         offset: String(pagination.pageIndex * pagination.pageSize),
         booking_status: "Checked Out", // EFFICIENT: Filtering is now done on the server
@@ -758,7 +966,7 @@ export default function CheckedOutGuests() {
       return response.data;
     },
     keepPreviousData: true,
-    enabled: !!HOTEL_ID,
+    enabled: !!hotelId, // ✨ Step 6: Update enabled check
   });
 
   const deleteBookingMutation = useMutation({
@@ -786,7 +994,7 @@ export default function CheckedOutGuests() {
     try {
       const { data } = await bookingClient.get(`/bookings`, {
         params: {
-          microservice_item_id: HOTEL_ID!,
+          microservice_item_id: hotelId!, // ✨ Step 5 (Case B): Use correct key
           booking_status: "Checked Out",
           limit: totalCount || BOOKINGS_PER_PAGE,
         },
@@ -818,7 +1026,7 @@ export default function CheckedOutGuests() {
     } finally {
       setIsExporting(false);
     }
-  }, [HOTEL_ID, totalCount]);
+  }, [hotelId, totalCount]); // ✨ Step 6: Update dependencies
 
   const columns = useMemo<ColumnDef<Booking>[]>(
     () => [

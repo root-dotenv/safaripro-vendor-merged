@@ -38,8 +38,10 @@
 // } from "@/components/ui/select";
 // import { useQuery } from "@tanstack/react-query";
 // import axios from "axios";
+// import PhoneInput from "react-phone-number-input";
+// import "react-phone-number-input/style.css";
 
-// // --- LOCATION API TYPES ---
+// // - - - LOCATION API TYPES
 // interface Region {
 //   regionCode: number;
 //   regionName: string;
@@ -82,7 +84,7 @@
 //         type="button"
 //         variant="outline"
 //         size="icon"
-//         className="h-10 w-10"
+//         className="h-10 w-10 focus:border-[#0081FB] focus:ring-[#0081FB]"
 //         onClick={handleDecrement}
 //         disabled={value <= min}
 //       >
@@ -93,13 +95,13 @@
 //         type="text"
 //         readOnly
 //         value={value}
-//         className="w-12 text-center font-bold border-gray-300"
+//         className="w-12 text-center font-bold border-gray-300 focus:border-[#0081FB] focus:ring-[#0081FB]"
 //       />
 //       <Button
 //         type="button"
 //         variant="outline"
 //         size="icon"
-//         className="h-10 w-10"
+//         className="h-10 w-10 focus:border-[#0081FB] focus:ring-[#0081FB]"
 //         onClick={handleIncrement}
 //         disabled={value >= max}
 //       >
@@ -149,11 +151,11 @@
 //     guestDetails.service_notes || ""
 //   );
 
-//   // --- NEW: State for location fields ---
-//   const [country, setCountry] = useState("Tanzania");
+//   // --- State for location fields ---
+//   const [countrySelection, setCountrySelection] = useState("Tanzania");
+//   const [manualCountry, setManualCountry] = useState("");
 //   const [city, setCity] = useState("");
 
-//   // --- NEW: Fetch regions for Tanzania ---
 //   const { data: regionsData, isLoading: regionsLoading } = useQuery({
 //     queryKey: ["tanzaniaRegions"],
 //     queryFn: async (): Promise<LocationResponse<Region>> => {
@@ -162,7 +164,7 @@
 //       );
 //       return response.data;
 //     },
-//     enabled: country === "Tanzania", // Only fetch if the country is Tanzania
+//     enabled: countrySelection === "Tanzania",
 //   });
 
 //   const handleGuestDetailsChange = (
@@ -172,7 +174,6 @@
 //     setGuestDetails((prev) => ({ ...prev, [field]: value }));
 //   };
 
-//   // --- UPDATED: Effect to manage service notes ---
 //   useEffect(() => {
 //     const petsMessage = "NOTE: Guest is Traveling with a pet";
 //     let baseNotes = userTypedServiceNotes;
@@ -188,15 +189,16 @@
 //     }
 //   }, [isTravelingWithPets, userTypedServiceNotes]);
 
-//   // --- NEW: Effect to concatenate address ---
 //   useEffect(() => {
-//     if (city && country) {
-//       const fullAddress = `${city}, ${country}`;
+//     const finalCountry =
+//       countrySelection === "Other" ? manualCountry : countrySelection;
+//     if (city && finalCountry) {
+//       const fullAddress = `${city}, ${finalCountry}`;
 //       if (fullAddress !== guestDetails.address) {
 //         handleGuestDetailsChange("address", fullAddress);
 //       }
 //     }
-//   }, [city, country]);
+//   }, [city, countrySelection, manualCountry]);
 
 //   const handleReviewClick = () => {
 //     if (
@@ -400,15 +402,14 @@
 //   // --- GUEST DETAILS INPUT FORM ---
 //   return (
 //     <div className="w-[640px] space-y-4">
-//       {/* --- NEW: Separated Header Card --- */}
-//       <Card className="border-gray-200 shadow-sm rounded-md">
-//         <CardHeader>
+//       <Card className="border-none bg-none shadow-none px-0 mx-0">
+//         <CardHeader className="px-0 mx-0">
 //           <CardTitle className="text-xl font-semibold text-gray-800 flex items-center">
 //             <User className="mr-3 h-6 w-6 text-blue-600" />
 //             Guest Details
 //           </CardTitle>
 //           <CardDescription className="text-[1rem]">
-//             Room Type:{" "}
+//             Selected Room Type:{" "}
 //             <strong className="text-gray-800">
 //               {selectedRoom.room_type_name}
 //             </strong>
@@ -416,7 +417,6 @@
 //         </CardHeader>
 //       </Card>
 
-//       {/* --- Main Form Card --- */}
 //       <Card className="border-gray-200 shadow rounded-md">
 //         <CardContent className="p-6">
 //           <div className="space-y-6">
@@ -432,7 +432,7 @@
 //                     handleGuestDetailsChange("full_name", e.target.value)
 //                   }
 //                   required
-//                   className="mt-2"
+//                   className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]"
 //                   placeholder="e.g. Florence Mushi"
 //                 />
 //               </div>
@@ -443,16 +443,15 @@
 //                 >
 //                   Phone Number *
 //                 </Label>
-//                 <Input
+//                 <PhoneInput
 //                   id="phoneNumber"
-//                   type="tel"
+//                   international
+//                   defaultCountry="TZ"
 //                   value={guestDetails.phone_number}
-//                   onChange={(e) =>
-//                     handleGuestDetailsChange("phone_number", e.target.value)
+//                   onChange={(value) =>
+//                     handleGuestDetailsChange("phone_number", value || "")
 //                   }
-//                   required
-//                   className="mt-2"
-//                   placeholder="e.g. +255 123 456 789"
+//                   className="mt-2 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
 //                 />
 //               </div>
 //               <div className="md:col-span-2">
@@ -467,12 +466,10 @@
 //                     handleGuestDetailsChange("email", e.target.value)
 //                   }
 //                   required
-//                   className="mt-2"
+//                   className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]"
 //                   placeholder="e.g. florence@mail.com"
 //                 />
 //               </div>
-
-//               {/* --- NEW: Location API Fields --- */}
 //               <div className="md:col-span-2 pt-6 border-t">
 //                 <h3 className="font-medium text-gray-800 flex items-center mb-4">
 //                   <MapPin className="mr-2 h-5 w-5 text-blue-600" />
@@ -484,17 +481,18 @@
 //                       htmlFor="country"
 //                       className="font-medium text-gray-700"
 //                     >
-//                       Country
+//                       Country Selection
 //                     </Label>
 //                     <Select
-//                       value={country}
+//                       value={countrySelection}
 //                       onValueChange={(value) => {
-//                         setCountry(value);
-//                         setCity(""); // Reset city when country changes
+//                         setCountrySelection(value);
+//                         setManualCountry("");
+//                         setCity("");
 //                       }}
 //                     >
-//                       <SelectTrigger className="mt-2">
-//                         <SelectValue placeholder="Select a country" />
+//                       <SelectTrigger className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]">
+//                         <SelectValue />
 //                       </SelectTrigger>
 //                       <SelectContent>
 //                         <SelectItem value="Tanzania">Tanzania</SelectItem>
@@ -502,17 +500,36 @@
 //                       </SelectContent>
 //                     </Select>
 //                   </div>
+//                   {countrySelection === "Other" && (
+//                     <div>
+//                       <Label
+//                         htmlFor="manualCountry"
+//                         className="font-medium text-gray-700"
+//                       >
+//                         Country Name
+//                       </Label>
+//                       <Input
+//                         id="manualCountry"
+//                         value={manualCountry}
+//                         onChange={(e) => setManualCountry(e.target.value)}
+//                         placeholder="e.g. United States"
+//                         className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]"
+//                       />
+//                     </div>
+//                   )}
 //                   <div>
 //                     <Label htmlFor="city" className="font-medium text-gray-700">
-//                       City / Region
+//                       {countrySelection === "Tanzania"
+//                         ? "City / Region"
+//                         : "City"}
 //                     </Label>
-//                     {country === "Tanzania" ? (
+//                     {countrySelection === "Tanzania" ? (
 //                       <Select
 //                         value={city}
 //                         onValueChange={setCity}
 //                         disabled={regionsLoading}
 //                       >
-//                         <SelectTrigger className="mt-2">
+//                         <SelectTrigger className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]">
 //                           <SelectValue
 //                             placeholder={
 //                               regionsLoading
@@ -538,7 +555,10 @@
 //                         value={city}
 //                         onChange={(e) => setCity(e.target.value)}
 //                         placeholder="e.g. New York"
-//                         className="mt-2"
+//                         className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]"
+//                         disabled={
+//                           countrySelection === "Other" && !manualCountry
+//                         }
 //                       />
 //                     )}
 //                   </div>
@@ -606,7 +626,7 @@
 //                   rows={3}
 //                   value={userTypedServiceNotes}
 //                   onChange={(e) => setUserTypedServiceNotes(e.target.value)}
-//                   className="mt-2"
+//                   className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]"
 //                   placeholder="e.g. Please prepare the room with extra pillows."
 //                 />
 //               </div>
@@ -643,7 +663,7 @@
 //                   onChange={(e) =>
 //                     handleGuestDetailsChange("special_requests", e.target.value)
 //                   }
-//                   className="mt-2"
+//                   className="mt-2 focus:border-[#0081FB] focus:ring-[#0081FB]"
 //                   placeholder="e.g. Airport pickup, late check-in, etc."
 //                 />
 //               </div>
@@ -656,7 +676,11 @@
 //             </div>
 //           )}
 //           <div className="mt-8 flex justify-between items-center">
-//             <Button onClick={onBack} variant="outline">
+//             <Button
+//               onClick={onBack}
+//               variant="outline"
+//               className="focus:border-[#0081FB] focus:ring-[#0081FB]"
+//             >
 //               Back to Rooms
 //             </Button>
 //             <Button

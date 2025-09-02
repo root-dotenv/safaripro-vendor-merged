@@ -50,9 +50,9 @@ export const SubStep3_Property: React.FC<SubStep3Props> = ({
     <div className="space-y-8">
       <NotesSummary title="Tell us about your property">
         <p>
-          These details about your hotel's structure and room offerings are
-          essential for guests to understand the scale and type of your
-          property.
+          The room types listed here are the ones most searched for by guests.
+          After you complete your registration, you can add more rooms with
+          different types from a larger list in the your safaripro dashboard.
         </p>
       </NotesSummary>
 

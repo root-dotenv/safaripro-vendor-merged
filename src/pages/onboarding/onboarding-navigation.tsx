@@ -36,7 +36,7 @@ export function OnboardingNavigation() {
     : "S";
 
   return (
-    <header className="bg-gradient-to-tr from-[#196BCA] to-[#196BCA] sticky top-0 z-50 h-[76px] flex items-center">
+    <header className="bg-gradient-to-tr from-[#196BCA] to-[#196BCA] sticky top-0 z-50 h-[76px] flex items-center shadow">
       <nav className="container w-[1350px] max-w-[1400px] mx-auto flex items-center justify-between px-4 sm:px-4 lg:px-4">
         <Logo />
         <div className="flex items-center gap-4">
