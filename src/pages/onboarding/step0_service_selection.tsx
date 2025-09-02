@@ -81,7 +81,6 @@ export const Step0_ServiceSelection = () => {
             description={service.description}
             onClick={() => handleSelect(service.type as ServiceType)}
             variant={index % 2 === 0 ? "light" : "dark"}
-            // --- NEW: Pass the showBadge prop to the card ---
             showBadge={service.showBadge}
           />
         ))}

@@ -9,7 +9,7 @@ interface SelectionCardProps {
   description: string;
   onClick: () => void;
   variant?: "light" | "dark";
-  showBadge?: boolean; // --- NEW: Prop to control the badge visibility ---
+  showBadge?: boolean;
 }
 
 export const SelectionCard: React.FC<SelectionCardProps> = ({
@@ -18,7 +18,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
   description,
   onClick,
   variant = "light",
-  showBadge = false, // Default to false
+  showBadge = false,
 }) => {
   return (
     <div
@@ -30,7 +30,6 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
           : "bg-gradient-to-br from-[#fcfdfe] to-[#f8f8fa] border-[#E6E7EB]"
       )}
     >
-      {/* --- NEW: Conditionally render the blinking badge --- */}
       {showBadge && (
         <Badge className="absolute -top-2.5 -right-3 bg-gradient-to-bl from-green-400 to-teal-500 text-[#FFF] font-bold inter py-1 border-2 border-white">
           Start Now
@@ -45,10 +44,6 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
       </h4>
       <p className="mt-1 text-sm text-center text-gray-600">{description}</p>
       <div className="flex-grow" />
-      {/* <div className="flex items-center inter text-[0.9375rem] justify-center text-blue-600 hover:text-blue-700 font-medium transition-all duration-300">
-        <span>Get Started</span>
-        <TbArrowRight className="ml-1 h-4 w-4" />
-      </div> */}
     </div>
   );
 };
