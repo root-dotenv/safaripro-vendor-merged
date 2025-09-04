@@ -13,15 +13,15 @@ export const Step1_Success: React.FC<StepSuccessProps> = ({
   onBack,
 }) => {
   return (
-    <div className="bg-[#FFF] p-6 md:p-10 shadow rounded-md border border-[#DADCE0] flex flex-col items-center text-center">
+    <div className="bg-[#FFF] mt-8 p-6 md:p-10 rounded-none flex flex-col items-center text-center">
       <CheckCircle2
         className="h-20 w-20 text-teal-500 mb-6"
         strokeWidth={1.5}
       />
-      <h1 className="text-3xl font-bold text-gray-900">
+      <h1 className="text-3xl font-bold text-gray-900 inter">
         Success! Your Company Profile is Ready.
       </h1>
-      <p className="mt-3 max-w-lg text-gray-600">
+      <p className="mt-3 max-w-lg text-gray-600 inter medium">
         You've successfully created your vendor profile. The next step is to
         upload the required legal documents for verification. Let's keep the
         momentum going!
@@ -37,7 +37,7 @@ export const Step1_Success: React.FC<StepSuccessProps> = ({
         </Button>
         <Button
           onClick={onNext}
-          className="w-40 text-[1rem] rounded-[6px] font-semibold px-6 py-2.5 bg-[#0081FB] hover:bg-blue-600"
+          className="text-[1rem] rounded-[6px] font-semibold px-4 py-2.5 bg-[#0081FB] hover:bg-blue-600"
         >
           Continue
           <TbChevronsRight className="h-4 w-4" />

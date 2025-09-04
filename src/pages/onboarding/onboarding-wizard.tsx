@@ -17,24 +17,25 @@ import { OnboardingNavigation } from "./onboarding-navigation";
 import { Step0_AccountOption } from "./step0_account_option";
 import { Step0_ServiceSelection } from "./step0_service_selection";
 import { Step1_CompanyInfo } from "./step1_company-info";
-import { Step1_Success } from "./step1_success";
+// --- MODIFICATION: Removed unused import for Step1_Success ---
+// import { Step1_Success } from "./step1_success";
 import { Step2_UploadDocument } from "./step2_upload-document";
 import { Step3_BankingDetails } from "./step3_banking-details";
 import { Step4_Review } from "./step4_review";
 import { Step5_HotelDetails } from "./step5_hotel-details";
 import { Step6_Finish } from "./step6_finish";
+import OnboardingFooter from "./onboarding-footer";
 
-// --- MODIFIED: Added another step and re-numbered subsequent steps ---
+// --- MODIFICATION: Removed 'Confirmation' step and re-numbered IDs ---
 const steps = [
   { id: 1, title: "Account Type" },
   { id: 2, title: "Service" },
   { id: 3, title: "Company Info" },
-  { id: 4, title: "Confirmation" },
-  { id: 5, title: "Documents" },
-  { id: 6, title: "Banking" },
-  { id: 7, title: "Application Review" },
-  { id: 8, title: "Create Hotel" },
-  { id: 9, title: "Finish" },
+  { id: 4, title: "Documents" },
+  { id: 5, title: "Banking" },
+  { id: 6, title: "Application Review" },
+  { id: 7, title: "Create Hotel" },
+  { id: 8, title: "Finish" },
 ];
 
 export default function OnboardingWizard() {
@@ -53,7 +54,8 @@ export default function OnboardingWizard() {
   const [isStepComplete, setIsStepComplete] = useState(false);
   const queryClient = useQueryClient();
 
-  const showFooter = currentStep === 6;
+  // --- MODIFICATION: Updated step number for showing the footer ---
+  const showFooter = currentStep === 5;
 
   useEffect(() => {
     console.log("Prefetching regions for onboarding...");
@@ -89,16 +91,17 @@ export default function OnboardingWizard() {
     }
   };
 
+  // --- MODIFICATION: Updated step number for form submission ---
   const getFormIdForStep = (step: number) => {
     switch (step) {
-      case 6:
+      case 5:
         return "banking-details-form";
       default:
         return undefined;
     }
   };
 
-  // --- MODIFIED: Added the new step and adjusted case numbers ---
+  // --- MODIFICATION: Removed success step and re-numbered subsequent cases ---
   const renderActiveStep = () => {
     switch (currentStep) {
       case 1:
@@ -115,11 +118,7 @@ export default function OnboardingWizard() {
             setStepComplete={setIsStepComplete}
           />
         );
-      case 4:
-        return (
-          <Step1_Success onNext={goToNextStep} onBack={goToPreviousStep} />
-        );
-      case 5:
+      case 4: // Was previously case 5
         return vendorId ? (
           <Step2_UploadDocument
             vendorId={vendorId}
@@ -128,7 +127,7 @@ export default function OnboardingWizard() {
             onBack={goToPreviousStep}
           />
         ) : null;
-      case 6:
+      case 5: // Was previously case 6
         return vendorId ? (
           <Step3_BankingDetails
             vendorId={vendorId}
@@ -136,9 +135,9 @@ export default function OnboardingWizard() {
             setStepComplete={setIsStepComplete}
           />
         ) : null;
-      case 7:
+      case 6: // Was previously case 7
         return <Step4_Review onNext={goToNextStep} onBack={goToPreviousStep} />;
-      case 8:
+      case 7: // Was previously case 8
         return vendorId ? (
           <Step5_HotelDetails
             vendorId={vendorId}
@@ -150,7 +149,7 @@ export default function OnboardingWizard() {
             setStepComplete={setIsStepComplete}
           />
         ) : null;
-      case 9:
+      case 8: // Was previously case 9
         return <Step6_Finish />;
       default:
         return <div>Invalid Step. Please refresh.</div>;
@@ -161,7 +160,6 @@ export default function OnboardingWizard() {
     <div className="min-h-screen bg-[#F9F9FA] flex flex-col antialiased">
       <OnboardingNavigation />
       <div className="container max-w-4xl mx-auto px-4 sm:px-4 lg:px-6 flex-grow flex flex-col py-6">
-        {/* --- MODIFICATION: Conditional rendering logic removed --- */}
         <div className="flex flex-col flex-grow">
           <main className="flex-grow">
             <AnimatePresence mode="wait">
@@ -206,6 +204,7 @@ export default function OnboardingWizard() {
           )}
         </div>
       </div>
+      <OnboardingFooter />
     </div>
   );
 }

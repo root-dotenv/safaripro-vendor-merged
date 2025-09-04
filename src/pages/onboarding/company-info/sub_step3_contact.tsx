@@ -24,8 +24,12 @@ export const SubStep3_Contact: React.FC<CompanyInfoSubStepProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- NEW: Dedicated handler for the PhoneInput component ---
+  // --- MODIFIED: Added a length check to the phone handler ---
   const handlePhoneChange = (value: string | undefined) => {
+    // Prevent state update if the phone number exceeds 12 characters
+    if (value && value.length > 12) {
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
       contact_person_phone: value || "",
@@ -93,7 +97,7 @@ export const SubStep3_Contact: React.FC<CompanyInfoSubStepProps> = ({
           />
         </FormField>
 
-        {/* --- MODIFIED: Replaced standard Input with PhoneInput --- */}
+        {/* --- Replaced standard Input with PhoneInput --- */}
         <FormField
           name="contact_person_phone"
           label="Direct Phone (Optional)"
@@ -106,7 +110,7 @@ export const SubStep3_Contact: React.FC<CompanyInfoSubStepProps> = ({
             value={formData.contact_person_phone}
             onChange={handlePhoneChange}
             placeholder="+255..."
-            className="phone-input rounded-full" // Custom class for styling
+            className="phone-input rounded-full"
           />
         </FormField>
       </div>

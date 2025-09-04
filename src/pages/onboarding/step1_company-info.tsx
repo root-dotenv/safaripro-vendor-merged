@@ -182,10 +182,14 @@ export const Step1_CompanyInfo: React.FC<CompanyInfoFormProps> = ({
       {renderSubStep()}
 
       {errorMessage && (
-        <Alert variant="destructive" className="mt-6">
+        <Alert variant="destructive" className="mt-6 shadow rounded-md">
           <AlertCircleIcon className="h-4 w-4" />
-          <AlertTitle>Submission Error</AlertTitle>
-          <AlertDescription>{errorMessage}</AlertDescription>
+          <AlertTitle className="inter font-medium">
+            Form Submission Error
+          </AlertTitle>
+          <AlertDescription className="capitalize italic">
+            {errorMessage}
+          </AlertDescription>
         </Alert>
       )}
     </div>

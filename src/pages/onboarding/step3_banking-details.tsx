@@ -1,8 +1,16 @@
 // - - - src/pages/onboarding/step3_banking-details.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useMutation } from "@tanstack/react-query";
-import { Landmark, AlertCircleIcon, User, Building, Globe } from "lucide-react";
+// --- MODIFIED: Import useQuery to fetch existing data ---
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  Landmark,
+  AlertCircleIcon,
+  User,
+  Building,
+  Globe,
+  Loader,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -15,12 +23,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import type { BankingDetailsPayload } from "./vendor";
+// --- MODIFIED: Import VendorDetails type ---
+import type { BankingDetailsPayload, VendorDetails } from "./vendor";
 import { FormField } from "./form-field";
 import { NotesSummary } from "./notes-summary";
 import { FaRegPaperPlane } from "react-icons/fa6";
-
-// --- MODIFIED: Import banks from the new centralized file ---
 import { banks } from "@/api/local";
 
 const API_BASE_URL = import.meta.env.VITE_VENDOR_BASE_URL;
@@ -51,7 +58,47 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
   const [bankSelection, setBankSelection] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  // --- NEW: State to store the ID of existing banking details ---
+  const [bankingDetailsId, setBankingDetailsId] = useState<string | null>(null);
 
+  // --- NEW: Fetch vendor data to check for existing banking details ---
+  const {
+    data: vendorData,
+    isLoading,
+    isError: isFetchError,
+  } = useQuery<VendorDetails>({
+    queryKey: ["vendorDetails", vendorId],
+    queryFn: () =>
+      axios.get(`${API_BASE_URL}vendors/${vendorId}`).then((res) => res.data),
+    enabled: !!vendorId,
+  });
+
+  // --- NEW: useEffect to populate form if banking details already exist ---
+  useEffect(() => {
+    if (vendorData?.banking_details) {
+      const details = vendorData.banking_details;
+      setFormData({
+        bank_name: details.bank_name,
+        account_name: details.account_name,
+        account_number: details.account_number || "",
+        swift_code: details.swift_code || "",
+        bank_branch: details.bank_branch || "",
+        routing_number: details.routing_number || "",
+        preferred_currency: details.preferred_currency || "",
+      });
+      setBankingDetailsId(details.id);
+      // If the bank name is one of the standard options, set the dropdown
+      if (banks.includes(details.bank_name)) {
+        setBankSelection(details.bank_name);
+      } else {
+        setBankSelection("Other");
+      }
+      // Auto-confirm since the details are already saved
+      setIsConfirmed(true);
+    }
+  }, [vendorData]);
+
+  // --- MODIFIED: This effect now works for both new and existing data ---
   useEffect(() => {
     const {
       bank_name,
@@ -73,12 +120,23 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
     setStepComplete(isFormValid && isConfirmed);
   }, [formData, isConfirmed, setStepComplete]);
 
+  // --- MODIFIED: Mutation now handles both POST (create) and PATCH (update) ---
   const mutation = useMutation({
-    mutationFn: (newBankingDetails: BankingDetailsPayload) =>
-      axios.post(`${API_BASE_URL}banking-details`, newBankingDetails),
+    mutationFn: (newBankingDetails: BankingDetailsPayload) => {
+      if (bankingDetailsId) {
+        // If we have an ID, update existing details
+        return axios.patch(
+          `${API_BASE_URL}banking-details/${bankingDetailsId}`,
+          newBankingDetails
+        );
+      } else {
+        // Otherwise, create new details
+        return axios.post(`${API_BASE_URL}banking-details`, newBankingDetails);
+      }
+    },
     onSuccess: () => {
       toast.success("Banking Details Saved!", {
-        description: "You can now proceed to create your hotel.",
+        description: "You can now proceed to the next step.",
       });
       onComplete();
     },
@@ -118,6 +176,30 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
 
     mutation.mutate(payload);
   };
+
+  // --- NEW: Loading and Error states for the initial data fetch ---
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-10 h-64">
+        <Loader className="animate-spin text-blue-600" size={32} />
+        <span className="ml-4 text-slate-600">
+          Checking for existing banking details...
+        </span>
+      </div>
+    );
+  }
+
+  if (isFetchError) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircleIcon className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          Could not load your vendor data. Please try again.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="bg-white p-6 md:p-10 rounded-lg border border-gray-200">
@@ -315,18 +397,22 @@ export const Step3_BankingDetails: React.FC<BankingDetailsProps> = ({
                 I confirm that these banking details are correct.
               </Label>
               <p className="text-sm font-medium text-gray-500">
-                NOTE: You can always change thesee details later in your
-                vendor's account dashboard.
+                NOTE: You can always change these details later in your vendor's
+                account dashboard.
               </p>
             </div>
           </div>
         </div>
 
         {errorMessage && (
-          <Alert variant="destructive" className="mt-4">
+          <Alert variant="destructive" className="mt-6 shadow rounded-md">
             <AlertCircleIcon className="h-4 w-4" />
-            <AlertTitle>Submission Error</AlertTitle>
-            <AlertDescription>{errorMessage}</AlertDescription>
+            <AlertTitle className="inter font-medium">
+              Submission Error
+            </AlertTitle>
+            <AlertDescription className="capitalize italic">
+              {errorMessage}
+            </AlertDescription>
           </Alert>
         )}
       </form>

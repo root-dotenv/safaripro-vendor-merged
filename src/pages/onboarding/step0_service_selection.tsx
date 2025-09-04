@@ -2,49 +2,50 @@
 import { useOnboardingStore } from "@/store/onboarding.store";
 import { SelectionCard } from "./selection-card";
 import { Button } from "@/components/ui/button";
-import { TbChevronsLeft } from "react-icons/tb";
+import { TbChevronsLeft, TbCategoryPlus } from "react-icons/tb";
 import { RiHotelLine } from "react-icons/ri";
-import { FaRoute, FaPlane } from "react-icons/fa";
-import { BiSolidCar, BiSolidHelpCircle } from "react-icons/bi";
+import { FaRoute } from "react-icons/fa";
+import { BiSolidCar } from "react-icons/bi";
 import { AiFillCar } from "react-icons/ai";
+import { MdOutlineFlight } from "react-icons/md";
 
 type ServiceType = "Hotel" | "Tour" | "Cab" | "Car" | "Flight" | "Other";
 
 const services = [
   {
     type: "Hotel",
-    icon: <RiHotelLine className="w-9 h-9 text-black" />,
+    icon: <RiHotelLine className="w-9 h-9 text-[#0081FB]" />,
     title: "Hotel Management",
     description: "Manage your hotel, apartment, or lodge.",
     showBadge: true,
   },
   {
     type: "Tour",
-    icon: <FaRoute className="w-9 h-9 text-black" />,
+    icon: <FaRoute className="w-9 h-9 text-[#0081FB]" />,
     title: "Tour & Travel",
     description: "List and manage your tour packages.",
   },
   {
     type: "Cab",
-    icon: <AiFillCar className="w-9 h-9 text-black" />,
+    icon: <AiFillCar className="w-9 h-9 text-[#0081FB]" />,
     title: "Cab Service",
     description: "Streamline your city taxi operations.",
   },
   {
     type: "Car",
-    icon: <BiSolidCar className="w-9 h-9 text-black" />,
+    icon: <BiSolidCar className="w-9 h-9 text-[#0081FB]" />,
     title: "Car Rental",
     description: "Manage your car rental fleet.",
   },
   {
     type: "Flight",
-    icon: <FaPlane className="w-9 h-9 text-black" />,
+    icon: <MdOutlineFlight className="w-9 h-9 text-[#0081FB]" />,
     title: "Flight Booking",
     description: "Integrate your flight booking system.",
   },
   {
     type: "Other",
-    icon: <BiSolidHelpCircle className="w-9 h-9 text-black" />,
+    icon: <TbCategoryPlus className="w-8 h-8 text-[#0081FB]" />,
     title: "Other Property",
     description: "For other types of properties or services.",
   },
@@ -60,7 +61,7 @@ export const Step0_ServiceSelection = () => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col mt-4">
       <header className="mb-10 text-left">
         <h1 className="text-[1.75rem] font-bold inter tracking-tight text-gray-900">
           Connect to the SafariPro in minutes, get bookings from travelers
@@ -86,13 +87,13 @@ export const Step0_ServiceSelection = () => {
         ))}
       </div>
 
-      <footer className="mt-10 pt-6 flex justify-start items-center">
+      <footer className="mt-10 ml-2 pt-6 flex justify-start items-center">
         <Button
           variant="outline"
           onClick={goToPreviousStep}
           className="text-[1rem] rounded-[6px] font-semibold px-4 py-2.5 bg-white border-[#DADCE0]"
         >
-          <TbChevronsLeft className="h-5 w-5" />
+          <TbChevronsLeft className="h-5 w-5" /> Go Back
         </Button>
       </footer>
     </div>

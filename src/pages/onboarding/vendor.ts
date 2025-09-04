@@ -116,6 +116,15 @@ export interface VendorBankingDetails {
   bank_name: string;
   account_name: string;
   is_verified: boolean;
+  vendor: string;
+  account_number?: string;
+  swift_code: string;
+  bank_branch: string;
+  routing_number: string;
+  preferred_currency: string;
+  verification_date: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface VendorDetails {
